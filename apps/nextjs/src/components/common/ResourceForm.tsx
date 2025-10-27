@@ -26,6 +26,7 @@ import {
   SheetFooter,
   SheetClose,
 } from '@/components/ui/sheet';
+import { Skeleton } from '@/components/ui/skeleton';
 import { Loader2 } from 'lucide-react';
 
 interface ResourceFormProps<T extends z.ZodType<any, any>> {
@@ -109,9 +110,12 @@ export function ResourceForm<T extends z.ZodType<any, any>>({
 
                     <div className="py-6 px-4 space-y-4">
                     {isLoadingData ? (
-                        <div className="flex justify-center items-center h-32">
-                        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-                        </div>
+                        formConfig.map((config) => (
+                            <div key={config.name} className="space-y-2">
+                                <Skeleton className="h-4 w-24" />
+                                <Skeleton className="h-10 w-full" />
+                            </div>
+                        ))
                     ) : (
                         formConfig.map((config) => (
                         <FormField
