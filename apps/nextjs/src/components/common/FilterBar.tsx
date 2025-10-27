@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { X } from "lucide-react";
 import { QueryParams } from "@/hooks/useResource";
 import { useDebouncedCallback } from 'use-debounce';
-import { DynamicFilterSelect } from "./DynamicFilterSelect";
+import { DynamicFilterSelect } from "./FilterSelect";
 
 interface FilterBarProps {
     config: FilterConfig[];
