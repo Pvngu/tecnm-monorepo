@@ -119,6 +119,7 @@ export function ResourceForm<T extends z.ZodType<any, any>>({
                         type={config.type}
                         placeholder={config.placeholder} 
                         {...field}
+                        value={field.value ?? ''}
                     />
                 );
             
@@ -131,6 +132,7 @@ export function ResourceForm<T extends z.ZodType<any, any>>({
                         max={config.max}
                         step={config.step}
                         {...field}
+                        value={field.value ?? ''}
                         onChange={(e) => field.onChange(e.target.valueAsNumber)}
                     />
                 );
@@ -141,6 +143,7 @@ export function ResourceForm<T extends z.ZodType<any, any>>({
                         placeholder={config.placeholder}
                         rows={config.rows || 4}
                         {...field}
+                        value={field.value ?? ''}
                     />
                 );
             
@@ -276,6 +279,7 @@ export function ResourceForm<T extends z.ZodType<any, any>>({
                         type="date"
                         placeholder={config.placeholder}
                         {...field}
+                        value={field.value ?? ''}
                     />
                 );
             
@@ -285,6 +289,7 @@ export function ResourceForm<T extends z.ZodType<any, any>>({
                         type="time"
                         placeholder={config.placeholder}
                         {...field}
+                        value={field.value ?? ''}
                     />
                 );
             
@@ -294,6 +299,7 @@ export function ResourceForm<T extends z.ZodType<any, any>>({
                         type="datetime-local"
                         placeholder={config.placeholder}
                         {...field}
+                        value={field.value ?? ''}
                     />
                 );
             
