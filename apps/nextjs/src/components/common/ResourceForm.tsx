@@ -1,8 +1,12 @@
 'use client';
 
+import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { FormFieldConfig } from '@/types/form';
+import { UseMutationResult } from '@tanstack/react-query';
+
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
@@ -13,36 +17,64 @@ import {
     FormLabel,
     FormMessage,
 } from '@/components/ui/form';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-
-export type FormFieldConfig = {
-    name: string;
-    label: string;
-    type: 'text' | 'number' | 'email' | 'password';
-    placeholder?: string;
-}
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetFooter,
+  SheetClose,
+} from '@/components/ui/sheet';
+import { Loader2 } from 'lucide-react';
 
 interface ResourceFormProps<T extends z.ZodType<any, any>> {
-    schema: T;
+    isOpen: boolean;
+    onOpenChange: (open: boolean) => void;
+    schema: z.ZodObject;
     formConfig: FormFieldConfig[];
-    onSubmit: (data: z.infer<T>) => void;
-    defaultValues?: Partial<z.infer<T>>;
-    isLoading?: boolean;
-    submitButtonText?: string;
+    onSubmit: UseMutationResult<any, any, any, any>;
+    defaultValues?: any;
+    isLoadingData: boolean;
+    isEditMode: boolean;
 }
 
 export function ResourceForm<T extends z.ZodType<any, any>>({
+    isOpen,
+    onOpenChange,
     schema,
     formConfig,
     onSubmit,
     defaultValues,
-    isLoading,
-    submitButtonText = 'Submit',
+    isLoadingData,
+    isEditMode,
 }: ResourceFormProps<T>) {
     const form = useForm<z.infer<T>>({
         resolver: zodResolver(schema),
         defaultValues: defaultValues || {},
     });
+
+    useEffect(() => {
+        if (isOpen) {
+            if (isEditMode && defaultValues) {
+                form.reset(defaultValues);
+            } else {
+                // Reset to empty values for create mode
+                form.reset({} as any);
+            }
+        }
+    }, [isOpen, isEditMode, defaultValues]);
+
+    const handleFormSubmit = (data: any) => {
+        console.log('Submitting form data:', data);
+        onSubmit.mutate(data, {
+            onSuccess: () => {
+                console.log('Form submitted successfully');
+                onOpenChange(false);
+                form.reset();
+            }
+        });
+    }
 
     const renderField = (field: any, config: FormFieldConfig) => {
         switch(config.type) {
@@ -62,34 +94,59 @@ export function ResourceForm<T extends z.ZodType<any, any>>({
     };
 
     return (
-        <Card>
-            <CardHeader>
-                <CardTitle>{submitButtonText.includes('Create') ? 'Create New' : 'Edit Item'}</CardTitle>
-            </CardHeader>
-            <CardContent>
+        <Sheet open={isOpen} onOpenChange={onOpenChange}>
+            <SheetContent className="sm:max-w-lg overflow-y-auto">
                 <Form {...form}>
-                    <form onSubmit={form.handleSubmit(onSubmit as any)} className="space-y-4">
-                        {formConfig.map((config) => (
-                            <FormField
-                                key={config.name}
-                                control={form.control as any}
-                                name={config.name as any}
-                                render={({field}) => {
-                                    <FormItem>
-                                        <FormLabel>{config.label}</FormLabel>
-                                        <FormControl>
-                                            {renderField(field, config)}
-                                        </FormControl>
-                                    </FormItem>
-                                }}
-                            />
-                        ))}
-                        <Button type='submit' disabled={isLoading}>
-                            {isLoading ? 'Guardando...' : submitButtonText}
+                <form onSubmit={form.handleSubmit(handleFormSubmit)}>
+                    <SheetHeader>
+                        <SheetTitle>
+                            {isEditMode ? 'Editar Registro' : 'Crear Nuevo Registro'}
+                        </SheetTitle>
+                        <SheetDescription>
+                            Completa los campos y guarda los cambios.
+                        </SheetDescription>
+                    </SheetHeader>
+
+                    <div className="py-6 px-4 space-y-4">
+                    {isLoadingData ? (
+                        <div className="flex justify-center items-center h-32">
+                        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+                        </div>
+                    ) : (
+                        formConfig.map((config) => (
+                        <FormField
+                            key={config.name}
+                            control={form.control}
+                            name={config.name}
+                            render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>{config.label}</FormLabel>
+                                <FormControl>
+                                {renderField(field, config)}
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                            )}
+                        />
+                        ))
+                    )}
+                    </div>
+                    <SheetFooter>
+                    <SheetClose asChild>
+                        <Button type="button" variant="outline">
+                        Cancelar
                         </Button>
-                    </form>
+                    </SheetClose>
+                    <Button type="submit" disabled={onSubmit.isPending || isLoadingData}>
+                        {onSubmit.isPending && (
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        )}
+                        Guardar Cambios
+                    </Button>
+                    </SheetFooter>
+                </form>
                 </Form>
-            </CardContent>
-        </Card>
+            </SheetContent>
+        </Sheet>
     )
 }

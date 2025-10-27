@@ -23,12 +23,12 @@ import {
     AlertDialogHeader,
     AlertDialogTitle
 } from '@/components/ui/alert-dialog';
-import Link from 'next/link';
 
 interface DataTableRowActionsProps<TData> {
     row: Row<TData>;
     resource: string;
     deleteItem: UseMutationResult<any, Error, string | number, unknown>;
+    onEdit: (id: string | number) => void;
 }
 
 // Make sure TData has an 'id' field
@@ -40,9 +40,9 @@ export function DataTableRowActions<TData extends WithId>({
     row,
     resource,
     deleteItem,
+    onEdit,
 }: DataTableRowActionsProps<TData>) {
     const [isDeleting, setIsDeleting] = useState(false);
-
     const itemId = row.original.id;
 
     const handleDelete = () => {
@@ -83,9 +83,7 @@ export function DataTableRowActions<TData extends WithId>({
                     </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
-                    <DropdownMenuLabel>Actions</DropdownMenuLabel>
-
-                    <DropdownMenuItem asChild>
+                    <DropdownMenuItem onClick={() => onEdit(itemId)}>
                         Edit
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />

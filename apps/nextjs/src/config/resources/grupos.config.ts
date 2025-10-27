@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { ColumnDef } from '@tanstack/react-table';
-import { FormFieldConfig } from '@/components/common/ResourceForm';
+import { FormFieldConfig } from '@/types/form';
 import { FilterConfig } from '@/types/filters';
 
 export type Grupo = {
@@ -63,6 +63,7 @@ export const GrupoFilters: FilterConfig[] = [
 ]
 
 export const GrupoSchema = z.object({
+    id: z.number().optional().nullable(),
     materia_id: z.number({ message: 'La materia es requerida' }).min(1, 'La materia es requerida'),
     profesor_id: z.number({ message: 'El profesor es requerido' }).min(1, 'El profesor es requerido'),
     periodo_id: z.number({ message: 'El periodo es requerido' }).min(1, 'El periodo es requerido'),
