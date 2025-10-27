@@ -7,6 +7,7 @@ import { X } from "lucide-react";
 import { QueryParams } from "@/hooks/useResource";
 import { useDebouncedCallback } from 'use-debounce';
 import { DynamicFilterSelect } from "./FilterSelect";
+import { DynamicFilterMultiSelect } from "./DynamicFilterMultiSelect";
 
 interface FilterBarProps {
     config: FilterConfig[];
@@ -52,9 +53,19 @@ export function FilterBar({ config, queryParams, setQueryParams }: FilterBarProp
               />
             );
           }
-          if (item.type === 'multiselect' || item.type === 'dynamic-multiselect') {
+          if (item.type === 'multiselect') {
             return (
               <DynamicFilterSelect
+                key={item.id}
+                config={item}
+                queryParams={queryParams}
+                setQueryParams={setQueryParams}
+              />
+            );
+          }
+          if (item.type === 'dynamic-multiselect') {
+            return (
+              <DynamicFilterMultiSelect
                 key={item.id}
                 config={item}
                 queryParams={queryParams}

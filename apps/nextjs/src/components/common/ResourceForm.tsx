@@ -60,6 +60,8 @@ import {
 import { Skeleton } from '@/components/ui/skeleton';
 import { Loader2, Check, ChevronsUpDown } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { DynamicSelect } from '@/components/common/DynamicSelect';
+import { DynamicMultiSelect } from '@/components/common/DynamicMultiSelect';
 
 interface ResourceFormProps<T extends z.ZodType<any, any>> {
     isOpen: boolean;
@@ -110,6 +112,34 @@ export function ResourceForm<T extends z.ZodType<any, any>>({
     }
 
     const renderField = (field: any, config: FormFieldConfig) => {
+        // Handle dynamic fields first with type guards
+        if (config.type === 'dynamic-select') {
+            return (
+                <DynamicSelect
+                    resource={config.resource}
+                    optionLabelKey={config.optionLabelKey}
+                    optionValueKey={config.optionValueKey}
+                    value={field.value}
+                    onValueChange={field.onChange}
+                    placeholder={config.placeholder}
+                />
+            );
+        }
+
+        if (config.type === 'dynamic-multiselect') {
+            return (
+                <DynamicMultiSelect
+                    resource={config.resource}
+                    optionLabelKey={config.optionLabelKey}
+                    optionValueKey={config.optionValueKey}
+                    values={field.value || []}
+                    onValuesChange={field.onChange}
+                    placeholder={config.placeholder}
+                />
+            );
+        }
+
+        // Now TypeScript knows config is StaticField
         switch(config.type) {
             case 'text':
             case 'email':
@@ -316,15 +346,6 @@ export function ResourceForm<T extends z.ZodType<any, any>>({
                             }
                         }}
                     />
-                );
-            
-            case 'dynamic-select':
-            case 'dynamic-multiselect':
-                // TODO: Implement dynamic select/multiselect
-                return (
-                    <div className="text-sm text-muted-foreground p-2 border border-dashed rounded">
-                        Dynamic {config.type} - Coming soon
-                    </div>
                 );
             
             default:

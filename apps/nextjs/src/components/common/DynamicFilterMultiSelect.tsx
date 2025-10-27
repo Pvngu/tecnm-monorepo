@@ -1,6 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
+import { useInfiniteQuery } from '@tanstack/react-query';
+import { useDebounce } from 'use-debounce';
+import { apiService } from '@/services/apiService';
 import { FilterConfig } from '@/types/filters';
 import { QueryParams } from '@/hooks/useResource';
 
@@ -17,34 +20,54 @@ import {
   CommandItem,
   CommandList,
 } from '@/components/ui/command';
-import { CirclePlus, CircleMinus } from 'lucide-react';
+import { CirclePlus, CircleMinus, Loader2 } from 'lucide-react';
 
-interface DynamicFilterSelectProps {
+interface DynamicFilterMultiSelectProps {
   config: FilterConfig;
   queryParams: QueryParams;
   setQueryParams: React.Dispatch<React.SetStateAction<QueryParams>>;
 }
 
-export function DynamicFilterSelect({ config, queryParams, setQueryParams }: DynamicFilterSelectProps) {
+export function DynamicFilterMultiSelect({ config, queryParams, setQueryParams }: DynamicFilterMultiSelectProps) {
   const { 
     id: filterId, 
     label, 
-    options: staticOptions,
+    resource,
     optionLabelKey = 'label',
     optionValueKey = 'value'
   } = config;
   
   const [open, setOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
+  const [debouncedSearchTerm] = useDebounce(searchTerm, 300);
 
   const selectedValues = new Set<string | number>(queryParams.filter?.[filterId] || []);
 
-  // Use static options only (for non-dynamic filters)
-  const options = staticOptions || [];
+  const {
+    data,
+    isLoading,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useInfiniteQuery({
+    queryKey: ['resource-options', resource, optionLabelKey, debouncedSearchTerm],
+    queryFn: ({ pageParam = 1 }) =>
+      apiService.getList(resource!, {
+        page: pageParam,
+        per_page: 100,
+        filter: { [optionLabelKey]: debouncedSearchTerm || undefined },
+      }),
+    getNextPageParam: (lastPage) => {
+      if (lastPage.current_page < lastPage.last_page) {
+        return lastPage.current_page + 1;
+      }
+      return undefined;
+    },
+    enabled: open,
+    initialPageParam: 1,
+  });
 
-  const filteredOptions = options.filter((opt: any) =>
-    opt[optionLabelKey].toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const options = data?.pages.flatMap((page) => page.data) ?? [];
 
   const handleSelect = (value: string | number, checked: boolean) => {
     const newSelectedValues = new Set(selectedValues);
@@ -78,9 +101,28 @@ export function DynamicFilterSelect({ config, queryParams, setQueryParams }: Dyn
     setOpen(false);
   };
 
-  const selectedItems = filteredOptions.filter((opt: any) =>
+  const selectedItems = options.filter((opt: any) =>
     selectedValues.has(opt[optionValueKey])
   );
+
+  const loadMoreRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!loadMoreRef.current || !hasNextPage || isFetchingNextPage) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          fetchNextPage();
+        }
+      },
+      { threshold: 1.0 }
+    );
+
+    observer.observe(loadMoreRef.current);
+
+    return () => observer.disconnect();
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -113,11 +155,16 @@ export function DynamicFilterSelect({ config, queryParams, setQueryParams }: Dyn
             onValueChange={setSearchTerm}
           />
           <CommandList>
-            {filteredOptions.length === 0 && (
+            {isLoading && !data && (
+              <div className="p-2 flex justify-center items-center">
+                <Loader2 className="h-4 w-4 animate-spin" />
+              </div>
+            )}
+            {!isLoading && options.length === 0 && (
               <CommandEmpty>No se encontraron resultados.</CommandEmpty>
             )}
             <CommandGroup>
-              {filteredOptions.map((option: any) => {
+              {options.map((option: any) => {
                 const value = option[optionValueKey];
                 const isSelected = selectedValues.has(value);
                 return (
@@ -136,6 +183,15 @@ export function DynamicFilterSelect({ config, queryParams, setQueryParams }: Dyn
                 );
               })}
             </CommandGroup>
+            {hasNextPage && (
+              <div ref={loadMoreRef} className="p-2 flex justify-center items-center">
+                {isFetchingNextPage ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  'Load More'
+                )}
+              </div>
+            )}
           </CommandList>
         </Command>
         
