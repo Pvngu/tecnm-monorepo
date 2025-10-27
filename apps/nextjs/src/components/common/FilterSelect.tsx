@@ -2,8 +2,8 @@
 
 'use client';
 
-import { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useState, useEffect, useRef } from 'react';
+import { useInfiniteQuery } from '@tanstack/react-query';
 import { useDebounce } from 'use-debounce';
 import { apiService } from '@/services/apiService';
 import { FilterConfig } from '@/types/filters';
@@ -44,33 +44,44 @@ export function DynamicFilterSelect({ config, queryParams, setQueryParams }: Dyn
   const [searchTerm, setSearchTerm] = useState('');
   const [debouncedSearchTerm] = useDebounce(searchTerm, 300);
 
-  // Determine if this is a dynamic filter (fetches from API) or static (uses options prop)
   const isDynamic = !!resource;
 
-  // Obtenemos los IDs seleccionados actualmente desde el queryParams principal
   const selectedValues = new Set<string | number>(queryParams.filter?.[filterId] || []);
 
-  // Este useQuery busca en la API (solo para filtros dinámicos)
-  const { data: optionsData, isLoading } = useQuery({
+  const {
+    data,
+    isLoading,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useInfiniteQuery({
     queryKey: ['filter-options', resource, debouncedSearchTerm],
-    queryFn: () => apiService.getList(resource!, {
-      per_page: 20,
-      filter: { [optionLabelKey]: debouncedSearchTerm || undefined }
-    }),
+    queryFn: ({ pageParam = 1 }) =>
+      apiService.getList(resource!, {
+        page: pageParam,
+        per_page: 100,
+        filter: { [optionLabelKey]: debouncedSearchTerm || undefined },
+      }),
+    getNextPageParam: (lastPage) => {
+      if (lastPage.current_page < lastPage.last_page) {
+        return lastPage.current_page + 1;
+      }
+      return undefined;
+    },
     enabled: isDynamic && open,
+    initialPageParam: 1,
   });
 
-  // Si es dinámico, usa los datos de la API; si no, usa las opciones estáticas
-  const options = isDynamic ? (optionsData?.data || []) : (staticOptions || []);
+  const options = isDynamic
+    ? data?.pages.flatMap((page) => page.data) ?? []
+    : staticOptions || [];
 
-  // Filtrado local para opciones estáticas
-  const filteredOptions = isDynamic 
-    ? options 
-    : options.filter((opt: any) => 
+  const filteredOptions = isDynamic
+    ? options
+    : options.filter((opt: any) =>
         opt[optionLabelKey].toLowerCase().includes(searchTerm.toLowerCase())
       );
 
-  // Handler para seleccionar/deseleccionar un item
   const handleSelect = (value: string | number, checked: boolean) => {
     const newSelectedValues = new Set(selectedValues);
 
@@ -103,10 +114,28 @@ export function DynamicFilterSelect({ config, queryParams, setQueryParams }: Dyn
     setOpen(false);
   };
 
-  // Get selected items for display
-  const selectedItems = filteredOptions.filter((opt: any) => 
+  const selectedItems = filteredOptions.filter((opt: any) =>
     selectedValues.has(opt[optionValueKey])
   );
+
+  const loadMoreRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!loadMoreRef.current || !hasNextPage || isFetchingNextPage) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          fetchNextPage();
+        }
+      },
+      { threshold: 1.0 }
+    );
+
+    observer.observe(loadMoreRef.current);
+
+    return () => observer.disconnect();
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -133,13 +162,13 @@ export function DynamicFilterSelect({ config, queryParams, setQueryParams }: Dyn
       </PopoverTrigger>
       <PopoverContent className="w-[250px] p-0" align="start">
         <Command shouldFilter={false}>
-          <CommandInput 
-            placeholder={`Buscar ${label.toLowerCase()}...`} 
+          <CommandInput
+            placeholder={`Buscar ${label.toLowerCase()}...`}
             value={searchTerm}
             onValueChange={setSearchTerm}
           />
           <CommandList>
-            {isLoading && (
+            {isLoading && !data && (
               <div className="p-2 flex justify-center items-center">
                 <Loader2 className="h-4 w-4 animate-spin" />
               </div>
@@ -167,10 +196,18 @@ export function DynamicFilterSelect({ config, queryParams, setQueryParams }: Dyn
                 );
               })}
             </CommandGroup>
+            {hasNextPage && (
+              <div ref={loadMoreRef} className="p-2 flex justify-center items-center">
+                {isFetchingNextPage ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  'Load More'
+                )}
+              </div>
+            )}
           </CommandList>
         </Command>
         
-        {/* Clear Button */}
         {selectedValues.size > 0 && (
           <div className="p-2 border-t">
             <Button
