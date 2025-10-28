@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\PeriodoController;
@@ -29,3 +30,7 @@ Route::apiResource('inscripciones', InscripcionController::class);
 Route::apiResource('calificaciones', CalificacionController::class);
 Route::apiResource('asistencias', AsistenciaController::class);
 Route::apiResource('alumnos-factores', AlumnoFactorController::class);
+
+Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
+    return $request->user();
+});
