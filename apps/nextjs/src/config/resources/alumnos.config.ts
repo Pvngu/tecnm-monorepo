@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { ColumnDef } from "@tanstack/react-table";
-import { FormFieldConfig } from "@/components/common/ResourceForm";
+import { FormFieldConfig } from "@/types/form";
 import { FilterConfig } from "@/types/filters";
 
 export type Alumno = {
