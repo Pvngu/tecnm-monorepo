@@ -14,7 +14,6 @@ use App\Models\Materia;
 use App\Models\Periodo;
 use App\Models\Profesor;
 use App\Models\Unidad;
-use App\Models\Usuario;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -24,6 +23,12 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
+        // Seed roles and permissions first
+        $this->call([
+            RolesAndPermissionsSeeder::class,
+            UserSeeder::class,
+        ]);
+
         $this->command->info('🌱 Seeding catalogs...');
 
         // Step 1: Create Periods
@@ -71,12 +76,6 @@ class DatabaseSeeder extends Seeder
             $alumnos = $alumnos->merge($alumnosCarrera);
         }
         $this->command->info('✓ Created ' . $alumnos->count() . ' students');
-
-        // Step 7: Create Admin User
-        Usuario::factory()->admin()->create([
-            'email' => 'admin@tecnm.mx',
-        ]);
-        $this->command->info('✓ Created admin user (admin@tecnm.mx / password123)');
 
         $this->command->info('');
         $this->command->info('🌱 Seeding transactional data...');
