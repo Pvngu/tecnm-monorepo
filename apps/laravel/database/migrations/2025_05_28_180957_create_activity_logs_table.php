@@ -13,11 +13,6 @@ return new class extends Migration
     {
         Schema::create('activity_logs', function (Blueprint $table) {
             $table->id();
-            
-            // Company relation
-            $table->bigInteger('company_id')->unsigned()->nullable()->default(null);
-            $table->foreign('company_id')->references('id')->on('companies')->onDelete('cascade')->onUpdate('cascade');
-            
             // User who performed the action
             $table->bigInteger('user_id')->unsigned()->nullable()->default(null);
             $table->foreign('user_id')->references('id')->on('users')->onDelete('set null')->onUpdate('cascade');

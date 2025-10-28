@@ -20,7 +20,6 @@ class ActivityLogController extends Controller
                 'action',
                 'description',
                 AllowedFilter::exact('user_id'),
-                AllowedFilter::exact('company_id'),
                 AllowedFilter::exact('loggable_type'),
                 AllowedFilter::exact('loggable_id'),
                 AllowedFilter::scope('datetime_from', 'whereDatetimeFrom'),

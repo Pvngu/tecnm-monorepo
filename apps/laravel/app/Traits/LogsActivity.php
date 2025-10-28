@@ -163,8 +163,7 @@ trait LogsActivity
     protected function createActivityLog($data)
     {
         ActivityLog::create([
-            'company_id' => company()?->id,
-            'user_id' => user()?->id,
+            'user_id' => 1,
             'loggable_type' => get_class($this),
             'loggable_id' => $this->id,
             'action' => $data['action'],
@@ -181,7 +180,7 @@ trait LogsActivity
      */
     protected function getExcludedLogFields()
     {
-        $defaultExcluded = ['id', 'created_at', 'updated_at', 'company_id'];
+        $defaultExcluded = ['id', 'created_at', 'updated_at'];
         
         if (method_exists($this, 'getCustomExcludedLogFields')) {
             return array_merge($defaultExcluded, $this->getCustomExcludedLogFields());
