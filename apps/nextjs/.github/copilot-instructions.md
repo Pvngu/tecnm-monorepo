@@ -128,6 +128,13 @@ CREATE TYPE modalidad_estudio AS ENUM (
   'híbrida'
 );
 
+CREATE TYPE estatus_alumno AS ENUM (
+  'activo',
+  'baja_temporal',
+  'baja_definitiva',
+  'egresado'
+);
+
 
 -- #############################################################################
 -- # 2. TABLAS DE CATÁLOGOS Y ENTIDADES PRINCIPALES
@@ -173,7 +180,8 @@ CREATE TABLE Alumnos (
   apellido_materno VARCHAR(100),
   semestre INT NOT NULL,
   genero genero_alumno,
-  modalidad modalidad_estudio
+  modalidad modalidad_estudio,
+  estatus_alumno estatus_alumno DEFAULT 'activo',
 );
 
 CREATE TABLE Materias (

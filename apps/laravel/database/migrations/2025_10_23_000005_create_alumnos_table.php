@@ -19,6 +19,7 @@ return new class extends Migration
             $table->integer('semestre');
             $table->enum('genero', ['masculino', 'femenino', 'otro'])->nullable();
             $table->enum('modalidad', ['presencial', 'virtual', 'híbrida'])->nullable();
+            $table->enum('estatus_alumno', ['activo', 'baja_temporal', 'baja_definitiva', 'egresado'])->default('activo');
             $table->timestamps();
 
             $table->index('carrera_id', 'idx_alumnos_carrera_id');

@@ -1,3 +1,7 @@
+'use client';
+
+import { useState } from 'react';
+import { useAuth } from '@/hooks/useAuth';
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
@@ -9,16 +13,42 @@ import {
   FieldSeparator,
 } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
+import { Loader2 } from 'lucide-react';
 
 export function LoginForm({
   className,
   ...props
 }: React.ComponentProps<"div">) {
+  const { login } = useAuth();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
+    setIsLoading(true);
+
+    try {
+      await login({ email, password });
+      // La redirección ocurre dentro de useAuth
+    } catch (err: any) {
+      setIsLoading(false);
+      // Muestra errores de validación de Laravel
+      if (err?.data?.errors?.email) {
+        setError(err.data.errors.email[0]);
+      } else {
+        setError('Las credenciales proporcionadas son incorrectas.');
+      }
+    }
+  };
+
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
       <Card className="overflow-hidden p-0">
         <CardContent className="grid p-0 md:grid-cols-2">
-          <form className="p-6 md:p-8">
+          <form className="p-6 md:p-8" onSubmit={handleSubmit}>
             <FieldGroup>
               <div className="flex flex-col items-center gap-2 text-center">
                 <h1 className="text-2xl font-bold">Bienvenido/a al Tecnológico de Tijuana</h1>
@@ -33,6 +63,8 @@ export function LoginForm({
                   type="email"
                   placeholder="correo@ejemplo.edu.mx"
                   required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                 />
               </Field>
               <Field>
@@ -45,10 +77,22 @@ export function LoginForm({
                       ¿Olvidaste tu contraseña?
                     </a>
                 </div>
-                <Input id="password" type="password" required />
+                <Input 
+                  id="password" 
+                  type="password" 
+                  required 
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                />
               </Field>
+              {error && (
+                <p className="text-sm text-red-600">{error}</p>
+              )}
               <Field className="mb-24">
-                <Button type="submit">Iniciar sesión</Button>
+                <Button type="submit" disabled={isLoading}>
+                  {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                  Iniciar sesión
+                </Button>
               </Field>
             </FieldGroup>
           </form>
