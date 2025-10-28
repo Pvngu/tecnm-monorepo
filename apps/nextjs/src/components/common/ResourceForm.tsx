@@ -382,25 +382,71 @@ export function ResourceForm<T extends z.ZodType<any, any>>({
                             </div>
                         ))
                     ) : (
-                        formConfig.map((config) => (
-                        <FormField
-                            key={config.name}
-                            control={form.control as any}
-                            name={config.name as any}
-                            render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>{config.label}</FormLabel>
-                                <FormControl>
-                                {renderField(field, config)}
-                                </FormControl>
-                                {config.description && config.type !== 'checkbox' && (
-                                    <FormDescription>{config.description}</FormDescription>
-                                )}
-                                <FormMessage />
-                            </FormItem>
-                            )}
-                        />
-                        ))
+                        <div className="grid grid-cols-12 gap-4">
+                        {formConfig.map((config) => {
+                            const containerCols = config.columns?.container || 12;
+                            const labelCols = config.columns?.label;
+                            const wrapperCols = config.columns?.wrapper;
+                            
+                            // Map column numbers to Tailwind classes
+                            const getColSpanClass = (cols: number) => {
+                                const colMap: Record<number, string> = {
+                                    1: 'col-span-1',
+                                    2: 'col-span-2',
+                                    3: 'col-span-3',
+                                    4: 'col-span-4',
+                                    5: 'col-span-5',
+                                    6: 'col-span-6',
+                                    7: 'col-span-7',
+                                    8: 'col-span-8',
+                                    9: 'col-span-9',
+                                    10: 'col-span-10',
+                                    11: 'col-span-11',
+                                    12: 'col-span-12',
+                                };
+                                return colMap[Math.min(cols, 12)] || 'col-span-12';
+                            };
+                            
+                            return (
+                            <div 
+                                key={config.name} 
+                                className={getColSpanClass(containerCols)}
+                            >
+                                <FormField
+                                    control={form.control as any}
+                                    name={config.name as any}
+                                    render={({ field }) => (
+                                    <FormItem>
+                                        {labelCols && wrapperCols ? (
+                                            <div className="grid grid-cols-12 gap-2 items-center">
+                                                <FormLabel className={getColSpanClass(labelCols)}>
+                                                    {config.label}
+                                                </FormLabel>
+                                                <div className={getColSpanClass(wrapperCols)}>
+                                                    <FormControl>
+                                                        {renderField(field, config)}
+                                                    </FormControl>
+                                                </div>
+                                            </div>
+                                        ) : (
+                                            <>
+                                                <FormLabel>{config.label}</FormLabel>
+                                                <FormControl>
+                                                    {renderField(field, config)}
+                                                </FormControl>
+                                            </>
+                                        )}
+                                        {config.description && config.type !== 'checkbox' && (
+                                            <FormDescription>{config.description}</FormDescription>
+                                        )}
+                                        <FormMessage />
+                                    </FormItem>
+                                    )}
+                                />
+                            </div>
+                            );
+                        })}
+                        </div>
                     )}
                     </div>
                     <SheetFooter>

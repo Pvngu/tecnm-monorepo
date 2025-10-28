@@ -1,3 +1,9 @@
+export type ColumnLayout = {
+  container?: number; // Max 12
+  label?: number; // Max 12
+  wrapper?: number; // Max 12
+};
+
 export type CommonFieldProps = {
   name: string;
   label: string;
@@ -10,6 +16,7 @@ export type CommonFieldProps = {
   min?: number; // For number input
   max?: number; // For number input
   step?: number; // For number input
+  columns?: ColumnLayout; // Optional column layout
 };
 
 export type StaticFieldTypes =

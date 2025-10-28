@@ -108,6 +108,11 @@ export const GrupoFormConfig: FormFieldConfig[] = [
     resource: "materias",
     optionLabelKey: "nombre",
     optionValueKey: "id",
+    columns: {
+      container: 6,
+      label: 12,
+      wrapper: 12,
+    },
   },
   {
     name: "profesor_id",
@@ -117,6 +122,11 @@ export const GrupoFormConfig: FormFieldConfig[] = [
     resource: "profesores",
     optionLabelKey: "nombre",
     optionValueKey: "id",
+    columns: {
+      container: 6,
+      label: 12,
+      wrapper: 12,
+    },
   },
   {
     name: "periodo_id",
@@ -126,6 +136,11 @@ export const GrupoFormConfig: FormFieldConfig[] = [
     resource: "periodos",
     optionLabelKey: "nombre",
     optionValueKey: "id",
+    columns: {
+      container: 6,
+      label: 12,
+      wrapper: 12,
+    },
   },
   {
     name: "carrera_id",
@@ -135,6 +150,11 @@ export const GrupoFormConfig: FormFieldConfig[] = [
     resource: "carreras",
     optionLabelKey: "nombre",
     optionValueKey: "id",
+    columns: {
+      container: 6,
+      label: 12,
+      wrapper: 12,
+    },
   },
   {
     name: "horario",
