@@ -16,12 +16,15 @@ return Application::configure(basePath: dirname(__DIR__))
         // Aplicar Sanctum stateful a rutas API
         $middleware->api(prepend: [
             \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class,
+            \Illuminate\Cookie\Middleware\EncryptCookies::class,
+            \Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse::class,
+            \Illuminate\Session\Middleware\StartSession::class,
         ]);
         
         // Aplicar Sanctum stateful también a rutas web para autenticación
-        $middleware->web(prepend: [
-            \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class,
-        ]);
+        // $middleware->web(prepend: [
+        //     \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class,
+        // ]);
         
         // Aplicar CORS a todas las rutas
         $middleware->prepend(\Illuminate\Http\Middleware\HandleCors::class);
