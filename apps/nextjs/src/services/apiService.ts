@@ -45,12 +45,23 @@ function getCsrfTokenFromCookie(): string | null {
     return null;
 }
 
+function getCookie(n: string) {
+    console.log('Getting cookie:', n);
+  if (typeof document === 'undefined') return '';
+  console.log('Document cookies:', document.cookie);
+  const m = document.cookie.match(new RegExp('(?:^|; )' + n + '=([^;]*)'));
+  return m ? decodeURIComponent(m[1]) : '';
+}
+const xsrf = getCookie('XSRF-TOKEN');
+
+
 // Helper to get headers with CSRF token
 function getHeaders(): HeadersInit {
     const headers: Record<string, string> = {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
-        'X-Requested-With': 'XMLHttpRequest'
+        'X-Requested-With': 'XMLHttpRequest',
+        'X-XSRF-TOKEN': xsrf,
     };
     
     const csrfToken = getCsrfTokenFromCookie();
@@ -83,7 +94,7 @@ export const apiService = {
         return fetch(url, {
             method: 'GET',
             headers: getHeaders(),
-            // credentials: 'include',
+            credentials: 'include',
         })
         .then(handleResponse<PaginatedResponse<T>>);
     },
@@ -91,7 +102,7 @@ export const apiService = {
         return fetch(`${apiBaseURL}${resource}/${id}`, {
             method: 'GET',
             headers: getHeaders(),
-            // credentials: 'include',
+            credentials: 'include',
         })
         .then(handleResponse<T>);
     },
@@ -100,7 +111,7 @@ export const apiService = {
             method: 'POST',
             headers: getHeaders(),
             body: JSON.stringify(data),
-            // credentials: 'include',
+            credentials: 'include',
         }).then(handleResponse<any>);
     },
     update: <T>(resource: string, id: string | number, data: T): Promise<any> => {
@@ -108,14 +119,14 @@ export const apiService = {
             method: 'PUT',
             headers: getHeaders(),
             body: JSON.stringify(data),
-            // credentials: 'include',
+            credentials: 'include',
         }).then(handleResponse<any>);
     },
     delete: (resource: string, id: string | number): Promise<any> => {
         return fetch(`${apiBaseURL}${resource}/${id}`, {
             method: 'DELETE',
             headers: getHeaders(),
-            // credentials: 'include',
+            credentials: 'include',
         }).then(handleResponse<any>);
     },
 };
