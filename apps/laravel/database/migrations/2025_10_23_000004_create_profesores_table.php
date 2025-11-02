@@ -10,7 +10,7 @@ return new class extends Migration
     {
         Schema::create('profesores', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('usuario_id')->nullable()->unique()->constrained('usuarios')->nullOnDelete();
+            $table->foreignId('usuario_id')->nullable()->unique()->constrained('users')->nullOnDelete();
             $table->string('nombre', 100);
             $table->string('apellido_paterno', 100);
             $table->string('apellido_materno', 100)->nullable();
