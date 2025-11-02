@@ -134,6 +134,32 @@ export const apiService = {
             credentials: 'include',
         }).then(handleResponse<ParetoData[]>);
     },
+    // Obtener datos de Ishikawa para un grupo
+    getIshikawaData: (grupoId: number): Promise<IshikawaData> => {
+        return fetch(`${apiBaseURL}grupos/${grupoId}/ishikawa-data`, {
+            method: 'GET',
+            headers: getHeaders(),
+            credentials: 'include',
+        }).then(handleResponse<IshikawaData>);
+    },
+    // Guardar análisis de Ishikawa
+    saveIshikawaAnalysis: (grupoId: number, data: { tasa_reprobacion: number; observaciones: Record<string, string> }): Promise<any> => {
+        return fetch(`${apiBaseURL}grupos/${grupoId}/ishikawa/save`, {
+            method: 'POST',
+            headers: getHeaders(),
+            body: JSON.stringify(data),
+            credentials: 'include',
+        }).then(handleResponse<any>);
+    },
+    // Obtener último análisis guardado de Ishikawa
+    getLatestIshikawaAnalysis: (grupoId: number): Promise<{ data: SavedIshikawaAnalysis | null }> => {
+        return fetch(`${apiBaseURL}grupos/${grupoId}/ishikawa/latest`, {
+            method: 'GET',
+            headers: getHeaders(),
+            credentials: 'include',
+        }).then(handleResponse<{ data: SavedIshikawaAnalysis | null }>)
+        .catch(() => ({ data: null })); // Si no existe, retornar null
+    },
 };
 
 // Tipo para los datos de Pareto
@@ -141,4 +167,32 @@ export interface ParetoData {
     nombre: string;
     frecuencia: number;
     porcentaje_acumulado: number;
+}
+
+// Tipos para los datos de Ishikawa
+export interface CausaSecundaria {
+    nombre: string;
+    frecuencia: number;
+}
+
+export interface CausaPrincipal {
+    categoria: string;
+    causas_secundarias: CausaSecundaria[];
+}
+
+export interface IshikawaData {
+    efecto: string;
+    tasa_reprobacion: number;
+    causas_principales: CausaPrincipal[];
+}
+
+// Tipo para el análisis guardado
+export interface SavedIshikawaAnalysis {
+    id: number;
+    grupo_id: number;
+    user_id: number;
+    tasa_reprobacion: number;
+    observaciones: Record<string, string>;
+    created_at: string;
+    updated_at: string;
 }

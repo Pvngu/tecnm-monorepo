@@ -146,6 +146,10 @@ const data = {
         {
           title: "Analisis de pareto",
           url: "pareto",
+        },
+        {
+          title: "Diagrama de Ishikawa",
+          url: "ishikawa",
         }
       ],
     },

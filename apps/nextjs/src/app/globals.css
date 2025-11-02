@@ -121,3 +121,143 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Estilos para el Diagrama de Ishikawa */
+.ishikawa-container {
+  position: relative;
+  padding: 3rem 2rem;
+  padding-right: 180px;
+  min-height: 600px;
+}
+
+.ishikawa-spine {
+  width: calc(100% - 160px);
+  height: 3px;
+  background-color: hsl(var(--foreground));
+  position: absolute;
+  top: 50%;
+  left: 0;
+  transform: translateY(-50%);
+  z-index: 1;
+}
+
+.ishikawa-head {
+  position: absolute;
+  top: 50%;
+  right: 0;
+  transform: translateY(-50%);
+  padding: 1.25rem;
+  border: 3px solid hsl(var(--foreground));
+  background-color: hsl(var(--card));
+  font-weight: bold;
+  text-align: center;
+  width: 160px;
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+  z-index: 10;
+}
+
+.ishikawa-bones {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 2rem;
+  position: relative;
+  z-index: 2;
+}
+
+.ishikawa-bone {
+  padding: 1rem;
+  position: relative;
+  background-color: hsl(var(--card));
+  border-radius: 0.5rem;
+  border: 1px solid hsl(var(--border));
+}
+
+/* Espinas superiores (arriba de la línea principal) */
+.ishikawa-bone.bone-top {
+  margin-bottom: 60px;
+}
+
+.ishikawa-bone.bone-top::after {
+  content: '';
+  position: absolute;
+  bottom: -60px;
+  left: 50%;
+  width: 2px;
+  height: 60px;
+  background-color: hsl(var(--foreground));
+  transform-origin: bottom;
+  transform: translateX(-50%) skewX(30deg);
+}
+
+/* Espinas inferiores (abajo de la línea principal) */
+.ishikawa-bone.bone-bottom {
+  margin-top: 60px;
+}
+
+.ishikawa-bone.bone-bottom::before {
+  content: '';
+  position: absolute;
+  top: -60px;
+  left: 50%;
+  width: 2px;
+  height: 60px;
+  background-color: hsl(var(--foreground));
+  transform-origin: top;
+  transform: translateX(-50%) skewX(-30deg);
+}
+
+.bone-title {
+  font-weight: 700;
+  font-size: 1rem;
+  text-align: center;
+  margin-bottom: 0.75rem;
+  color: hsl(var(--primary));
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.sub-bones {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+  text-align: left;
+  font-size: 0.875rem;
+}
+
+.sub-bone {
+  padding: 0.5rem 0;
+  border-bottom: 1px solid hsl(var(--border) / 0.3);
+}
+
+.sub-bone:last-child {
+  border-bottom: none;
+}
+
+/* Ajustes responsivos */
+@media (max-width: 768px) {
+  .ishikawa-container {
+    padding-right: 140px;
+    min-height: 800px;
+  }
+  
+  .ishikawa-head {
+    width: 130px;
+    padding: 1rem;
+    font-size: 0.75rem;
+  }
+  
+  .ishikawa-bones {
+    grid-template-columns: 1fr;
+  }
+  
+  .ishikawa-bone.bone-top,
+  .ishikawa-bone.bone-bottom {
+    margin: 0;
+  }
+  
+  .ishikawa-bone.bone-top::after,
+  .ishikawa-bone.bone-bottom::before {
+    display: none;
+  }
+}

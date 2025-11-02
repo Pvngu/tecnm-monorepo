@@ -91,4 +91,62 @@ class GrupoController extends Controller
         // 4. Devolver la respuesta JSON
         return response()->json($datosPareto);
     }
+
+    /**
+     * Obtener datos para el Diagrama de Ishikawa del grupo
+     * Devuelve el efecto (tasa de reprobación) y las causas principales agrupadas por categoría
+     */
+    public function getIshikawaData(Grupo $grupo): JsonResponse
+    {
+        // 1. Obtener inscripciones y calcular el "Efecto" (Tasa de Reprobación)
+        // Asumimos que 60 es la calificación mínima aprobatoria.
+        $inscripciones = $grupo->inscripciones()->get();
+        $totalAlumnos = $inscripciones->count();
+        
+        if ($totalAlumnos === 0) {
+            return response()->json([
+                'efecto' => 'Grupo sin alumnos',
+                'tasa_reprobacion' => 0,
+                'causas_principales' => []
+            ]);
+        }
+
+        $totalReprobados = $inscripciones->where('calificacion_final', '<', 60)->count();
+        $tasaReprobacion = round(($totalReprobados / $totalAlumnos) * 100, 1);
+        $efecto = "Tasa de Reprobación del $tasaReprobacion% en el grupo";
+
+        // 2. Obtener los IDs de las inscripciones
+        $inscripcionIds = $inscripciones->pluck('id');
+
+        // 3. Consultar factores, agrupar por CATEGORÍA y por NOMBRE
+        $factoresAgrupados = DB::table('alumnos_factores')
+            ->join('factores_riesgo', 'alumnos_factores.factor_id', '=', 'factores_riesgo.id')
+            ->whereIn('alumnos_factores.inscripcion_id', $inscripcionIds)
+            ->select('factores_riesgo.categoria', 'factores_riesgo.nombre', DB::raw('COUNT(alumnos_factores.id) as frecuencia'))
+            ->groupBy('factores_riesgo.categoria', 'factores_riesgo.nombre')
+            ->orderBy('factores_riesgo.categoria')
+            ->orderBy('frecuencia', 'DESC')
+            ->get();
+
+        // 4. Formatear la respuesta en la estructura de Ishikawa
+        $causasPrincipales = $factoresAgrupados->groupBy('categoria')
+            ->map(function ($factoresEnCategoria, $categoriaNombre) {
+                return [
+                    'categoria' => $categoriaNombre, // La "espina" principal
+                    'causas_secundarias' => $factoresEnCategoria->map(function ($factor) {
+                        return [
+                            'nombre' => $factor->nombre, // La "espina" secundaria
+                            'frecuencia' => $factor->frecuencia
+                        ];
+                    })->values()
+                ];
+            })->values();
+            
+        // 5. Devolver la respuesta JSON
+        return response()->json([
+            'efecto' => $efecto,
+            'tasa_reprobacion' => $tasaReprobacion,
+            'causas_principales' => $causasPrincipales
+        ]);
+    }
 }

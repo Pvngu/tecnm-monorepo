@@ -17,6 +17,7 @@ use App\Http\Controllers\CalificacionController;
 use App\Http\Controllers\AsistenciaController;
 use App\Http\Controllers\AlumnoFactorController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\AnalisisIshikawaController;
 
 //create group for middleware auth:sanctum
 Route::middleware(['auth:sanctum'])->group(function () {
@@ -32,6 +33,14 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::apiResource('factores-riesgo', FactorRiesgoController::class);
     Route::apiResource('grupos', GrupoController::class);
     Route::get('grupos/{grupo}/factores-pareto', [GrupoController::class, 'getFactoresPareto']);
+    Route::get('grupos/{grupo}/ishikawa-data', [GrupoController::class, 'getIshikawaData']);
+    
+    // Rutas para Análisis de Ishikawa
+    Route::post('grupos/{grupo}/ishikawa/save', [AnalisisIshikawaController::class, 'save']);
+    Route::get('grupos/{grupo}/ishikawa/latest', [AnalisisIshikawaController::class, 'getLatest']);
+    Route::get('grupos/{grupo}/ishikawa/list', [AnalisisIshikawaController::class, 'listByGrupo']);
+    Route::delete('analisis-ishikawa/{analisis}', [AnalisisIshikawaController::class, 'delete']);
+    
     Route::apiResource('inscripciones', InscripcionController::class);
     Route::apiResource('calificaciones', CalificacionController::class);
     Route::apiResource('asistencias', AsistenciaController::class);
