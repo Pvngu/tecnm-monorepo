@@ -126,4 +126,19 @@ export const apiService = {
             credentials: 'include',
         }).then(handleResponse<any>);
     },
+    // Obtener datos de Pareto para factores de riesgo por grupo
+    getParetoFactores: (grupoId: number): Promise<ParetoData[]> => {
+        return fetch(`${apiBaseURL}grupos/${grupoId}/factores-pareto`, {
+            method: 'GET',
+            headers: getHeaders(),
+            credentials: 'include',
+        }).then(handleResponse<ParetoData[]>);
+    },
 };
+
+// Tipo para los datos de Pareto
+export interface ParetoData {
+    nombre: string;
+    frecuencia: number;
+    porcentaje_acumulado: number;
+}

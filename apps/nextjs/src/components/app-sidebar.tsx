@@ -24,6 +24,7 @@ import {
   SidebarHeader,
   SidebarRail,
 } from "@/components/ui/sidebar"
+import { url } from "inspector"
 
 const SVGLogo = (props: React.SVGProps<SVGSVGElement>) => (
   <svg
@@ -139,13 +140,13 @@ const data = {
           url: "analisis/resumen",
         },
         {
-          title: "Factores de Riesgo",
-          url: "analisis/factores-riesgo",
+          title: "Histograma",
+          url: "analytics",
         },
         {
-          title: "Reportes",
-          url: "analisis/reportes",
-        },
+          title: "Analisis de pareto",
+          url: "pareto",
+        }
       ],
     },
     

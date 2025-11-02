@@ -31,6 +31,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::apiResource('unidades', UnidadController::class);
     Route::apiResource('factores-riesgo', FactorRiesgoController::class);
     Route::apiResource('grupos', GrupoController::class);
+    Route::get('grupos/{grupo}/factores-pareto', [GrupoController::class, 'getFactoresPareto']);
     Route::apiResource('inscripciones', InscripcionController::class);
     Route::apiResource('calificaciones', CalificacionController::class);
     Route::apiResource('asistencias', AsistenciaController::class);

@@ -6,6 +6,7 @@ use App\Http\Requests\GrupoRequest;
 use App\Http\Traits\HasPagination;
 use App\Models\Grupo;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\DB;
 use Spatie\QueryBuilder\QueryBuilder;
 use Spatie\QueryBuilder\AllowedFilter;
 
@@ -52,5 +53,42 @@ class GrupoController extends Controller
     {
         $grupo->delete();
         return response()->json(null, 204);
+    }
+
+    /**
+     * Análisis de Pareto de factores de riesgo por grupo
+     * Devuelve los factores de riesgo ordenados por frecuencia con porcentaje acumulado
+     */
+    public function getFactoresPareto(Grupo $grupo): JsonResponse
+    {
+        // 1. Obtener los IDs de las inscripciones del grupo
+        $inscripcionIds = $grupo->inscripciones()->pluck('id');
+
+        // 2. Consultar factores, agrupar, contar y ordenar
+        $factores = DB::table('alumnos_factores')
+            ->join('factores_riesgo', 'alumnos_factores.factor_id', '=', 'factores_riesgo.id')
+            ->whereIn('alumnos_factores.inscripcion_id', $inscripcionIds)
+            ->select('factores_riesgo.nombre', DB::raw('COUNT(alumnos_factores.id) as frecuencia'))
+            ->groupBy('factores_riesgo.nombre')
+            ->orderBy('frecuencia', 'DESC')
+            ->get();
+
+        // 3. Procesar para Pareto (Calcular % Acumulado)
+        $totalFrecuencia = $factores->sum('frecuencia');
+        $frecuenciaAcumulada = 0;
+
+        $datosPareto = $factores->map(function ($item) use ($totalFrecuencia, &$frecuenciaAcumulada) {
+            $frecuenciaAcumulada += $item->frecuencia;
+            $porcentajeAcumulado = ($totalFrecuencia > 0) ? ($frecuenciaAcumulada / $totalFrecuencia) * 100 : 0;
+
+            return [
+                'nombre' => $item->nombre,
+                'frecuencia' => $item->frecuencia,
+                'porcentaje_acumulado' => round($porcentajeAcumulado, 1) // Redondear a 1 decimal
+            ];
+        });
+
+        // 4. Devolver la respuesta JSON
+        return response()->json($datosPareto);
     }
 }
