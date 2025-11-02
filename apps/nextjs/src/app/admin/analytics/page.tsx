@@ -8,10 +8,11 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { dashboardService, type AnalyticsData, type AnalyticsFilters } from "@/services/dashboardService";
 import { apiService } from "@/services/apiService";
-import { Filter, TrendingUp, AlertTriangle } from "lucide-react";
+import { Filter, TrendingUp, AlertTriangle, Printer } from "lucide-react";
 import z from "zod";
 import { ParetoFactoresGrupo } from "@/components/charts/pareto-factores-grupo";
 import { ScatterFaltasGrupo } from "@/components/charts/scatter-faltas-grupo";
+import { Button } from "@/components/ui/button";
 
 interface Periodo {
   id: number;
@@ -72,14 +73,24 @@ export default function AnalyticsPage() {
 
   const semestres = Array.from({ length: 12 }, (_, i) => i + 1);
 
+  const handlePrint = () => {
+    window.print();
+  };
+
   return (
     <div className="space-y-6 p-8">
       {/* Header */}
-      <div>
-        <h1 className="text-3xl font-bold">Panel de Analíticas</h1>
-        <p className="text-muted-foreground mt-2">
-          Visualización de calificaciones y factores de riesgo
-        </p>
+      <div className="flex justify-between items-start">
+        <div>
+          <h1 className="text-3xl font-bold">Panel de Analíticas</h1>
+          <p className="text-muted-foreground mt-2">
+            Visualización de calificaciones y factores de riesgo
+          </p>
+        </div>
+        <Button onClick={handlePrint} variant="outline" className="print:hidden">
+          <Printer className="h-4 w-4 mr-2" />
+          Imprimir
+        </Button>
       </div>
 
       {/* Filters Bar */}
