@@ -48,4 +48,9 @@ class Inscripcion extends Model
     {
         return $this->hasMany(AlumnoFactor::class);
     }
+
+    public function factores(): HasMany
+    {
+        return $this->hasMany(AlumnoFactor::class);
+    }
 }

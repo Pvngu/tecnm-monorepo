@@ -179,6 +179,32 @@ export const apiService = {
             credentials: 'include',
         }).then(handleResponse<ScatterPlotData[]>);
     },
+    // Obtener alumno detallado con todas sus relaciones
+    getAlumnoDetallado: (alumnoId: number): Promise<any> => {
+        return fetch(`${apiBaseURL}alumnos/${alumnoId}`, {
+            method: 'GET',
+            headers: getHeaders(),
+            credentials: 'include',
+        }).then(handleResponse<any>);
+    },
+    // Actualizar calificaciones en bulk
+    updateCalificacionesBulk: (inscripcionId: number, data: { calificaciones: { unidad_id: number; valor_calificacion: number }[]; calificacion_final?: number }): Promise<any> => {
+        return fetch(`${apiBaseURL}inscripciones/${inscripcionId}/calificaciones-bulk`, {
+            method: 'POST',
+            headers: getHeaders(),
+            body: JSON.stringify(data),
+            credentials: 'include',
+        }).then(handleResponse<any>);
+    },
+    // Actualizar usuario (email y password)
+    updateUsuario: (usuarioId: number, data: { email: string; password?: string; password_confirmation?: string }): Promise<any> => {
+        return fetch(`${apiBaseURL}usuarios/${usuarioId}`, {
+            method: 'PUT',
+            headers: getHeaders(),
+            body: JSON.stringify(data),
+            credentials: 'include',
+        }).then(handleResponse<any>);
+    },
 };
 
 // Tipo para los datos de Pareto

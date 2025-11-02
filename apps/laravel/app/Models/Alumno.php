@@ -25,6 +25,7 @@ class Alumno extends Model
         'semestre',
         'genero',
         'modalidad',
+        'estatus_alumno',
     ];
 
     public function usuario(): BelongsTo

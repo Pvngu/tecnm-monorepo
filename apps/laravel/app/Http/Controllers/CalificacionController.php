@@ -5,7 +5,9 @@ namespace App\Http\Controllers;
 use App\Http\Requests\CalificacionRequest;
 use App\Http\Traits\HasPagination;
 use App\Models\Calificacion;
+use App\Models\Inscripcion;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Spatie\QueryBuilder\QueryBuilder;
 use Spatie\QueryBuilder\AllowedFilter;
 
@@ -49,5 +51,37 @@ class CalificacionController extends Controller
     {
         $calificacion->delete();
         return response()->json(null, 204);
+    }
+
+    public function storeBulk(Request $request, Inscripcion $inscripcion): JsonResponse
+    {
+        $request->validate([
+            'calificaciones' => 'required|array',
+            'calificaciones.*.unidad_id' => 'required|integer|exists:unidades,id',
+            'calificaciones.*.valor_calificacion' => 'required|numeric|min:0|max:100',
+            'calificacion_final' => 'nullable|numeric|min:0|max:100',
+        ]);
+
+        foreach ($request->calificaciones as $calificacionData) {
+            Calificacion::updateOrCreate(
+                [
+                    'inscripcion_id' => $inscripcion->id,
+                    'unidad_id' => $calificacionData['unidad_id'],
+                ],
+                [
+                    'valor_calificacion' => $calificacionData['valor_calificacion'],
+                ]
+            );
+        }
+
+        if ($request->has('calificacion_final')) {
+            $inscripcion->update([
+                'calificacion_final' => $request->calificacion_final,
+            ]);
+        }
+
+        $inscripcion->load('calificaciones.unidad');
+
+        return response()->json($inscripcion);
     }
 }

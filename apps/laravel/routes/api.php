@@ -19,6 +19,7 @@ use App\Http\Controllers\AlumnoFactorController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\AnalisisIshikawaController;
 use App\Http\Controllers\ReporteController;
+use App\Http\Controllers\UsuarioController;
 
 //create group for middleware auth:sanctum
 Route::middleware(['auth:sanctum'])->group(function () {
@@ -44,9 +45,11 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::delete('analisis-ishikawa/{analisis}', [AnalisisIshikawaController::class, 'delete']);
     
     Route::apiResource('inscripciones', InscripcionController::class);
+    Route::post('inscripciones/{inscripcion}/calificaciones-bulk', [CalificacionController::class, 'storeBulk']);
     Route::apiResource('calificaciones', CalificacionController::class);
     Route::apiResource('asistencias', AsistenciaController::class);
     Route::apiResource('alumnos-factores', AlumnoFactorController::class);
+    Route::put('usuarios/{usuario}', [UsuarioController::class, 'update']);
     Route::get('activity-logs', [App\Http\Controllers\ActivityLogController::class, 'index']);
     
     // Rutas para Reportes

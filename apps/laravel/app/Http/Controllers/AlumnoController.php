@@ -43,6 +43,17 @@ class AlumnoController extends Controller
 
     public function show(Alumno $alumno): JsonResponse
     {
+        $alumno->load([
+            'usuario',
+            'carrera',
+            'inscripciones.grupo.materia.unidades',
+            'inscripciones.grupo.profesor',
+            'inscripciones.grupo.periodo',
+            'inscripciones.calificaciones.unidad',
+            'inscripciones.factores.factor',
+            'inscripciones.asistencias'
+        ]);
+
         return response()->json($alumno);
     }
 

@@ -26,6 +26,7 @@ class AlumnoRequest extends FormRequest
             'semestre' => ['required', 'integer'],
             'genero' => ['nullable', Rule::in(['masculino', 'femenino', 'otro'])],
             'modalidad' => ['nullable', Rule::in(['presencial', 'virtual', 'híbrida'])],
+            'estatus_alumno' => ['nullable', Rule::in(['activo', 'baja_temporal', 'baja_definitiva', 'egresado'])],
         ];
     }
 }
