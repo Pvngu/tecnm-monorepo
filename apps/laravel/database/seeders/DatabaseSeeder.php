@@ -33,6 +33,9 @@ class DatabaseSeeder extends Seeder
 
         // Step 1: Create Periods
         $periodos = [
+            Periodo::factory()->create(['nombre' => 'Otoño 2023', 'fecha_inicio' => '2023-08-15', 'fecha_fin' => '2023-12-15', 'activo' => false]),
+            Periodo::factory()->create(['nombre' => 'Primavera 2024', 'fecha_inicio' => '2024-01-15', 'fecha_fin' => '2024-05-15', 'activo' => false]),
+            Periodo::factory()->create(['nombre' => 'Verano 2024', 'fecha_inicio' => '2024-06-01', 'fecha_fin' => '2024-07-31', 'activo' => false]),
             Periodo::factory()->create(['nombre' => 'Otoño 2024', 'fecha_inicio' => '2024-08-15', 'fecha_fin' => '2024-12-15', 'activo' => false]),
             Periodo::factory()->create(['nombre' => 'Primavera 2025', 'fecha_inicio' => '2025-01-15', 'fecha_fin' => '2025-05-15', 'activo' => false]),
             Periodo::factory()->create(['nombre' => 'Verano 2025', 'fecha_inicio' => '2025-06-01', 'fecha_fin' => '2025-07-31', 'activo' => false]),
@@ -41,15 +44,15 @@ class DatabaseSeeder extends Seeder
         $this->command->info('✓ Created ' . count($periodos) . ' periods');
 
         // Step 2: Create Careers
-        $carreras = Carrera::factory(8)->create();
+        $carreras = Carrera::factory(12)->create();
         $this->command->info('✓ Created ' . $carreras->count() . ' careers');
 
         // Step 3: Create Risk Factors
-        $factores = FactorRiesgo::factory(22)->create();
+        $factores = FactorRiesgo::factory(30)->create();
         $this->command->info('✓ Created ' . $factores->count() . ' risk factors');
 
         // Step 4: Create Subjects with Units
-        $materias = Materia::factory(18)->create();
+        $materias = Materia::factory(35)->create();
         $this->command->info('✓ Created ' . $materias->count() . ' subjects');
 
         foreach ($materias as $materia) {
@@ -64,13 +67,13 @@ class DatabaseSeeder extends Seeder
         $this->command->info('✓ Created units for all subjects');
 
         // Step 5: Create Users and Professors
-        $profesores = Profesor::factory(15)->create();
+        $profesores = Profesor::factory(25)->create();
         $this->command->info('✓ Created ' . $profesores->count() . ' professors');
 
         // Step 6: Create Students
         $alumnos = collect();
         foreach ($carreras as $carrera) {
-            $alumnosCarrera = Alumno::factory(20)->create([
+            $alumnosCarrera = Alumno::factory(40)->create([
                 'carrera_id' => $carrera->id,
                 'estatus_alumno' => 'activo', // Inicialmente todos activos
             ]);
@@ -81,43 +84,60 @@ class DatabaseSeeder extends Seeder
         $this->command->info('');
         $this->command->info('🌱 Seeding transactional data...');
 
-        // Step 8: Create Groups (only for active period)
-        $periodoActivo = $periodos[3]; // Otoño 2025
+        // Step 8: Create Groups for ALL periods
         $grupos = collect();
 
-        foreach ($carreras as $carrera) {
-            // Create 10 groups per career
-            $materiasCarrera = $materias->random(10);
-            foreach ($materiasCarrera as $materia) {
-                $grupo = Grupo::factory()->create([
-                    'materia_id' => $materia->id,
-                    'profesor_id' => $profesores->random()->id,
-                    'periodo_id' => $periodoActivo->id,
-                    'carrera_id' => $carrera->id,
-                ]);
-                $grupos->push($grupo);
+        foreach ($periodos as $periodo) {
+            $gruposPeriodo = 0;
+            foreach ($carreras as $carrera) {
+                // Create 12-15 groups per career per period
+                $numGrupos = rand(12, 15);
+                $materiasCarrera = $materias->random(min($numGrupos, $materias->count()));
+                
+                foreach ($materiasCarrera as $materia) {
+                    $grupo = Grupo::factory()->create([
+                        'materia_id' => $materia->id,
+                        'profesor_id' => $profesores->random()->id,
+                        'periodo_id' => $periodo->id,
+                        'carrera_id' => $carrera->id,
+                    ]);
+                    $grupos->push($grupo);
+                    $gruposPeriodo++;
+                }
             }
+            $this->command->info("✓ Created {$gruposPeriodo} groups for period: {$periodo->nombre}");
         }
-        $this->command->info('✓ Created ' . $grupos->count() . ' groups');
+        $this->command->info('✓ Total groups created: ' . $grupos->count());
 
-        // Step 9: Enroll Students in Groups
+        // Step 9: Enroll Students in Groups (for ALL periods)
         $inscripciones = collect();
         
-        foreach ($alumnos as $alumno) {
-            // Each student enrolls in 5-7 subjects
-            $gruposCarrera = $grupos->where('carrera_id', $alumno->carrera_id);
-            $gruposAlumno = $gruposCarrera->random(rand(5, min(7, $gruposCarrera->count())));
+        foreach ($periodos as $periodo) {
+            $inscripcionesPeriodo = 0;
+            $gruposPeriodo = $grupos->where('periodo_id', $periodo->id);
+            
+            foreach ($alumnos as $alumno) {
+                // Each student enrolls in 5-8 subjects per period
+                $gruposCarrera = $gruposPeriodo->where('carrera_id', $alumno->carrera_id);
+                
+                if ($gruposCarrera->count() > 0) {
+                    $numMaterias = rand(5, min(8, $gruposCarrera->count()));
+                    $gruposAlumno = $gruposCarrera->random($numMaterias);
 
-            foreach ($gruposAlumno as $grupo) {
-                $inscripcion = Inscripcion::factory()->create([
-                    'alumno_id' => $alumno->id,
-                    'grupo_id' => $grupo->id,
-                    'calificacion_final' => null, // Will be calculated from units
-                ]);
-                $inscripciones->push($inscripcion);
+                    foreach ($gruposAlumno as $grupo) {
+                        $inscripcion = Inscripcion::factory()->create([
+                            'alumno_id' => $alumno->id,
+                            'grupo_id' => $grupo->id,
+                            'calificacion_final' => null, // Will be calculated from units
+                        ]);
+                        $inscripciones->push($inscripcion);
+                        $inscripcionesPeriodo++;
+                    }
+                }
             }
+            $this->command->info("✓ Created {$inscripcionesPeriodo} enrollments for period: {$periodo->nombre}");
         }
-        $this->command->info('✓ Created ' . $inscripciones->count() . ' enrollments');
+        $this->command->info('✓ Total enrollments created: ' . $inscripciones->count());
 
         // Step 10: Create Grades for Each Unit
         $totalCalificaciones = 0;
@@ -143,57 +163,84 @@ class DatabaseSeeder extends Seeder
         }
         $this->command->info('✓ Created ' . $totalCalificaciones . ' grades');
 
-        // Step 11: Create Attendance Records
+        // Step 11: Create Attendance Records (for all enrollments)
         $totalAsistencias = 0;
-        $startDate = now()->subMonths(3);
-        $endDate = now();
 
-        foreach ($inscripciones->random(min(100, $inscripciones->count())) as $inscripcion) {
-            // Create 15-25 attendance records per enrollment
-            $numAsistencias = rand(15, 25);
-            
-            for ($i = 0; $i < $numAsistencias; $i++) {
-                try {
-                    $fecha = $startDate->copy()->addDays(rand(0, $startDate->diffInDays($endDate)));
-                    
-                    Asistencia::factory()->create([
-                        'inscripcion_id' => $inscripcion->id,
-                        'fecha' => $fecha->format('Y-m-d'),
-                        'estatus' => rand(1, 100) <= 80 ? 'presente' : (rand(1, 100) <= 50 ? 'ausente' : 'retardo'),
-                    ]);
-                    $totalAsistencias++;
-                } catch (\Exception $e) {
-                    // Skip if duplicate date
-                    continue;
+        foreach ($periodos as $periodo) {
+            $asistenciasPeriodo = 0;
+            $inscripcionesPeriodo = $inscripciones->filter(function($inscripcion) use ($periodo) {
+                return $inscripcion->grupo->periodo_id == $periodo->id;
+            });
+
+            $startDate = \Carbon\Carbon::parse($periodo->fecha_inicio);
+            $endDate = \Carbon\Carbon::parse($periodo->fecha_fin);
+
+            // Create attendance for 60% of enrollments per period
+            $inscripcionesSample = $inscripcionesPeriodo->random(min(
+                (int)($inscripcionesPeriodo->count() * 0.6),
+                $inscripcionesPeriodo->count()
+            ));
+
+            foreach ($inscripcionesSample as $inscripcion) {
+                // Create 20-30 attendance records per enrollment
+                $numAsistencias = rand(20, 30);
+                
+                for ($i = 0; $i < $numAsistencias; $i++) {
+                    try {
+                        $fecha = $startDate->copy()->addDays(rand(0, max(1, $startDate->diffInDays($endDate))));
+                        
+                        Asistencia::factory()->create([
+                            'inscripcion_id' => $inscripcion->id,
+                            'fecha' => $fecha->format('Y-m-d'),
+                            'estatus' => rand(1, 100) <= 85 ? 'presente' : (rand(1, 100) <= 60 ? 'ausente' : 'retardo'),
+                        ]);
+                        $totalAsistencias++;
+                        $asistenciasPeriodo++;
+                    } catch (\Exception $e) {
+                        // Skip if duplicate date
+                        continue;
+                    }
                 }
             }
+            $this->command->info("✓ Created {$asistenciasPeriodo} attendance records for period: {$periodo->nombre}");
         }
-        $this->command->info('✓ Created ' . $totalAsistencias . ' attendance records');
+        $this->command->info('✓ Total attendance records created: ' . $totalAsistencias);
 
-        // Step 12: Assign Risk Factors to Some Students
-        $alumnosEnRiesgo = $inscripciones
-            ->filter(fn($i) => $i->calificacion_final < 70)
-            ->random(min(30, $inscripciones->where('calificacion_final', '<', 70)->count()));
-
+        // Step 12: Assign Risk Factors to Some Students (across all periods)
         $totalFactoresAsignados = 0;
-        foreach ($alumnosEnRiesgo as $inscripcion) {
-            // Assign 1-3 risk factors
-            $factoresAsignar = $factores->random(rand(1, 3));
-            
-            foreach ($factoresAsignar as $factor) {
-                try {
-                    AlumnoFactor::factory()->create([
-                        'inscripcion_id' => $inscripcion->id,
-                        'factor_id' => $factor->id,
-                    ]);
-                    $totalFactoresAsignados++;
-                } catch (\Exception $e) {
-                    // Skip if duplicate
-                    continue;
+        
+        foreach ($periodos as $periodo) {
+            $factoresPeriodo = 0;
+            $inscripcionesPeriodo = $inscripciones->filter(function($inscripcion) use ($periodo) {
+                return $inscripcion->grupo->periodo_id == $periodo->id;
+            });
+
+            $alumnosEnRiesgo = $inscripcionesPeriodo
+                ->filter(fn($i) => $i->calificacion_final < 70)
+                ->shuffle()
+                ->take(min(50, $inscripcionesPeriodo->where('calificacion_final', '<', 70)->count()));
+
+            foreach ($alumnosEnRiesgo as $inscripcion) {
+                // Assign 1-4 risk factors
+                $factoresAsignar = $factores->random(rand(1, 4));
+                
+                foreach ($factoresAsignar as $factor) {
+                    try {
+                        AlumnoFactor::factory()->create([
+                            'inscripcion_id' => $inscripcion->id,
+                            'factor_id' => $factor->id,
+                        ]);
+                        $totalFactoresAsignados++;
+                        $factoresPeriodo++;
+                    } catch (\Exception $e) {
+                        // Skip if duplicate
+                        continue;
+                    }
                 }
             }
+            $this->command->info("✓ Assigned {$factoresPeriodo} risk factors for period: {$periodo->nombre}");
         }
-        $this->command->info('✓ Assigned ' . $totalFactoresAsignados . ' risk factors');
+        $this->command->info('✓ Total risk factors assigned: ' . $totalFactoresAsignados);
 
         // Step 13: Seed Recommendations
         $this->call([
@@ -261,6 +308,16 @@ class DatabaseSeeder extends Seeder
         $this->command->info('   • Attendance: ' . $totalAsistencias);
         $this->command->info('   • Risk Factors: ' . $factores->count());
         $this->command->info('   • Assigned Factors: ' . $totalFactoresAsignados);
+        
+        $this->command->info('');
+        $this->command->info('📅 Data per Period:');
+        foreach ($periodos as $periodo) {
+            $gruposPeriodo = $grupos->where('periodo_id', $periodo->id)->count();
+            $inscripcionesPeriodo = $inscripciones->filter(fn($i) => $i->grupo->periodo_id == $periodo->id)->count();
+            $this->command->info("   • {$periodo->nombre}: {$gruposPeriodo} groups, {$inscripcionesPeriodo} enrollments");
+        }
+        
+        $this->command->info('');
         $this->command->info('   • Student Status:');
         $this->command->info('      - Activos: ' . Alumno::where('estatus_alumno', 'activo')->count());
         $this->command->info('      - Baja temporal: ' . Alumno::where('estatus_alumno', 'baja_temporal')->count());
