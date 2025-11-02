@@ -28,7 +28,8 @@ export default function ResourceListPage() {
     }, [resource]);
 
     const [isSheetOpen, setIsSheetOpen] = useState(false);
-    const [sheetItemId, setSheetItemId] = useState<string | number | null>(null);
+    // use `undefined` to represent "no selected item" which plays nicer with TS narrowing
+    const [sheetItemId, setSheetItemId] = useState<string | number | undefined>(undefined);
 
     // Call the generic hook with the resource name from the URL
     const { 
@@ -48,6 +49,8 @@ export default function ResourceListPage() {
         }
     );
 
+    // `useItem` expects a non-null id; assert the type here because when no id is
+    // selected we intentionally pass `undefined` (the hook should handle it).
     const { data: itemData, isLoading: isLoadingItem } = useItem(sheetItemId as string | number);
 
     const tableData = paginatedData?.data || [];
@@ -58,7 +61,7 @@ export default function ResourceListPage() {
     }
 
     const handleCreate = () => {
-        setSheetItemId(null);
+        setSheetItemId(undefined);
         setIsSheetOpen(true);
     }
 
@@ -92,14 +95,16 @@ export default function ResourceListPage() {
         return [...baseColumns, actionsColumn];
     }, [baseColumns, resource, deleteItem]);
 
-    const isEditMode = sheetItemId !== null;
+    const isEditMode = sheetItemId !== undefined;
     const baseMutation = isEditMode ? updateItem : createItem;
 
     const onSubmitWithId = {
         ...baseMutation,
         mutate: (data: any, options?: any) => {
             if(isEditMode) {
-                updateItem.mutate({ id: sheetItemId, data }, options);
+                // when in edit mode `sheetItemId` is defined, ensure the type is
+                // narrowed for the mutation payload
+                updateItem.mutate({ id: sheetItemId as string | number, data }, options);
             } else {
                 createItem.mutate(data, options);
             }
