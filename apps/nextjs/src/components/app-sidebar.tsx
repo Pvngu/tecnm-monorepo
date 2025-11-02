@@ -111,42 +111,30 @@ const data = {
         },
       ],
     },
-    {
-      title: "Docentes",
-      url: "docentes",
-      icon: Bot,
-      items: [
-        {
-          title: "Mis Grupos",
-          url: "docentes/grupos",
-        },
-        {
-          title: "Calificaciones",
-          url: "docentes/calificaciones",
-        },
-        {
-          title: "Asistencia",
-          url: "docentes/asistencia",
-        }
-      ]
-    },
+    // {
+    //   title: "Docentes",
+    //   url: "docentes",
+    //   icon: Bot,
+    //   items: [
+    //     {
+    //       title: "Mis Grupos",
+    //       url: "docentes/grupos",
+    //     },
+    //     {
+    //       title: "Calificaciones",
+    //       url: "docentes/calificaciones",
+    //     },
+    //     {
+    //       title: "Asistencia",
+    //       url: "docentes/asistencia",
+    //     }
+    //   ]
+    // },
     {
       title: "Análisis de Calidad",
       url: "analisis",
       icon: Settings2,
       items: [
-        {
-          title: "Resumen",
-          url: "analisis/resumen",
-        },
-        {
-          title: "Histograma",
-          url: "analytics",
-        },
-        {
-          title: "Analisis de pareto",
-          url: "pareto",
-        },
         {
           title: "Diagrama de Ishikawa",
           url: "ishikawa",
