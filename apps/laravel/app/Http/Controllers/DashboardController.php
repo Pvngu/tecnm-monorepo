@@ -6,6 +6,8 @@ use App\Models\Alumno;
 use App\Models\Inscripcion;
 use App\Models\Calificacion;
 use App\Models\Periodo;
+use App\Models\AlumnoFactor;
+use App\Models\FactorRiesgo;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -99,6 +101,106 @@ class DashboardController extends Controller
             'desercionPorSemestre' => $desercionPorSemestre,
             'periodos' => $periodos,
             'periodoSeleccionado' => $periodoId,
+        ]);
+    }
+
+    /**
+     * Get analytics data for dashboard
+     * Returns grades distribution and risk factors frequency
+     */
+    public function getAnalytics(Request $request)
+    {
+        // Validate required periodo_id parameter
+        $request->validate([
+            'periodo_id' => 'required|exists:periodos,id',
+            'carrera_id' => 'nullable|exists:carreras,id',
+            'semestre' => 'nullable|integer|min:1|max:12',
+        ]);
+
+        $periodoId = $request->input('periodo_id');
+        $carreraId = $request->input('carrera_id');
+        $semestre = $request->input('semestre');
+
+        // Build base query for filtered inscriptions
+        $baseQuery = Inscripcion::query()
+            ->join('alumnos', 'inscripciones.alumno_id', '=', 'alumnos.id')
+            ->join('grupos', 'inscripciones.grupo_id', '=', 'grupos.id')
+            ->where('grupos.periodo_id', $periodoId);
+
+        // Apply optional filters
+        if ($carreraId) {
+            $baseQuery->where('alumnos.carrera_id', $carreraId);
+        }
+        if ($semestre) {
+            $baseQuery->where('alumnos.semestre', $semestre);
+        }
+
+        // 1. Get grades distribution data
+        $gradesQuery = clone $baseQuery;
+        $gradesData = $gradesQuery
+            ->select(
+                DB::raw('CASE 
+                    WHEN calificacion_final < 60 THEN 0
+                    WHEN calificacion_final >= 60 AND calificacion_final < 70 THEN 60
+                    WHEN calificacion_final >= 70 AND calificacion_final < 80 THEN 70
+                    WHEN calificacion_final >= 80 AND calificacion_final < 90 THEN 80
+                    ELSE 90
+                END as rango_inicio'),
+                DB::raw('COUNT(*) as frecuencia')
+            )
+            ->whereNotNull('inscripciones.calificacion_final')
+            ->groupBy('rango_inicio')
+            ->orderBy('rango_inicio')
+            ->get();
+
+        // Format grades data with proper range labels
+        $calificacionesData = $gradesData->map(function ($item) {
+            $rangoInicio = $item->rango_inicio;
+            $rango = match($rangoInicio) {
+                0 => '0-59',
+                60 => '60-69',
+                70 => '70-79',
+                80 => '80-89',
+                90 => '90-100',
+                default => "$rangoInicio-" . ($rangoInicio + 9)
+            };
+
+            return [
+                'rango' => $rango,
+                'frecuencia' => (int) $item->frecuencia
+            ];
+        })->values();
+
+        // Calculate average grade
+        $promedioQuery = clone $baseQuery;
+        $promedioGeneral = $promedioQuery
+            ->whereNotNull('inscripciones.calificacion_final')
+            ->avg('inscripciones.calificacion_final');
+        $promedioGeneral = $promedioGeneral ? round($promedioGeneral, 2) : 0;
+
+        // 2. Get risk factors frequency data
+        // First get the IDs of filtered inscriptions
+        $inscripcionIds = (clone $baseQuery)->pluck('inscripciones.id');
+
+        // Query risk factors for these inscriptions
+        $factoresRiesgoData = AlumnoFactor::query()
+            ->select('factores_riesgo.nombre', DB::raw('COUNT(alumnos_factores.id) as frecuencia'))
+            ->join('factores_riesgo', 'alumnos_factores.factor_id', '=', 'factores_riesgo.id')
+            ->whereIn('alumnos_factores.inscripcion_id', $inscripcionIds)
+            ->groupBy('factores_riesgo.id', 'factores_riesgo.nombre')
+            ->orderByDesc('frecuencia')
+            ->get()
+            ->map(function ($item) {
+                return [
+                    'nombre' => $item->nombre,
+                    'frecuencia' => (int) $item->frecuencia
+                ];
+            });
+
+        return response()->json([
+            'calificaciones_data' => $calificacionesData,
+            'factores_riesgo_data' => $factoresRiesgoData,
+            'promedio_general' => $promedioGeneral
         ]);
     }
 }

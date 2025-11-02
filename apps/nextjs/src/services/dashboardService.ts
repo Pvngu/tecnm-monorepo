@@ -19,6 +19,28 @@ export interface DashboardStats {
   periodoSeleccionado: number | null;
 }
 
+export interface GradesData {
+  rango: string;
+  frecuencia: number;
+}
+
+export interface RiskFactorData {
+  nombre: string;
+  frecuencia: number;
+}
+
+export interface AnalyticsData {
+  calificaciones_data: GradesData[];
+  factores_riesgo_data: RiskFactorData[];
+  promedio_general: number;
+}
+
+export interface AnalyticsFilters {
+  periodo_id: number;
+  carrera_id?: number;
+  semestre?: number;
+}
+
 export const dashboardService = {
   getStats: async (periodoId?: number): Promise<DashboardStats> => {
     const url = periodoId 
@@ -36,6 +58,35 @@ export const dashboardService = {
 
     if (!response.ok) {
       throw new Error('Error fetching dashboard stats');
+    }
+
+    return response.json();
+  },
+
+  getAnalytics: async (filters: AnalyticsFilters): Promise<AnalyticsData> => {
+    const params = new URLSearchParams({
+      periodo_id: filters.periodo_id.toString(),
+    });
+
+    if (filters.carrera_id) {
+      params.append('carrera_id', filters.carrera_id.toString());
+    }
+
+    if (filters.semestre) {
+      params.append('semestre', filters.semestre.toString());
+    }
+
+    const response = await fetch(`${apiBaseURL}dashboard/analytics?${params.toString()}`, {
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'X-Requested-With': 'XMLHttpRequest'
+      },
+      credentials: 'include',
+    });
+
+    if (!response.ok) {
+      throw new Error('Error fetching analytics data');
     }
 
     return response.json();

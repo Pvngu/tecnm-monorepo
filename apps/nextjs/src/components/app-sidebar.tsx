@@ -156,6 +156,11 @@ const data = {
         url: "dashboard",
         icon: PieChart,
       },
+      {
+        name: "Analíticas",
+        url: "analytics",
+        icon: PieChart,
+      },
     ],
 }
 

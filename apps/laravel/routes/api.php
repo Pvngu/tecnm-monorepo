@@ -21,6 +21,7 @@ use App\Http\Controllers\DashboardController;
 //create group for middleware auth:sanctum
 Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('dashboard/stats', [DashboardController::class, 'getStats']);
+    Route::get('dashboard/analytics', [DashboardController::class, 'getAnalytics']);
     Route::apiResource('periodos', PeriodoController::class);
     Route::apiResource('carreras', CarreraController::class);
     Route::apiResource('profesores', ProfesorController::class);
