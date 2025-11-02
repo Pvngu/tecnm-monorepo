@@ -81,10 +81,6 @@ const data = {
       isActive: true,
       items: [
         {
-          title: "Dashboard",
-          url: "dashboard",
-        },
-        {
           title: "Carreras",
           url: "carreras"
         },
@@ -156,19 +152,9 @@ const data = {
   ],
     projects: [
       {
-        name: "Design Engineering",
-        url: "#",
-        icon: Frame,
-      },
-      {
-        name: "Sales & Marketing",
-        url: "#",
+        name: "Dashboard",
+        url: "dashboard",
         icon: PieChart,
-      },
-      {
-        name: "Travel",
-        url: "#",
-        icon: Map,
       },
     ],
 }
@@ -182,8 +168,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         </div>
       </SidebarHeader>
       <SidebarContent>
-        <NavMain items={data.navMain} />
         <NavProjects projects={data.projects} />
+        <NavMain items={data.navMain} />
       </SidebarContent>
       <SidebarFooter>
         <NavUser user={data.user} />
