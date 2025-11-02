@@ -10,6 +10,7 @@ import { dashboardService, type AnalyticsData, type AnalyticsFilters } from "@/s
 import { apiService } from "@/services/apiService";
 import { Filter, TrendingUp, AlertTriangle } from "lucide-react";
 import z from "zod";
+import { ParetoFactoresGrupo } from "@/components/charts/pareto-factores-grupo";
 
 interface Periodo {
   id: number;
@@ -286,6 +287,11 @@ export default function AnalyticsPage() {
             </div>
           </CardFooter>
         </Card>
+      </div>
+
+      {/* Pareto Analysis Section */}
+      <div>
+        <ParetoFactoresGrupo />
       </div>
     </div>
   );

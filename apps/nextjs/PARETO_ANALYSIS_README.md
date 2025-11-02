@@ -38,10 +38,9 @@ Permitir a los administradores seleccionar un grupo específico y visualizar los
      - Línea para porcentaje acumulado (eje Y derecho)
    - Estados de carga y vacío con feedback visual
 
-5. **`apps/nextjs/src/app/admin/pareto/page.tsx`** (NUEVO)
-   - Página independiente para el Análisis de Pareto
-   - Renderiza el componente `<ParetoFactoresGrupo />`
-   - Accesible en la ruta `/admin/pareto`
+5. **`apps/nextjs/src/app/admin/analytics/page.tsx`**
+   - Importado y renderizado el componente `<ParetoFactoresGrupo />`
+   - Agregado en nueva sección debajo de los gráficos existentes
 
 ## 🔄 Flujo de Datos
 
@@ -114,8 +113,8 @@ Panel informativo incluido que explica la regla 80/20:
 
 ## 🚀 Uso
 
-1. Navega a `/admin/pareto`
-2. En la sección "Análisis de Pareto - Factores de Riesgo por Grupo"
+1. Navega a `/admin/analytics`
+2. Desplázate hasta la sección "Análisis de Pareto - Factores de Riesgo por Grupo"
 3. Selecciona un Periodo
 4. Selecciona una Materia
 5. Selecciona un Grupo
