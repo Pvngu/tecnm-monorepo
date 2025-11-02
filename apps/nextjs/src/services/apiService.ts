@@ -118,4 +118,12 @@ export const apiService = {
             credentials: 'include',
         }).then(handleResponse<any>);
     },
+    bulkImport: <T>(resource: string, data: T[]): Promise<any> => {
+        return fetch(`${apiBaseURL}${resource}/import`, {
+            method: 'POST',
+            headers: getHeaders(),
+            body: JSON.stringify({ data }),
+            credentials: 'include',
+        }).then(handleResponse<any>);
+    },
 };

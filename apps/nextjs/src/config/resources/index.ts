@@ -18,6 +18,7 @@ export interface ResourceConfig<T = any> {
     filters?: FilterConfig[];
     schema?: z.ZodTypeAny;
     formConfig?: FormFieldConfig[];
+    csvHeaders?: string[];
 }
 
 // Build the resource config map automatically
@@ -28,6 +29,7 @@ export const resourceConfigMap: { [key: string]: ResourceConfig } = {
         filters: AlumnosConfig.AlumnoFilters,
         schema: AlumnosConfig.AlumnoSchema,
         formConfig: AlumnosConfig.AlumnoFormConfig,
+        csvHeaders: AlumnosConfig.AlumnoCsvHeaders,
     },
     carreras: {
         columns: CarrerasConfig.CarreraColumns,

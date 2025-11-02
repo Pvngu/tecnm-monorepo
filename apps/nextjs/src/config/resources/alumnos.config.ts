@@ -144,3 +144,14 @@ export const AlumnoFormConfig: FormFieldConfig[] = [
     ]
   }
 ];
+
+export const AlumnoCsvHeaders = [
+  "carrera_id",
+  "matricula",
+  "nombre",
+  "apellido_paterno",
+  "apellido_materno",
+  "semestre",
+  "genero",
+  "modalidad"
+];

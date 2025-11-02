@@ -6,6 +6,7 @@ use App\Http\Requests\AlumnoRequest;
 use App\Http\Traits\HasPagination;
 use App\Models\Alumno;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Spatie\QueryBuilder\QueryBuilder;
 use Spatie\QueryBuilder\AllowedFilter;
 
@@ -55,5 +56,46 @@ class AlumnoController extends Controller
     {
         $alumno->delete();
         return response()->json(null, 204);
+    }
+
+    public function import(Request $request): JsonResponse
+    {
+        $request->validate([
+            'data' => 'required|array',
+            'data.*.carrera_id' => 'required|integer|exists:carreras,id',
+            'data.*.matricula' => 'required|string|max:50',
+            'data.*.nombre' => 'required|string|max:100',
+            'data.*.apellido_paterno' => 'required|string|max:100',
+            'data.*.apellido_materno' => 'nullable|string|max:100',
+            'data.*.semestre' => 'required|integer|min:1|max:12',
+            'data.*.genero' => 'required|in:masculino,femenino,otro',
+            'data.*.modalidad' => 'required|in:presencial,virtual,hibrida',
+        ]);
+
+        $imported = [];
+        $errors = [];
+
+        foreach ($request->data as $index => $row) {
+            try {
+                // Set usuario_id to null by default for CSV imports
+                $alumnoData = array_merge($row, ['usuario_id' => null]);
+                
+                $alumno = Alumno::create($alumnoData);
+                $imported[] = $alumno;
+            } catch (\Exception $e) {
+                $errors[] = [
+                    'row' => $index + 1,
+                    'message' => $e->getMessage(),
+                    'data' => $row,
+                ];
+            }
+        }
+
+        return response()->json([
+            'success' => true,
+            'imported' => count($imported),
+            'failed' => count($errors),
+            'errors' => $errors,
+        ]);
     }
 }

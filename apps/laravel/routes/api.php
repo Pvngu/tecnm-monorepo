@@ -24,6 +24,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::apiResource('periodos', PeriodoController::class);
     Route::apiResource('carreras', CarreraController::class);
     Route::apiResource('profesores', ProfesorController::class);
+    Route::post('alumnos/import', [AlumnoController::class, 'import']);
     Route::apiResource('alumnos', AlumnoController::class);
     Route::apiResource('materias', MateriaController::class);
     Route::apiResource('unidades', UnidadController::class);
