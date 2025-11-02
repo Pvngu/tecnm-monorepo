@@ -22,4 +22,12 @@ class FactorRiesgo extends Model
     {
         return $this->hasMany(AlumnoFactor::class, 'factor_id');
     }
+
+    /**
+     * Obtener las recomendaciones asociadas a este factor de riesgo.
+     */
+    public function recomendaciones(): HasMany
+    {
+        return $this->hasMany(Recomendacion::class);
+    }
 }

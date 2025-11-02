@@ -195,7 +195,13 @@ class DatabaseSeeder extends Seeder
         }
         $this->command->info('✓ Assigned ' . $totalFactoresAsignados . ' risk factors');
 
-        // Step 13: Update student status based on performance
+        // Step 13: Seed Recommendations
+        $this->call([
+            RecomendacionSeeder::class,
+        ]);
+        $this->command->info('✓ Created recommendations for risk factors');
+
+        // Step 14: Update student status based on performance
         $this->command->info('');
         $this->command->info('🔄 Updating student status...');
         

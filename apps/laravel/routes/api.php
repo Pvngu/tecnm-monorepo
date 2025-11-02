@@ -18,6 +18,7 @@ use App\Http\Controllers\AsistenciaController;
 use App\Http\Controllers\AlumnoFactorController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\AnalisisIshikawaController;
+use App\Http\Controllers\ReporteController;
 
 //create group for middleware auth:sanctum
 Route::middleware(['auth:sanctum'])->group(function () {
@@ -47,6 +48,9 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::apiResource('asistencias', AsistenciaController::class);
     Route::apiResource('alumnos-factores', AlumnoFactorController::class);
     Route::get('activity-logs', [App\Http\Controllers\ActivityLogController::class, 'index']);
+    
+    // Rutas para Reportes
+    Route::get('reportes/summary', [ReporteController::class, 'getSummaryReport']);
 });
 
 Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {

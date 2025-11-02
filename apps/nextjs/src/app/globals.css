@@ -261,3 +261,43 @@
     display: none;
   }
 }
+
+/* Estilos de impresión para reportes */
+@media print {
+  /* Oculta la barra de navegación y los filtros al imprimir */
+  .hide-on-print {
+    display: none !important;
+  }
+  
+  /* Asegura que el contenido del reporte use todo el ancho */
+  @page {
+    size: auto;
+    margin: 0.5in;
+  }
+  
+  body {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  
+  /* Mejoras para la impresión de tarjetas y contenido */
+  .print\:shadow-none {
+    box-shadow: none !important;
+  }
+  
+  .print\:border-none {
+    border: none !important;
+  }
+  
+  /* Previene saltos de página dentro de elementos importantes */
+  .print\:break-inside-avoid {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+  
+  /* Asegura que los colores se impriman correctamente */
+  * {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+}
