@@ -34,6 +34,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::apiResource('grupos', GrupoController::class);
     Route::get('grupos/{grupo}/factores-pareto', [GrupoController::class, 'getFactoresPareto']);
     Route::get('grupos/{grupo}/ishikawa-data', [GrupoController::class, 'getIshikawaData']);
+    Route::get('grupos/{grupo}/scatter-faltas', [GrupoController::class, 'getScatterPlotFaltas']);
     
     // Rutas para Análisis de Ishikawa
     Route::post('grupos/{grupo}/ishikawa/save', [AnalisisIshikawaController::class, 'save']);

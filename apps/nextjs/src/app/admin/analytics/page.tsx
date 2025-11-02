@@ -11,6 +11,7 @@ import { apiService } from "@/services/apiService";
 import { Filter, TrendingUp, AlertTriangle } from "lucide-react";
 import z from "zod";
 import { ParetoFactoresGrupo } from "@/components/charts/pareto-factores-grupo";
+import { ScatterFaltasGrupo } from "@/components/charts/scatter-faltas-grupo";
 
 interface Periodo {
   id: number;
@@ -292,6 +293,11 @@ export default function AnalyticsPage() {
       {/* Pareto Analysis Section */}
       <div>
         <ParetoFactoresGrupo />
+      </div>
+
+      {/* Scatter Plot: Faltas vs Calificación */}
+      <div>
+        <ScatterFaltasGrupo />
       </div>
     </div>
   );

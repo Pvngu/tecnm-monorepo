@@ -160,6 +160,14 @@ export const apiService = {
         }).then(handleResponse<{ data: SavedIshikawaAnalysis | null }>)
         .catch(() => ({ data: null })); // Si no existe, retornar null
     },
+    // Obtener datos del Scatter Plot: Faltas vs Calificación Final
+    getScatterPlotFaltas: (grupoId: number): Promise<ScatterPlotData[]> => {
+        return fetch(`${apiBaseURL}grupos/${grupoId}/scatter-faltas`, {
+            method: 'GET',
+            headers: getHeaders(),
+            credentials: 'include',
+        }).then(handleResponse<ScatterPlotData[]>);
+    },
 };
 
 // Tipo para los datos de Pareto
@@ -195,4 +203,16 @@ export interface SavedIshikawaAnalysis {
     observaciones: Record<string, string>;
     created_at: string;
     updated_at: string;
+}
+// Tipo para los datos del Scatter Plot
+export interface ScatterPlotData {
+    calificacion_final: number;
+    faltas: number;
+    asistencias: number;
+    justificados: number;
+    total_asistencias: number;
+    porcentaje_asistencia: number;
+    num_factores_riesgo: number;
+    alumno_nombre: string;
+    alumno_id: number;
 }

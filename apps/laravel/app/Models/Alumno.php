@@ -41,4 +41,12 @@ class Alumno extends Model
     {
         return $this->hasMany(Inscripcion::class);
     }
+
+    /**
+     * Accesor para obtener el nombre completo del alumno
+     */
+    public function getNombreCompletoAttribute(): string
+    {
+        return trim("{$this->nombre} {$this->apellido_paterno} {$this->apellido_materno}");
+    }
 }

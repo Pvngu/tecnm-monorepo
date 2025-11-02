@@ -149,4 +149,58 @@ class GrupoController extends Controller
             'causas_principales' => $causasPrincipales
         ]);
     }
+
+    /**
+     * Obtener datos para el Diagrama de Dispersión: Faltas vs. Calificación Final
+     * Devuelve los puntos (x: número de faltas, y: calificación final) del grupo
+     */
+    public function getScatterPlotFaltas(Grupo $grupo): JsonResponse
+    {
+        // Cargar las inscripciones del grupo con sus calificaciones finales
+        // y un conteo de sus asistencias que tengan estatus 'falta'
+        $datos = $grupo->inscripciones()
+            ->whereNotNull('calificacion_final')
+            ->with('alumno') // Eager loading para evitar N+1
+            ->withCount([
+                'asistencias as total_asistencias',
+                'asistencias as faltas_count' => function ($query) {
+                    $query->where('estatus', 'falta');
+                },
+                'asistencias as asistencias_count' => function ($query) {
+                    $query->where('estatus', 'asistio');
+                },
+                'asistencias as justificados_count' => function ($query) {
+                    $query->where('estatus', 'justificado');
+                },
+                'calificaciones as calificaciones_count',
+                'alumnosFactores as factores_count',
+            ])
+            ->get();
+
+        // Formatear los datos para el gráfico de dispersión con múltiples variables
+        $scatterData = $datos->map(function ($inscripcion) {
+            // Calcular porcentaje de asistencias
+            $totalRegistros = $inscripcion->total_asistencias;
+            $porcentajeAsistencia = $totalRegistros > 0 
+                ? round(($inscripcion->asistencias_count / $totalRegistros) * 100, 1) 
+                : 0;
+
+            return [
+                // Variables numéricas disponibles
+                'calificacion_final' => (float) $inscripcion->calificacion_final,
+                'faltas' => $inscripcion->faltas_count,
+                'asistencias' => $inscripcion->asistencias_count,
+                'justificados' => $inscripcion->justificados_count,
+                'total_asistencias' => $inscripcion->total_asistencias,
+                'porcentaje_asistencia' => $porcentajeAsistencia,
+                'num_factores_riesgo' => $inscripcion->factores_count,
+                
+                // Información del alumno
+                'alumno_nombre' => $inscripcion->alumno->nombre_completo,
+                'alumno_id' => $inscripcion->alumno_id,
+            ];
+        });
+
+        return response()->json($scatterData);
+    }
 }
