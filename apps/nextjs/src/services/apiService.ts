@@ -45,12 +45,23 @@ function getCsrfTokenFromCookie(): string | null {
     return null;
 }
 
+function getCookie(n: string) {
+    console.log('Getting cookie:', n);
+  if (typeof document === 'undefined') return '';
+  console.log('Document cookies:', document.cookie);
+  const m = document.cookie.match(new RegExp('(?:^|; )' + n + '=([^;]*)'));
+  return m ? decodeURIComponent(m[1]) : '';
+}
+const xsrf = getCookie('XSRF-TOKEN');
+
+
 // Helper to get headers with CSRF token
 function getHeaders(): HeadersInit {
     const headers: Record<string, string> = {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
-        'X-Requested-With': 'XMLHttpRequest'
+        'X-Requested-With': 'XMLHttpRequest',
+        'X-XSRF-TOKEN': xsrf,
     };
     
     const csrfToken = getCsrfTokenFromCookie();
