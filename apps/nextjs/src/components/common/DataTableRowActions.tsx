@@ -24,11 +24,18 @@ import {
     AlertDialogTitle
 } from '@/components/ui/alert-dialog';
 
+interface CustomAction<TData> {
+    label: string;
+    onClick: (row: TData) => void;
+    className?: string;
+}
+
 interface DataTableRowActionsProps<TData> {
     row: Row<TData>;
     resource: string;
     deleteItem: UseMutationResult<any, Error, string | number, unknown>;
     onEdit: (id: string | number) => void;
+    customActions?: CustomAction<TData>[];
 }
 
 // Make sure TData has an 'id' field
@@ -41,6 +48,7 @@ export function DataTableRowActions<TData extends WithId>({
     resource,
     deleteItem,
     onEdit,
+    customActions = [],
 }: DataTableRowActionsProps<TData>) {
     const [isDeleting, setIsDeleting] = useState(false);
     const itemId = row.original.id;
@@ -83,6 +91,20 @@ export function DataTableRowActions<TData extends WithId>({
                     </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
+                    {customActions.length > 0 && (
+                        <>
+                            {customActions.map((action, index) => (
+                                <DropdownMenuItem
+                                    key={index}
+                                    onClick={() => action.onClick(row.original)}
+                                    className={action.className}
+                                >
+                                    {action.label}
+                                </DropdownMenuItem>
+                            ))}
+                            <DropdownMenuSeparator />
+                        </>
+                    )}
                     <DropdownMenuItem onClick={() => onEdit(itemId)}>
                         Edit
                     </DropdownMenuItem>

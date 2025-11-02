@@ -155,3 +155,13 @@ export const AlumnoCsvHeaders = [
   "genero",
   "modalidad"
 ];
+
+// Función para crear las acciones personalizadas con acceso al router
+export const createAlumnoCustomActions = (router: any) => [
+  {
+    label: "Ver Expediente",
+    onClick: (row: Alumno) => {
+      router.push(`/admin/alumnos/${row.id}`);
+    },
+  },
+];

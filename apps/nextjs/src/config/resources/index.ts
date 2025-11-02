@@ -19,6 +19,11 @@ export interface ResourceConfig<T = any> {
     schema?: z.ZodTypeAny;
     formConfig?: FormFieldConfig[];
     csvHeaders?: string[];
+    customActions?: Array<{
+        label: string;
+        onClick: (row: T) => void;
+        className?: string;
+    }>;
 }
 
 // Build the resource config map automatically
@@ -30,6 +35,7 @@ export const resourceConfigMap: { [key: string]: ResourceConfig } = {
         schema: AlumnosConfig.AlumnoSchema,
         formConfig: AlumnosConfig.AlumnoFormConfig,
         csvHeaders: AlumnosConfig.AlumnoCsvHeaders,
+        // customActions will be set dynamically in the component
     },
     carreras: {
         columns: CarrerasConfig.CarreraColumns,

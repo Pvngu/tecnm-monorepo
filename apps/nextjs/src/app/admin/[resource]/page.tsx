@@ -1,6 +1,6 @@
 'use client';
 
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import { useMemo, useState } from 'react';
 import { GenericDataTable } from '@/components/common/GenericDataTable';
 import { GenericPagination } from '@/components/common/GenericPagination';
@@ -21,14 +21,24 @@ import { toast } from 'sonner';
 
 // Import the centralized resource configuration
 import { resourceConfigMap } from '@/config/resources';
+import { createAlumnoCustomActions } from '@/config/resources/alumnos.config';
 
 export default function ResourceListPage() {
     const params = useParams();
+    const router = useRouter();
     const resource = params.resource as string;
 
     const { columns: baseColumns, type, includes, filters, schema, formConfig, csvHeaders } = useMemo(() => {
         return resourceConfigMap[resource] || { columns: [], type: {}, includes: [], filters: [], schema: z.object({}), formConfig: [], csvHeaders: [] };
     }, [resource]);
+
+    // Create custom actions dynamically based on resource
+    const customActions = useMemo(() => {
+        if (resource === 'alumnos') {
+            return createAlumnoCustomActions(router);
+        }
+        return [];
+    }, [resource, router]);
 
     const [isSheetOpen, setIsSheetOpen] = useState(false);
     const [isImportDialogOpen, setIsImportDialogOpen] = useState(false);
@@ -101,12 +111,13 @@ export default function ResourceListPage() {
                     resource={resource}
                     deleteItem={deleteItem}
                     onEdit={handleEdit}
+                    customActions={customActions}
                 />
             ),
         };
 
         return [...baseColumns, actionsColumn];
-    }, [baseColumns, resource, deleteItem]);
+    }, [baseColumns, resource, deleteItem, customActions]);
 
     const isEditMode = sheetItemId !== undefined;
     const baseMutation = isEditMode ? updateItem : createItem;
