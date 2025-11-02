@@ -10,6 +10,8 @@ import * as ProfesoresConfig from './profesores.config';
 import * as GruposConfig from './grupos.config';
 import * as ActivityLogsConfig from './activity-logs.config';
 
+import * as FactoresRiesgoConfig from './factoresRiesgo.config';
+
 // Define the structure of a resource configuration
 export interface ResourceConfig<T = any> {
     columns: any;
@@ -73,6 +75,20 @@ export const resourceConfigMap: { [key: string]: ResourceConfig } = {
         schema: GruposConfig.GrupoSchema,
         formConfig: GruposConfig.GrupoFormConfig,
     },
+    factoresRiesgo: {
+        columns: FactoresRiesgoConfig.FactorRiesgoColumns,
+        type: {} as FactoresRiesgoConfig.FactorRiesgo,
+        filters: FactoresRiesgoConfig.FactorRiesgoFilters,
+        schema: FactoresRiesgoConfig.FactorRiesgoSchema,
+        formConfig: FactoresRiesgoConfig.FactorRiesgoFormConfig,
+    },
+    'factores-riesgo': {
+        columns: FactoresRiesgoConfig.FactorRiesgoColumns,
+        type: {} as FactoresRiesgoConfig.FactorRiesgo,
+        filters: FactoresRiesgoConfig.FactorRiesgoFilters,
+        schema: FactoresRiesgoConfig.FactorRiesgoSchema,
+        formConfig: FactoresRiesgoConfig.FactorRiesgoFormConfig,
+    },
     'activity-logs': {
         columns: ActivityLogsConfig.ActivityLogColumns,
         type: {} as ActivityLogsConfig.ActivityLog,
@@ -89,3 +105,4 @@ export * from './materias.config';
 export * from './profesores.config';
 export * from './grupos.config';
 export * from './activity-logs.config';
+export * from './factoresRiesgo.config';

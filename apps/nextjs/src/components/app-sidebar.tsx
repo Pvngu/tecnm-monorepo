@@ -101,6 +101,10 @@ const data = {
           title: "Alumnos",
           url: "alumnos",
         },
+            {
+              title: "Factores de Riesgo",
+              url: "factores-riesgo",
+            },
         {
           title: "Grupos",
           url: "grupos",
