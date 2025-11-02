@@ -8,6 +8,7 @@ import * as PeriodosConfig from './periodos.config';
 import * as MateriasConfig from './materias.config';
 import * as ProfesoresConfig from './profesores.config';
 import * as GruposConfig from './grupos.config';
+import * as ActivityLogsConfig from './activity-logs.config';
 
 // Define the structure of a resource configuration
 export interface ResourceConfig<T = any> {
@@ -64,6 +65,12 @@ export const resourceConfigMap: { [key: string]: ResourceConfig } = {
         schema: GruposConfig.GrupoSchema,
         formConfig: GruposConfig.GrupoFormConfig,
     },
+    'activity-logs': {
+        columns: ActivityLogsConfig.ActivityLogColumns,
+        type: {} as ActivityLogsConfig.ActivityLog,
+        filters: ActivityLogsConfig.ActivityLogFilters,
+        schema: ActivityLogsConfig.ActivityLogSchema,
+    },
 };
 
 // Export all individual configs for direct access if needed
@@ -73,3 +80,4 @@ export * from './periodos.config';
 export * from './materias.config';
 export * from './profesores.config';
 export * from './grupos.config';
+export * from './activity-logs.config';

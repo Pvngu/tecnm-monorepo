@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
+import type { Resolver } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { FormFieldConfig } from '@/types/form';
@@ -63,10 +64,11 @@ import { cn } from '@/lib/utils';
 import { DynamicSelect } from '@/components/common/DynamicSelect';
 import { DynamicMultiSelect } from '@/components/common/DynamicMultiSelect';
 
-interface ResourceFormProps<T extends z.ZodType<any, any>> {
+interface ResourceFormProps<T extends z.ZodTypeAny> {
     isOpen: boolean;
     onOpenChange: (open: boolean) => void;
-    schema: z.ZodObject;
+    // Accept any zod schema (ZodTypeAny) for flexibility across resource configs
+    schema: T | z.ZodTypeAny;
     formConfig: FormFieldConfig[];
     onSubmit: UseMutationResult<any, any, any, any>;
     defaultValues?: any;
@@ -74,7 +76,7 @@ interface ResourceFormProps<T extends z.ZodType<any, any>> {
     isEditMode: boolean;
 }
 
-export function ResourceForm<T extends z.ZodType<any, any>>({
+export function ResourceForm<T extends z.ZodTypeAny>({
     isOpen,
     onOpenChange,
     schema,
@@ -84,8 +86,12 @@ export function ResourceForm<T extends z.ZodType<any, any>>({
     isLoadingData,
     isEditMode,
 }: ResourceFormProps<T>) {
-    const form = useForm<z.infer<T>>({
-        resolver: zodResolver(schema) as any,
+    // Use a permissive any for the form values to avoid tight coupling between Zod generics
+    // and react-hook-form's FieldValues generic. This keeps the component flexible while
+    // still using zod for runtime validation via the resolver.
+    const form = useForm<any>({
+    // Cast the zod resolver to react-hook-form's Resolver<any> to satisfy TS
+    resolver: (zodResolver(schema as any) as unknown) as Resolver<any>,
         defaultValues: defaultValues || {},
     });
 

@@ -63,7 +63,7 @@ export function GenericPagination({
         <span className='whitespace-nowrap text-sm'>Items per page:</span>
         <Select
           value={pageSize.toString()}
-          onValueChange={(value) => onPageSizeChange(Number(value))}
+          onValueChange={(value: string) => onPageSizeChange?.(Number(value))}
         >
           <SelectTrigger className="w-[70px]">
             <SelectValue placeholder={pageSize} />

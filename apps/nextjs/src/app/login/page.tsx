@@ -3,15 +3,27 @@
 import { useAuth } from '@/hooks/useAuth';
 import { useRouter } from 'next/navigation';
 import { LoginForm } from '@/components/login-form';
+import { useEffect } from 'react';
+import { Loader2 } from 'lucide-react';
 
 export default function LoginPage() {
-  const { user } = useAuth();
+  const { user, isLoading } = useAuth();
   const router = useRouter();
 
   // Si el usuario ya está logueado, redirige
-  if (user) {
-    router.replace('/admin/dashboard');
-    return null;
+  useEffect(() => {
+    if (user && !isLoading) {
+      router.replace('/admin/dashboard');
+    }
+  }, [user, isLoading, router]);
+
+  // Mostrar loader mientras verifica autenticación o mientras redirige
+  if (isLoading || user) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
+    );
   }
 
   return (

@@ -16,9 +16,11 @@ use App\Http\Controllers\InscripcionController;
 use App\Http\Controllers\CalificacionController;
 use App\Http\Controllers\AsistenciaController;
 use App\Http\Controllers\AlumnoFactorController;
+use App\Http\Controllers\DashboardController;
 
 //create group for middleware auth:sanctum
 Route::middleware(['auth:sanctum'])->group(function () {
+    Route::get('dashboard/stats', [DashboardController::class, 'getStats']);
     Route::apiResource('periodos', PeriodoController::class);
     Route::apiResource('carreras', CarreraController::class);
     Route::apiResource('profesores', ProfesorController::class);

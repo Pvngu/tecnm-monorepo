@@ -72,6 +72,7 @@ class DatabaseSeeder extends Seeder
         foreach ($carreras as $carrera) {
             $alumnosCarrera = Alumno::factory(20)->create([
                 'carrera_id' => $carrera->id,
+                'estatus_alumno' => 'activo', // Inicialmente todos activos
             ]);
             $alumnos = $alumnos->merge($alumnosCarrera);
         }
@@ -194,6 +195,49 @@ class DatabaseSeeder extends Seeder
         }
         $this->command->info('✓ Assigned ' . $totalFactoresAsignados . ' risk factors');
 
+        // Step 13: Update student status based on performance
+        $this->command->info('');
+        $this->command->info('🔄 Updating student status...');
+        
+        $estatusActualizados = [
+            'baja_temporal' => 0,
+            'baja_definitiva' => 0,
+            'egresado' => 0,
+        ];
+
+        foreach ($alumnos as $alumno) {
+            $promedioGeneral = $alumno->inscripciones()
+                ->whereNotNull('calificacion_final')
+                ->avg('calificacion_final');
+
+            // Egresados: estudiantes de semestre 9 con buen promedio
+            if ($alumno->semestre == 9 && $promedioGeneral >= 70) {
+                if (rand(1, 100) <= 30) { // 30% de probabilidad
+                    $alumno->update(['estatus_alumno' => 'egresado']);
+                    $estatusActualizados['egresado']++;
+                }
+            }
+            // Baja definitiva: estudiantes con promedio muy bajo o muchos factores de riesgo
+            elseif ($promedioGeneral < 60 || $alumno->inscripciones()->whereHas('alumnosFactores')->count() >= 3) {
+                if (rand(1, 100) <= 20) { // 20% de probabilidad
+                    $alumno->update(['estatus_alumno' => 'baja_definitiva']);
+                    $estatusActualizados['baja_definitiva']++;
+                }
+            }
+            // Baja temporal: estudiantes con bajo promedio
+            elseif ($promedioGeneral < 70) {
+                if (rand(1, 100) <= 25) { // 25% de probabilidad
+                    $alumno->update(['estatus_alumno' => 'baja_temporal']);
+                    $estatusActualizados['baja_temporal']++;
+                }
+            }
+        }
+
+        $this->command->info('✓ Updated student status:');
+        $this->command->info('   • Baja temporal: ' . $estatusActualizados['baja_temporal']);
+        $this->command->info('   • Baja definitiva: ' . $estatusActualizados['baja_definitiva']);
+        $this->command->info('   • Egresados: ' . $estatusActualizados['egresado']);
+
         $this->command->info('');
         $this->command->line('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
         $this->command->info('✅ Database seeded successfully!');
@@ -211,6 +255,11 @@ class DatabaseSeeder extends Seeder
         $this->command->info('   • Attendance: ' . $totalAsistencias);
         $this->command->info('   • Risk Factors: ' . $factores->count());
         $this->command->info('   • Assigned Factors: ' . $totalFactoresAsignados);
+        $this->command->info('   • Student Status:');
+        $this->command->info('      - Activos: ' . Alumno::where('estatus_alumno', 'activo')->count());
+        $this->command->info('      - Baja temporal: ' . Alumno::where('estatus_alumno', 'baja_temporal')->count());
+        $this->command->info('      - Baja definitiva: ' . Alumno::where('estatus_alumno', 'baja_definitiva')->count());
+        $this->command->info('      - Egresados: ' . Alumno::where('estatus_alumno', 'egresado')->count());
         $this->command->line('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
         $this->command->warn('🔑 Admin credentials: admin@tecnm.mx / password123');
         $this->command->line('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');

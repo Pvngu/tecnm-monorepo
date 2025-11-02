@@ -14,6 +14,7 @@ import { FilterBar } from '@/components/common/FilterBar';
 
 import { ResourceForm } from '@/components/common/ResourceForm';
 import { z } from 'zod';
+import type { FormFieldConfig } from '@/types/form';
 
 // Import the centralized resource configuration
 import { resourceConfigMap } from '@/config/resources';
@@ -47,10 +48,9 @@ export default function ResourceListPage() {
         }
     );
 
-    const { data: itemData, isLoading: isLoadingItem } = useItem(sheetItemId);
+    const { data: itemData, isLoading: isLoadingItem } = useItem(sheetItemId as string | number);
 
     const tableData = paginatedData?.data || [];
-    const pageCount = paginatedData?.last_page || -1;
 
     const paginationState: PaginationState = {
         pageIndex: (queryParams.page || 1) - 1,
@@ -124,9 +124,6 @@ export default function ResourceListPage() {
                 columns={columns}
                 data={tableData}
                 isLoading={isLoadingItems}
-                pageCount={pageCount}
-                pagination={paginationState}
-                setPagination={() => {}}
             />
             <div className="mt-4 w-fit ml-auto">
                 {paginatedData && paginatedData.last_page > 1 && (
@@ -139,13 +136,13 @@ export default function ResourceListPage() {
                 />
                 )}
             </div>
-            <ResourceForm
+                        <ResourceForm
               key={sheetItemId !== null ? `edit-${sheetItemId}` : 'create'}
               isOpen={isSheetOpen}
               onOpenChange={setIsSheetOpen}
               isEditMode={isEditMode}
-              schema={schema}
-              formConfig={formConfig}
+                            schema={schema as z.ZodTypeAny}
+                            formConfig={formConfig as FormFieldConfig[]}
               onSubmit={onSubmitWithId}
               isLoadingData={isLoadingItem}
               defaultValues={isEditMode ? itemData : undefined}

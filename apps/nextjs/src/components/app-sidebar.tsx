@@ -81,6 +81,10 @@ const data = {
       isActive: true,
       items: [
         {
+          title: "Dashboard",
+          url: "dashboard",
+        },
+        {
           title: "Carreras",
           url: "carreras"
         },
@@ -103,6 +107,10 @@ const data = {
         {
           title: "Grupos",
           url: "grupos",
+        },
+        {
+          title: "Activity Logs",
+          url: "activity-logs",
         },
       ],
     },

@@ -1,0 +1,26 @@
+
+
+> astro@0.0.1 build
+> astro build
+
+[2m18:16:49[22m [34m[vite][39m Re-optimizing dependencies because vite config has changed
+[2m18:16:49[22m [34m[content][39m Syncing content
+[2m18:16:50[22m [34m[content][39m Synced content
+[2m18:16:50[22m [34m[types][39m Generated [2m966ms[22m
+[2m18:16:50[22m [34m[build][39m output: [34m"static"[39m
+[2m18:16:50[22m [34m[build][39m mode: [34m"static"[39m
+[2m18:16:50[22m [34m[build][39m directory: [34m/Users/pvngu/Desktop/programming/MONOREPOS/tecnm/apps/astro/dist/[39m
+[2m18:16:50[22m [34m[build][39m Collecting build info...
+[2m18:16:50[22m [34m[build][39m [32m✓ Completed in 982ms.[39m
+[2m18:16:50[22m [34m[build][39m Building static entrypoints...
+[2K[1G[2K[1G[2K[1G[2K[1G[2K[1G[2K[1G[2K[1G[2K[1G[2K[1G[2K[1G[2K[1G[2K[1G[2K[1G[2K[1G[2K[1G[33m[1m18:16:53[22m [WARN] [vite][39m [33m"isRemoteAllowed", "matchHostname", "matchPathname", "matchPort" and "matchProtocol" are imported from external module "@astrojs/internal-helpers/remote" but never used in "node_modules/astro/dist/assets/utils/remotePattern.js".[39m
+[2m18:16:53[22m [34m[vite][39m [32m✓ built in 3.12s[39m
+[2m18:16:53[22m [34m[build][39m [32m✓ Completed in 3.43s.[39m
+
+[42m[30m generating static routes [39m[49m
+[2m18:16:53[22m [32m▶[39m src/pages/index.astro
+[2m18:16:53[22m   [34m└─[39m [2m/index.html[22m [2m(+21ms)[22m 
+[2m18:16:53[22m [32m✓ Completed in 107ms.
+[39m
+[2m18:16:53[22m [34m[build][39m 1 page(s) built in [1m4.58s[22m
+[2m18:16:53[22m [34m[build][39m [1mComplete![22m

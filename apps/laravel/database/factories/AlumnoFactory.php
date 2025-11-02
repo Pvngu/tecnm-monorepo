@@ -16,6 +16,19 @@ class AlumnoFactory extends Factory
         $year = $this->faker->numberBetween(20, 25);
         $sequence = $this->faker->unique()->numberBetween(1000, 9999);
 
+        // Distribución realista de estatus:
+        // 70% activos, 15% baja temporal, 10% baja definitiva, 5% egresados
+        $rand = $this->faker->numberBetween(1, 100);
+        if ($rand <= 70) {
+            $estatus = 'activo';
+        } elseif ($rand <= 85) {
+            $estatus = 'baja_temporal';
+        } elseif ($rand <= 95) {
+            $estatus = 'baja_definitiva';
+        } else {
+            $estatus = 'egresado';
+        }
+
         return [
             'usuario_id' => null,
             'carrera_id' => Carrera::factory(),
@@ -26,6 +39,7 @@ class AlumnoFactory extends Factory
             'semestre' => $this->faker->numberBetween(1, 9),
             'genero' => $this->faker->randomElement(['masculino', 'femenino', 'otro']),
             'modalidad' => $this->faker->randomElement(['presencial', 'virtual', 'híbrida']),
+            'estatus_alumno' => $estatus,
         ];
     }
 
