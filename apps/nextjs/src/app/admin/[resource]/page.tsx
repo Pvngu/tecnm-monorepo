@@ -49,9 +49,8 @@ export default function ResourceListPage() {
         }
     );
 
-    // `useItem` expects a non-null id; assert the type here because when no id is
-    // selected we intentionally pass `undefined` (the hook should handle it).
-    const { data: itemData, isLoading: isLoadingItem } = useItem(sheetItemId as string | number);
+    // `useItem` hook can accept undefined and will only fetch when id is provided
+    const { data: itemData, isLoading: isLoadingItem } = useItem(sheetItemId);
 
     const tableData = paginatedData?.data || [];
 

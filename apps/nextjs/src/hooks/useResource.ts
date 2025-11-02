@@ -41,10 +41,10 @@ export const useResource = <TData>(
     });
 
     // Read: Get single item by ID
-    const useItem = (id: string | number) => {
+    const useItem = (id: string | number | undefined) => {
         return useQuery<TData>({
             queryKey: [...queryKey, id],
-            queryFn: () => apiService.getOne<TData>(resource, id),
+            queryFn: () => apiService.getOne<TData>(resource, id!),
             enabled: !!id, // only run if id is provided
         });
     };
