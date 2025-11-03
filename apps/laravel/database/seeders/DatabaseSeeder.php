@@ -135,54 +135,27 @@ class DatabaseSeeder extends Seeder
 
         // Step 10: Create Grades for Each Unit
         $totalCalificaciones = 0;
-        $alumnosReprobados = 0;
-
-        // Determine failing rate between 10% and 30% and select that many enrollments deterministically
-        $failRate = rand(10, 30);
-        $totalInscripciones = $inscripciones->count();
-        $numReprobatorias = $totalInscripciones > 0 ? max(1, (int) round($totalInscripciones * ($failRate / 100))) : 0;
-        $idsInscripcionesReprobatorias = $numReprobatorias > 0 ? $inscripciones->random($numReprobatorias)->pluck('id')->all() : [];
-        $mapReprobatorias = array_fill_keys($idsInscripcionesReprobatorias, true);
-
         foreach ($inscripciones as $inscripcion) {
             $materia = $inscripcion->grupo->materia;
             $unidades = $materia->unidades;
 
             $sumaCalificaciones = 0;
-            // If this enrollment was selected as failing, generate failing unit grades
-            $esReprobatorio = isset($mapReprobatorias[$inscripcion->id]);
-            
             foreach ($unidades as $unidad) {
-                if ($esReprobatorio) {
-                    // Generar calificaciones entre 0 y 59 (reprobatorias)
-                    $valorCalificacion = rand(0, 59);
-                } else {
-                    // Generar calificaciones entre 60 y 100 (aprobatorias)
-                    $valorCalificacion = rand(60, 100);
-                }
-                
                 $calificacion = Calificacion::factory()->create([
                     'inscripcion_id' => $inscripcion->id,
                     'unidad_id' => $unidad->id,
-                    'valor_calificacion' => $valorCalificacion,
+                    'valor_calificacion' => rand(60, 100),
                 ]);
                 $sumaCalificaciones += $calificacion->valor_calificacion;
                 $totalCalificaciones++;
             }
 
             // Update final grade
-            $calificacionFinal = round($sumaCalificaciones / $unidades->count(), 2);
             $inscripcion->update([
-                'calificacion_final' => $calificacionFinal,
+                'calificacion_final' => round($sumaCalificaciones / $unidades->count(), 2),
             ]);
-            
-            if ($calificacionFinal < 60) {
-                $alumnosReprobados++;
-            }
         }
-    $this->command->info('✓ Created ' . $totalCalificaciones . ' grades');
-    $this->command->info('✓ Target fail rate: ' . $failRate . '% (' . $numReprobatorias . ' of ' . $totalInscripciones . ' enrollments)');
-    $this->command->info('✓ Students with failing grades: ' . $alumnosReprobados);
+        $this->command->info('✓ Created ' . $totalCalificaciones . ' grades');
 
         // Step 11: Create Attendance Records for ALL enrollments
         $totalAsistencias = 0;
