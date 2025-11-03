@@ -67,16 +67,30 @@ class DatabaseSeeder extends Seeder
         $profesores = Profesor::factory(15)->create();
         $this->command->info('✓ Created ' . $profesores->count() . ' professors');
 
-        // Step 6: Create Students
+        // Step 6: Create Students with varied statuses
         $alumnos = collect();
+        $estatusDistribution = ['activo', 'baja_temporal', 'baja_definitiva'];
+        
         foreach ($carreras as $carrera) {
-            $alumnosCarrera = Alumno::factory(20)->create([
-                'carrera_id' => $carrera->id,
-                'estatus_alumno' => 'activo', // Inicialmente todos activos
-            ]);
-            $alumnos = $alumnos->merge($alumnosCarrera);
+            for ($i = 0; $i < 20; $i++) {
+                // Distribute statuses: 60% activo, 20% baja_temporal, 20% baja_definitiva
+                $rand = rand(1, 100);
+                if ($rand <= 60) {
+                    $estatus = 'activo';
+                } elseif ($rand <= 80) {
+                    $estatus = 'baja_temporal';
+                } else {
+                    $estatus = 'baja_definitiva';
+                }
+                
+                $alumno = Alumno::factory()->create([
+                    'carrera_id' => $carrera->id,
+                    'estatus_alumno' => $estatus,
+                ]);
+                $alumnos->push($alumno);
+            }
         }
-        $this->command->info('✓ Created ' . $alumnos->count() . ' students');
+        $this->command->info('✓ Created ' . $alumnos->count() . ' students with varied statuses');
 
         $this->command->info('');
         $this->command->info('🌱 Seeding transactional data...');
@@ -143,12 +157,12 @@ class DatabaseSeeder extends Seeder
         }
         $this->command->info('✓ Created ' . $totalCalificaciones . ' grades');
 
-        // Step 11: Create Attendance Records
+        // Step 11: Create Attendance Records for ALL enrollments
         $totalAsistencias = 0;
         $startDate = now()->subMonths(3);
         $endDate = now();
 
-        foreach ($inscripciones->random(min(100, $inscripciones->count())) as $inscripcion) {
+        foreach ($inscripciones as $inscripcion) {
             // Create 15-25 attendance records per enrollment
             $numAsistencias = rand(15, 25);
             
@@ -168,22 +182,30 @@ class DatabaseSeeder extends Seeder
                 }
             }
         }
-        $this->command->info('✓ Created ' . $totalAsistencias . ' attendance records');
+        $this->command->info('✓ Created ' . $totalAsistencias . ' attendance records for all enrollments');
 
-        // Step 12: Assign Risk Factors to Some Students
-        $alumnosEnRiesgo = $inscripciones
-            ->filter(fn($i) => $i->calificacion_final < 70)
-            ->random(min(30, $inscripciones->where('calificacion_final', '<', 70)->count()));
-
+        // Step 12: Assign Risk Factors to ALL Students (at least 1 per student)
         $totalFactoresAsignados = 0;
-        foreach ($alumnosEnRiesgo as $inscripcion) {
-            // Assign 1-3 risk factors
-            $factoresAsignar = $factores->random(rand(1, 3));
+        
+        foreach ($alumnos as $alumno) {
+            // Get all enrollments for this student
+            $inscripcionesAlumno = $inscripciones->where('alumno_id', $alumno->id);
             
+            if ($inscripcionesAlumno->isEmpty()) {
+                continue;
+            }
+            
+            // Assign 1-4 risk factors per student
+            $numFactores = rand(1, 4);
+            $factoresAsignar = $factores->random($numFactores);
+            
+            // Assign factors to random enrollments of this student
             foreach ($factoresAsignar as $factor) {
+                $inscripcionAleatoria = $inscripcionesAlumno->random();
+                
                 try {
                     AlumnoFactor::factory()->create([
-                        'inscripcion_id' => $inscripcion->id,
+                        'inscripcion_id' => $inscripcionAleatoria->id,
                         'factor_id' => $factor->id,
                     ]);
                     $totalFactoresAsignados++;
@@ -193,7 +215,7 @@ class DatabaseSeeder extends Seeder
                 }
             }
         }
-        $this->command->info('✓ Assigned ' . $totalFactoresAsignados . ' risk factors');
+        $this->command->info('✓ Assigned ' . $totalFactoresAsignados . ' risk factors to all students');
 
         // Step 13: Seed Recommendations
         $this->call([
@@ -201,48 +223,9 @@ class DatabaseSeeder extends Seeder
         ]);
         $this->command->info('✓ Created recommendations for risk factors');
 
-        // Step 14: Update student status based on performance
+        // Step 14: Count final student statuses
         $this->command->info('');
-        $this->command->info('🔄 Updating student status...');
-        
-        $estatusActualizados = [
-            'baja_temporal' => 0,
-            'baja_definitiva' => 0,
-            'egresado' => 0,
-        ];
-
-        foreach ($alumnos as $alumno) {
-            $promedioGeneral = $alumno->inscripciones()
-                ->whereNotNull('calificacion_final')
-                ->avg('calificacion_final');
-
-            // Egresados: estudiantes de semestre 9 con buen promedio
-            if ($alumno->semestre == 9 && $promedioGeneral >= 70) {
-                if (rand(1, 100) <= 30) { // 30% de probabilidad
-                    $alumno->update(['estatus_alumno' => 'egresado']);
-                    $estatusActualizados['egresado']++;
-                }
-            }
-            // Baja definitiva: estudiantes con promedio muy bajo o muchos factores de riesgo
-            elseif ($promedioGeneral < 60 || $alumno->inscripciones()->whereHas('alumnosFactores')->count() >= 3) {
-                if (rand(1, 100) <= 20) { // 20% de probabilidad
-                    $alumno->update(['estatus_alumno' => 'baja_definitiva']);
-                    $estatusActualizados['baja_definitiva']++;
-                }
-            }
-            // Baja temporal: estudiantes con bajo promedio
-            elseif ($promedioGeneral < 70) {
-                if (rand(1, 100) <= 25) { // 25% de probabilidad
-                    $alumno->update(['estatus_alumno' => 'baja_temporal']);
-                    $estatusActualizados['baja_temporal']++;
-                }
-            }
-        }
-
-        $this->command->info('✓ Updated student status:');
-        $this->command->info('   • Baja temporal: ' . $estatusActualizados['baja_temporal']);
-        $this->command->info('   • Baja definitiva: ' . $estatusActualizados['baja_definitiva']);
-        $this->command->info('   • Egresados: ' . $estatusActualizados['egresado']);
+        $this->command->info('📊 Final student status distribution...');
 
         $this->command->info('');
         $this->command->line('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
