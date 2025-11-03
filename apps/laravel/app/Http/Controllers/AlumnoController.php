@@ -27,6 +27,9 @@ class AlumnoController extends Controller
                 'modalidad',
                 AllowedFilter::exact('carrera_id'),
                 AllowedFilter::exact('usuario_id'),
+                AllowedFilter::exact('estatus_alumno'),
+                AllowedFilter::exact('genero'),
+                AllowedFilter::exact('modalidad'),
             ])
             ->allowedSorts(['nombre', 'apellido_paterno', 'matricula', 'semestre', 'created_at'])
             ->allowedIncludes(['usuario', 'carrera', 'inscripciones'])

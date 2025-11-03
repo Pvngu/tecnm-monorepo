@@ -22,6 +22,69 @@ export const AlumnoFilters: FilterConfig[] = [
     label: "Buscar por nombre...",
     type: "search",
   },
+  {
+    id: "matricula",
+    label: "Buscar por matrícula...",
+    type: "search",
+  },
+  {
+    id: "carrera_id",
+    label: "Carrera",
+    type: "dynamic-multiselect",
+    resource: "carreras",
+    optionLabelKey: "nombre",
+    optionValueKey: "id",
+  },
+  {
+    id: "semestre",
+    label: "Semestre",
+    type: "multiselect",
+    options: [
+      { label: "1er Semestre", value: 1 },
+      { label: "2do Semestre", value: 2 },
+      { label: "3er Semestre", value: 3 },
+      { label: "4to Semestre", value: 4 },
+      { label: "5to Semestre", value: 5 },
+      { label: "6to Semestre", value: 6 },
+      { label: "7mo Semestre", value: 7 },
+      { label: "8vo Semestre", value: 8 },
+      { label: "9no Semestre", value: 9 },
+      { label: "10mo Semestre", value: 10 },
+      { label: "11vo Semestre", value: 11 },
+      { label: "12vo Semestre", value: 12 },
+    ],
+  },
+  {
+    id: "genero",
+    label: "Género",
+    type: "multiselect",
+    options: [
+      { label: "Masculino", value: "masculino" },
+      { label: "Femenino", value: "femenino" },
+      { label: "Otro", value: "otro" },
+    ],
+  },
+  {
+    id: "modalidad",
+    label: "Modalidad",
+    type: "multiselect",
+    options: [
+      { label: "Presencial", value: "presencial" },
+      { label: "Virtual", value: "virtual" },
+      { label: "Híbrida", value: "hibrida" },
+    ],
+  },
+  {
+    id: "estatus_alumno",
+    label: "Estatus",
+    type: "multiselect",
+    options: [
+      { label: "Activo", value: "activo" },
+      { label: "Baja Temporal", value: "baja_temporal" },
+      { label: "Baja Definitiva", value: "baja_definitiva" },
+      { label: "Egresado", value: "egresado" },
+    ],
+  },
 ];
 
 export const AlumnoSchema = z.object({
