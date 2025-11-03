@@ -135,27 +135,46 @@ class DatabaseSeeder extends Seeder
 
         // Step 10: Create Grades for Each Unit
         $totalCalificaciones = 0;
+        $alumnosReprobados = 0;
+        
         foreach ($inscripciones as $inscripcion) {
             $materia = $inscripcion->grupo->materia;
             $unidades = $materia->unidades;
 
             $sumaCalificaciones = 0;
+            // 30% de probabilidad de que el alumno tenga calificaciones reprobatorias
+            $esReprobatorio = rand(1, 100) <= 30;
+            
             foreach ($unidades as $unidad) {
+                if ($esReprobatorio) {
+                    // Generar calificaciones entre 0 y 59 (reprobatorias)
+                    $valorCalificacion = rand(0, 59);
+                } else {
+                    // Generar calificaciones entre 60 y 100 (aprobatorias)
+                    $valorCalificacion = rand(60, 100);
+                }
+                
                 $calificacion = Calificacion::factory()->create([
                     'inscripcion_id' => $inscripcion->id,
                     'unidad_id' => $unidad->id,
-                    'valor_calificacion' => rand(60, 100),
+                    'valor_calificacion' => $valorCalificacion,
                 ]);
                 $sumaCalificaciones += $calificacion->valor_calificacion;
                 $totalCalificaciones++;
             }
 
             // Update final grade
+            $calificacionFinal = round($sumaCalificaciones / $unidades->count(), 2);
             $inscripcion->update([
-                'calificacion_final' => round($sumaCalificaciones / $unidades->count(), 2),
+                'calificacion_final' => $calificacionFinal,
             ]);
+            
+            if ($calificacionFinal < 60) {
+                $alumnosReprobados++;
+            }
         }
         $this->command->info('✓ Created ' . $totalCalificaciones . ' grades');
+        $this->command->info('✓ Students with failing grades: ' . $alumnosReprobados);
 
         // Step 11: Create Attendance Records for ALL enrollments
         $totalAsistencias = 0;
