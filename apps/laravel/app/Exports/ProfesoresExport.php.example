@@ -1,0 +1,99 @@
+<?php
+
+namespace App\Exports;
+
+use App\Models\Profesor;
+use Maatwebsite\Excel\Concerns\FromQuery;
+use Maatwebsite\Excel\Concerns\WithHeadings;
+use Maatwebsite\Excel\Concerns\WithMapping;
+use Maatwebsite\Excel\Concerns\ShouldAutoSize;
+use Spatie\QueryBuilder\QueryBuilder;
+use Spatie\QueryBuilder\AllowedFilter;
+
+/**
+ * Clase de exportación para Profesores
+ * Ejemplo de cómo extender la funcionalidad de exportación a otros recursos
+ * 
+ * Para activar, agregar estos métodos al ProfesorController:
+ * 
+ * public function exportExcel(Request $request)
+ * {
+ *     return Excel::download(
+ *         new ProfesoresExport($request),
+ *         'profesores_' . now()->format('Y-m-d_His') . '.xlsx'
+ *     );
+ * }
+ * 
+ * public function exportCsv(Request $request)
+ * {
+ *     return Excel::download(
+ *         new ProfesoresExport($request),
+ *         'profesores_' . now()->format('Y-m-d_His') . '.csv',
+ *         \Maatwebsite\Excel\Excel::CSV
+ *     );
+ * }
+ * 
+ * Y agregar las rutas en routes/api.php:
+ * Route::get('profesores/export/excel', [ProfesorController::class, 'exportExcel']);
+ * Route::get('profesores/export/csv', [ProfesorController::class, 'exportCsv']);
+ */
+class ProfesoresExport implements FromQuery, WithHeadings, WithMapping, ShouldAutoSize
+{
+    protected $request;
+
+    public function __construct($request)
+    {
+        $this->request = $request;
+    }
+
+    /**
+     * Define la consulta con los filtros del request
+     * Ajusta según los filtros definidos en ProfesorController@index
+     */
+    public function query()
+    {
+        return QueryBuilder::for(Profesor::class)
+            ->allowedFilters([
+                'nombre',
+                'apellido_paterno',
+                'apellido_materno',
+                'email',
+                'telefono',
+                // Añadir aquí los filtros específicos de profesores
+            ])
+            ->allowedSorts(['nombre', 'apellido_paterno', 'created_at'])
+            ->with([]); // Cargar relaciones necesarias
+    }
+
+    /**
+     * Cabeceras del archivo
+     */
+    public function headings(): array
+    {
+        return [
+            'ID',
+            'Nombre',
+            'Apellido Paterno',
+            'Apellido Materno',
+            'Email',
+            'Teléfono',
+            'Fecha de Registro',
+        ];
+    }
+
+    /**
+     * Mapeo de datos por fila
+     */
+    public function map($profesor): array
+    {
+        return [
+            $profesor->id,
+            $profesor->nombre,
+            $profesor->apellido_paterno,
+            $profesor->apellido_materno,
+            $profesor->email,
+            $profesor->telefono,
+            $profesor->created_at->format('Y-m-d H:i:s'),
+        ];
+    }
+}

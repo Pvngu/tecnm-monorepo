@@ -6,8 +6,14 @@ import { GenericDataTable } from '@/components/common/GenericDataTable';
 import { GenericPagination } from '@/components/common/GenericPagination';
 import { useResource, QueryParams } from '@/hooks/useResource';
 import { Button } from '@/components/ui/button';
-import { PlusCircle, Upload } from 'lucide-react';
+import { PlusCircle, Upload, Download } from 'lucide-react';
 import { PaginationState, ColumnDef } from '@tanstack/react-table';
+import { 
+    DropdownMenu, 
+    DropdownMenuContent, 
+    DropdownMenuItem, 
+    DropdownMenuTrigger 
+} from '@/components/ui/dropdown-menu';
 
 import { DataTableRowActions } from '@/components/common/DataTableRowActions';
 import { FilterBar } from '@/components/common/FilterBar';
@@ -101,6 +107,44 @@ export default function ResourceListPage() {
         }
     };
 
+    /**
+     * Maneja la descarga de archivos (Excel/CSV)
+     * Respeta los filtros actuales aplicados en la tabla
+     */
+    const handleExport = async (format: 'excel' | 'csv') => {
+        try {
+            toast.loading(`Exportando a ${format.toUpperCase()}...`);
+            
+            // Obtenemos el blob del archivo
+            const blob = await apiService.exportFile(resource, format, queryParams);
+            
+            // Creamos un link temporal para descargar el archivo
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            
+            // Generamos el nombre del archivo con timestamp
+            const timestamp = new Date().toISOString().split('T')[0];
+            const extension = format === 'excel' ? 'xlsx' : 'csv';
+            const fileName = `${resource}_${timestamp}.${extension}`;
+            
+            link.setAttribute('download', fileName);
+            document.body.appendChild(link);
+            link.click();
+            
+            // Limpiamos
+            link.parentNode?.removeChild(link);
+            window.URL.revokeObjectURL(url);
+            
+            toast.dismiss();
+            toast.success(`Archivo exportado exitosamente: ${fileName}`);
+        } catch (error) {
+            toast.dismiss();
+            console.error('Error al exportar:', error);
+            toast.error(`Error al exportar a ${format.toUpperCase()}`);
+        }
+    };
+
         const columns = useMemo(() => {
         const actionsColumn: ColumnDef<typeof type> = {
             id: 'actions',
@@ -146,6 +190,25 @@ export default function ResourceListPage() {
                             Importar CSV
                         </Button>
                     )}
+                    
+                    {/* Botón de Exportación */}
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <Button variant="outline">
+                                <Download className="mr-2 h-4 w-4" />
+                                Exportar
+                            </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                            <DropdownMenuItem onClick={() => handleExport('excel')}>
+                                Exportar a Excel (.xlsx)
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleExport('csv')}>
+                                Exportar a CSV (.csv)
+                            </DropdownMenuItem>
+                        </DropdownMenuContent>
+                    </DropdownMenu>
+                    
                     <Button onClick={handleCreate}>
                         <PlusCircle className="mr-2 h-4 w-4" />
                         Add New {resource}

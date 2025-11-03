@@ -205,6 +205,39 @@ export const apiService = {
             credentials: 'include',
         }).then(handleResponse<any>);
     },
+    
+    /**
+     * Exporta datos a Excel o CSV
+     * @param resource - Nombre del recurso (ej. 'alumnos')
+     * @param format - Formato de exportación ('excel' | 'csv')
+     * @param queryParams - Parámetros de filtrado actuales
+     */
+    exportFile: async (
+        resource: string,
+        format: 'excel' | 'csv',
+        queryParams: Record<string, any> = {}
+    ): Promise<Blob> => {
+        const queryString = objectToQueryString(queryParams);
+        const url = queryString
+            ? `${apiBaseURL}${resource}/export/${format}?${queryString}`
+            : `${apiBaseURL}${resource}/export/${format}`;
+
+        const response = await fetch(url, {
+            method: 'GET',
+            headers: {
+                'Accept': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, text/csv, application/octet-stream',
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-XSRF-TOKEN': xsrf,
+            },
+            credentials: 'include',
+        });
+
+        if (!response.ok) {
+            throw new HttpError(response, await response.text());
+        }
+
+        return response.blob();
+    },
 };
 
 // Tipo para los datos de Pareto

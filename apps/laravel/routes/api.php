@@ -30,6 +30,10 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::apiResource('periodos', PeriodoController::class);
     Route::apiResource('carreras', CarreraController::class);
     Route::apiResource('profesores', ProfesorController::class);
+    
+    // Rutas de exportación para Alumnos (antes del apiResource para que tengan prioridad)
+    Route::get('alumnos/export/excel', [AlumnoController::class, 'exportExcel']);
+    Route::get('alumnos/export/csv', [AlumnoController::class, 'exportCsv']);
     Route::post('alumnos/import', [AlumnoController::class, 'import']);
     Route::apiResource('alumnos', AlumnoController::class);
     Route::apiResource('materias', MateriaController::class);

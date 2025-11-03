@@ -5,8 +5,10 @@ namespace App\Http\Controllers;
 use App\Http\Requests\AlumnoRequest;
 use App\Http\Traits\HasPagination;
 use App\Models\Alumno;
+use App\Exports\AlumnosExport;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Maatwebsite\Excel\Facades\Excel;
 use Spatie\QueryBuilder\QueryBuilder;
 use Spatie\QueryBuilder\AllowedFilter;
 
@@ -111,5 +113,30 @@ class AlumnoController extends Controller
             'failed' => count($errors),
             'errors' => $errors,
         ]);
+    }
+
+    /**
+     * Exporta los alumnos a formato Excel (.xlsx)
+     * Respeta todos los filtros aplicados en el request
+     */
+    public function exportExcel(Request $request)
+    {
+        return Excel::download(
+            new AlumnosExport($request),
+            'alumnos_' . now()->format('Y-m-d_His') . '.xlsx'
+        );
+    }
+
+    /**
+     * Exporta los alumnos a formato CSV (.csv)
+     * Respeta todos los filtros aplicados en el request
+     */
+    public function exportCsv(Request $request)
+    {
+        return Excel::download(
+            new AlumnosExport($request),
+            'alumnos_' . now()->format('Y-m-d_His') . '.csv',
+            \Maatwebsite\Excel\Excel::CSV
+        );
     }
 }

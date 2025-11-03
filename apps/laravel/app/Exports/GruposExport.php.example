@@ -1,0 +1,102 @@
+<?php
+
+namespace App\Exports;
+
+use App\Models\Grupo;
+use Maatwebsite\Excel\Concerns\FromQuery;
+use Maatwebsite\Excel\Concerns\WithHeadings;
+use Maatwebsite\Excel\Concerns\WithMapping;
+use Maatwebsite\Excel\Concerns\ShouldAutoSize;
+use Spatie\QueryBuilder\QueryBuilder;
+use Spatie\QueryBuilder\AllowedFilter;
+
+/**
+ * Clase de exportación para Grupos
+ * Ejemplo de exportación con relaciones múltiples
+ * 
+ * Para activar, agregar estos métodos al GrupoController:
+ * 
+ * public function exportExcel(Request $request)
+ * {
+ *     return Excel::download(
+ *         new GruposExport($request),
+ *         'grupos_' . now()->format('Y-m-d_His') . '.xlsx'
+ *     );
+ * }
+ * 
+ * public function exportCsv(Request $request)
+ * {
+ *     return Excel::download(
+ *         new GruposExport($request),
+ *         'grupos_' . now()->format('Y-m-d_His') . '.csv',
+ *         \Maatwebsite\Excel\Excel::CSV
+ *     );
+ * }
+ * 
+ * Y agregar las rutas en routes/api.php:
+ * Route::get('grupos/export/excel', [GrupoController::class, 'exportExcel']);
+ * Route::get('grupos/export/csv', [GrupoController::class, 'exportCsv']);
+ */
+class GruposExport implements FromQuery, WithHeadings, WithMapping, ShouldAutoSize
+{
+    protected $request;
+
+    public function __construct($request)
+    {
+        $this->request = $request;
+    }
+
+    /**
+     * Define la consulta con los filtros del request
+     */
+    public function query()
+    {
+        return QueryBuilder::for(Grupo::class)
+            ->allowedFilters([
+                'nombre',
+                'clave',
+                AllowedFilter::exact('periodo_id'),
+                AllowedFilter::exact('materia_id'),
+                AllowedFilter::exact('profesor_id'),
+                AllowedFilter::exact('carrera_id'),
+            ])
+            ->allowedSorts(['nombre', 'clave', 'created_at'])
+            ->with(['periodo', 'materia', 'profesor', 'carrera']); // Relaciones importantes
+    }
+
+    /**
+     * Cabeceras del archivo
+     */
+    public function headings(): array
+    {
+        return [
+            'Clave',
+            'Nombre',
+            'Periodo',
+            'Materia',
+            'Profesor',
+            'Carrera',
+            'Total Inscripciones',
+            'Fecha de Creación',
+        ];
+    }
+
+    /**
+     * Mapeo de datos por fila
+     */
+    public function map($grupo): array
+    {
+        return [
+            $grupo->clave,
+            $grupo->nombre,
+            $grupo->periodo->nombre ?? 'N/A',
+            $grupo->materia->nombre ?? 'N/A',
+            $grupo->profesor 
+                ? "{$grupo->profesor->nombre} {$grupo->profesor->apellido_paterno}" 
+                : 'N/A',
+            $grupo->carrera->nombre ?? 'N/A',
+            $grupo->inscripciones_count ?? 0,
+            $grupo->created_at->format('Y-m-d H:i:s'),
+        ];
+    }
+}
