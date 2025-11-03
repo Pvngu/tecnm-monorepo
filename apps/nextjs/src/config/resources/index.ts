@@ -9,8 +9,10 @@ import * as MateriasConfig from './materias.config';
 import * as ProfesoresConfig from './profesores.config';
 import * as GruposConfig from './grupos.config';
 import * as ActivityLogsConfig from './activity-logs.config';
-
 import * as FactoresRiesgoConfig from './factoresRiesgo.config';
+import * as UsersConfig from './users.config';
+import * as RolesConfig from './roles.config';
+import * as PermissionsConfig from './permissions.config';
 
 // Define the structure of a resource configuration
 export interface ResourceConfig<T = any> {
@@ -95,6 +97,29 @@ export const resourceConfigMap: { [key: string]: ResourceConfig } = {
         filters: ActivityLogsConfig.ActivityLogFilters,
         schema: ActivityLogsConfig.ActivityLogSchema,
     },
+    users: {
+        columns: UsersConfig.UserColumns,
+        type: {} as UsersConfig.User,
+        includes: UsersConfig.UserIncludes,
+        filters: UsersConfig.UserFilters,
+        schema: UsersConfig.UserSchema,
+        formConfig: UsersConfig.UserFormConfig,
+    },
+    roles: {
+        columns: RolesConfig.RoleColumns,
+        type: {} as RolesConfig.Role,
+        includes: RolesConfig.RoleIncludes,
+        filters: RolesConfig.RoleFilters,
+        schema: RolesConfig.RoleSchema,
+        formConfig: RolesConfig.RoleFormConfig,
+    },
+    permissions: {
+        columns: PermissionsConfig.PermissionColumns,
+        type: {} as PermissionsConfig.Permission,
+        filters: PermissionsConfig.PermissionFilters,
+        schema: PermissionsConfig.PermissionSchema,
+        formConfig: PermissionsConfig.PermissionFormConfig,
+    },
 };
 
 // Export all individual configs for direct access if needed
@@ -106,3 +131,6 @@ export * from './profesores.config';
 export * from './grupos.config';
 export * from './activity-logs.config';
 export * from './factoresRiesgo.config';
+export * from './users.config';
+export * from './roles.config';
+export * from './permissions.config';

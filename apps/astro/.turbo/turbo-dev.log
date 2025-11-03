@@ -10,28 +10,14 @@ Estimated release dates:
   - Community users: [36maround 22nd December, 2025 [1m(subject to team availability)[22m[39m
 [33m  - PRO users[39m:       [1m[32mpriority access is available now[39m[22m
 
-[2m24:38:52[22m [34m[types][39m Generated [2m1ms[22m
-[2m24:38:52[22m [34m[content][39m Syncing content
-[2m24:38:52[22m [34m[content][39m Synced content
+[2m09:12:09[22m [34m[types][39m Generated [2m1ms[22m
+[2m09:12:09[22m [34m[content][39m Syncing content
+[2m09:12:09[22m [34m[content][39m Synced content
+[2m09:12:09[22m [34m[vite][39m Re-optimizing dependencies because lockfile has changed
 
-[42m[1m astro [22m[49m [32mv5.15.1[39m [2mready in[22m 581 [2mms[22m
+[42m[1m astro [22m[49m [32mv5.15.1[39m [2mready in[22m 426 [2mms[22m
 
 [2m┃[22m Local    [36mhttp://localhost:4321/[39m
 [2m┃[22m Network  [2muse --host to expose[22m
 
-[2m24:38:52[22m [32mwatching for file changes...[39m
-[33m[1m24:39:17[22m [WARN] [vite][39m [33mServer responded with status code 431. See https://vite.dev/guide/troubleshooting.html#_431-request-header-fields-too-large.[39m
-[33m[1m24:39:23[22m [WARN] [vite][39m [33mServer responded with status code 431. See https://vite.dev/guide/troubleshooting.html#_431-request-header-fields-too-large.[39m
-[2m24:40:29[22m Configuration file updated. Restarting...
-[31m[1m24:40:29[22m [ERROR] [config][39m Unable to read /Users/pvngu/Desktop/programming/MONOREPOS/tecnm/apps/astro/package.json
-  [1mStack trace:[22m
-[2m    at /Users/pvngu/Desktop/programming/MONOREPOS/tecnm/node_modules/vitefu/src/index.js:41:11
-    [...] See full stack trace in the browser, or rerun with --verbose.[22m
-  [1mCaused by:[22m
-[2m  Unexpected token '/', "// {
-//   "... is not valid JSON
-    at JSON.parse (<anonymous>)
-    [...] See full stack trace in the browser, or rerun with --verbose.[22m
-
-[31m[1m24:40:29[22m [ERROR][39m Continuing with previous valid configuration
-
+[2m09:12:09[22m [32mwatching for file changes...[39m

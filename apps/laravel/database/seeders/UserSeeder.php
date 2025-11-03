@@ -16,6 +16,16 @@ class UserSeeder extends Seeder
     {
         $this->command->info('👤 Creating users...');
 
+        // Create a specific super admin user
+        $superAdmin = User::create([
+            'name' => 'Super Administrador',
+            'email' => 'superadmin@tecnm.mx',
+            'password' => Hash::make('password123'),
+            'email_verified_at' => now(),
+        ]);
+        $superAdmin->assignRole('Super Administrador');
+        $this->command->info('✓ Created super admin user (superadmin@tecnm.mx)');
+
         // Create a specific admin user
         $admin = User::create([
             'name' => 'Admin Principal',
@@ -23,18 +33,28 @@ class UserSeeder extends Seeder
             'password' => Hash::make('password123'),
             'email_verified_at' => now(),
         ]);
-        $admin->assignRole('admin');
+        $admin->assignRole('Administrador');
         $this->command->info('✓ Created admin user (admin@tecnm.mx)');
 
-        // Create a specific administracion user
-        $administracion = User::create([
-            'name' => 'Jefe de Administración',
-            'email' => 'administracion@tecnm.mx',
+        // Create a specific coordinador user
+        $coordinador = User::create([
+            'name' => 'Coordinador Académico',
+            'email' => 'coordinador@tecnm.mx',
             'password' => Hash::make('password123'),
             'email_verified_at' => now(),
         ]);
-        $administracion->assignRole('administracion');
-        $this->command->info('✓ Created administracion user (administracion@tecnm.mx)');
+        $coordinador->assignRole('Coordinador');
+        $this->command->info('✓ Created coordinador user (coordinador@tecnm.mx)');
+
+        // Create a secretaria user
+        $secretaria = User::create([
+            'name' => 'Secretaria Académica',
+            'email' => 'secretaria@tecnm.mx',
+            'password' => Hash::make('password123'),
+            'email_verified_at' => now(),
+        ]);
+        $secretaria->assignRole('Secretaria');
+        $this->command->info('✓ Created secretaria user (secretaria@tecnm.mx)');
 
         // Create specific profesor users
         $profesorNames = [
@@ -52,7 +72,7 @@ class UserSeeder extends Seeder
                 'password' => Hash::make('password123'),
                 'email_verified_at' => now(),
             ]);
-            $profesor->assignRole('profesor');
+            $profesor->assignRole('Profesor');
         }
         $this->command->info('✓ Created ' . count($profesorNames) . ' profesor users');
 
@@ -79,11 +99,17 @@ class UserSeeder extends Seeder
         $this->command->line('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
         $this->command->info('📊 Summary:');
         $this->command->info('   • Total users: ' . User::count());
-        $this->command->info('   • Admin users: ' . User::role('admin')->count());
-        $this->command->info('   • Administracion users: ' . User::role('administracion')->count());
-        $this->command->info('   • Profesor users: ' . User::role('profesor')->count());
+        $this->command->info('   • Super Admin users: ' . User::role('Super Administrador')->count());
+        $this->command->info('   • Admin users: ' . User::role('Administrador')->count());
+        $this->command->info('   • Coordinador users: ' . User::role('Coordinador')->count());
+        $this->command->info('   • Profesor users: ' . User::role('Profesor')->count());
+        $this->command->info('   • Secretaria users: ' . User::role('Secretaria')->count());
         $this->command->line('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
         $this->command->warn('🔑 All users have password: password123');
+        $this->command->warn('🔑 Super Admin: superadmin@tecnm.mx');
+        $this->command->warn('🔑 Admin: admin@tecnm.mx');
+        $this->command->warn('🔑 Coordinador: coordinador@tecnm.mx');
+        $this->command->warn('🔑 Secretaria: secretaria@tecnm.mx');
         $this->command->line('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
     }
 }

@@ -2,16 +2,10 @@
 
 import * as React from "react"
 import {
-  AudioWaveform,
-  BookOpen,
-  Bot,
-  Command,
-  Frame,
-  GalleryVerticalEnd,
-  Map,
   PieChart,
   Settings2,
   SquareTerminal,
+  ShieldCheck,
 } from "lucide-react"
 
 import { NavMain } from "@/components/nav-main"
@@ -24,7 +18,6 @@ import {
   SidebarHeader,
   SidebarRail,
 } from "@/components/ui/sidebar"
-import { url } from "inspector"
 
 const SVGLogo = (props: React.SVGProps<SVGSVGElement>) => (
   <svg
@@ -57,23 +50,6 @@ const data = {
     email: "m@example.com",
     avatar: "/avatars/shadcn.jpg",
   },
-  teams: [
-    {
-      name: "Acme Inc",
-      logo: GalleryVerticalEnd,
-      plan: "Enterprise",
-    },
-    {
-      name: "Acme Corp.",
-      logo: AudioWaveform,
-      plan: "Startup",
-    },
-    {
-      name: "Evil Corp.",
-      logo: Command,
-      plan: "Free",
-    },
-  ],
   navMain: [
     {
       title: "Administración",
@@ -115,25 +91,25 @@ const data = {
         },
       ],
     },
-    // {
-    //   title: "Docentes",
-    //   url: "docentes",
-    //   icon: Bot,
-    //   items: [
-    //     {
-    //       title: "Mis Grupos",
-    //       url: "docentes/grupos",
-    //     },
-    //     {
-    //       title: "Calificaciones",
-    //       url: "docentes/calificaciones",
-    //     },
-    //     {
-    //       title: "Asistencia",
-    //       url: "docentes/asistencia",
-    //     }
-    //   ]
-    // },
+    {
+      title: "Usuarios y Permisos",
+      url: "#",
+      icon: ShieldCheck,
+      items: [
+        {
+          title: "Usuarios",
+          url: "users",
+        },
+        {
+          title: "Roles",
+          url: "roles",
+        },
+        {
+          title: "Permisos",
+          url: "permissions",
+        },
+      ],
+    },
     {
       title: "Análisis de Calidad",
       url: "analisis",

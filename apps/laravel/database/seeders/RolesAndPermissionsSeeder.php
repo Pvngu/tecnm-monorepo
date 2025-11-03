@@ -19,115 +19,196 @@ class RolesAndPermissionsSeeder extends Seeder
 
         $this->command->info('🔐 Creating permissions...');
 
-        // Define resources that need CRUD permissions
-        $resources = [
-            'periodos',
-            'carreras',
-            'profesores',
-            'alumnos',
-            'materias',
-            'unidades',
-            'grupos',
-            'inscripciones',
-            'calificaciones',
-            'asistencias',
-            'factores_riesgo',
-            'alumnos_factores',
+        // Create permissions
+        $permissions = [
+            // Alumnos
+            'ver-alumnos',
+            'crear-alumnos',
+            'editar-alumnos',
+            'eliminar-alumnos',
+            'importar-alumnos',
+            
+            // Profesores
+            'ver-profesores',
+            'crear-profesores',
+            'editar-profesores',
+            'eliminar-profesores',
+            
+            // Materias
+            'ver-materias',
+            'crear-materias',
+            'editar-materias',
+            'eliminar-materias',
+            
+            // Carreras
+            'ver-carreras',
+            'crear-carreras',
+            'editar-carreras',
+            'eliminar-carreras',
+            
+            // Periodos
+            'ver-periodos',
+            'crear-periodos',
+            'editar-periodos',
+            'eliminar-periodos',
+            
+            // Grupos
+            'ver-grupos',
+            'crear-grupos',
+            'editar-grupos',
+            'eliminar-grupos',
+            
+            // Factores de Riesgo
+            'ver-factores-riesgo',
+            'crear-factores-riesgo',
+            'editar-factores-riesgo',
+            'eliminar-factores-riesgo',
+            
+            // Calificaciones
+            'ver-calificaciones',
+            'crear-calificaciones',
+            'editar-calificaciones',
+            'eliminar-calificaciones',
+            
+            // Asistencias
+            'ver-asistencias',
+            'crear-asistencias',
+            'editar-asistencias',
+            'eliminar-asistencias',
+            
+            // Reportes
+            'ver-reportes',
+            'generar-reportes',
+            
+            // Dashboard
+            'ver-dashboard',
+            'ver-analytics',
+            
+            // Análisis
+            'ver-ishikawa',
+            'crear-ishikawa',
+            'editar-ishikawa',
+            'eliminar-ishikawa',
+            
+            // Usuarios y Roles
+            'ver-usuarios',
+            'crear-usuarios',
+            'editar-usuarios',
+            'eliminar-usuarios',
+            'asignar-roles',
+            'ver-roles',
+            'crear-roles',
+            'editar-roles',
+            'eliminar-roles',
+            'ver-permisos',
+            'crear-permisos',
+            'editar-permisos',
+            'eliminar-permisos',
+            
+            // Activity Logs
+            'ver-activity-logs',
         ];
 
-        // Define permission actions
-        $actions = ['view', 'create', 'edit', 'delete'];
-
-        // Create permissions for each resource
-        $permissions = [];
-        foreach ($resources as $resource) {
-            foreach ($actions as $action) {
-                $permissionName = "{$resource}_{$action}";
-                $permissions[] = Permission::create(['name' => $permissionName]);
-            }
+        foreach ($permissions as $permission) {
+            Permission::create(['name' => $permission, 'guard_name' => 'web']);
         }
 
         $this->command->info("✓ Created " . count($permissions) . " permissions");
 
         $this->command->info('👥 Creating roles...');
 
-        // Create Roles
-        $adminRole = Role::create(['name' => 'admin']);
-        $administracionRole = Role::create(['name' => 'administracion']);
-        $profesorRole = Role::create(['name' => 'profesor']);
+        // Create roles and assign permissions
 
-        $this->command->info('✓ Created 3 roles');
+        // Super Admin - has all permissions
+        $superAdmin = Role::create(['name' => 'Super Administrador', 'guard_name' => 'web']);
+        $superAdmin->givePermissionTo(Permission::all());
 
-        $this->command->info('🔗 Assigning permissions to roles...');
+        // Administrador - most permissions except user management
+        $admin = Role::create(['name' => 'Administrador', 'guard_name' => 'web']);
 
-        // Admin: has all permissions
-        $adminRole->givePermissionTo(Permission::all());
-
-        // Administracion: can manage most resources but with some restrictions
-        $administracionRole->givePermissionTo([
-            // Full access to periods, careers, and subjects
-            'periodos_view', 'periodos_create', 'periodos_edit', 'periodos_delete',
-            'carreras_view', 'carreras_create', 'carreras_edit', 'carreras_delete',
-            'materias_view', 'materias_create', 'materias_edit', 'materias_delete',
-            'unidades_view', 'unidades_create', 'unidades_edit', 'unidades_delete',
-            
-            // Full access to professors and students
-            'profesores_view', 'profesores_create', 'profesores_edit', 'profesores_delete',
-            'alumnos_view', 'alumnos_create', 'alumnos_edit', 'alumnos_delete',
-            
-            // Full access to groups and enrollments
-            'grupos_view', 'grupos_create', 'grupos_edit', 'grupos_delete',
-            'inscripciones_view', 'inscripciones_create', 'inscripciones_edit', 'inscripciones_delete',
-            
-            // View grades and attendance, limited editing
-            'calificaciones_view', 'calificaciones_edit',
-            'asistencias_view', 'asistencias_edit',
-            
-            // Full access to risk factors
-            'factores_riesgo_view', 'factores_riesgo_create', 'factores_riesgo_edit', 'factores_riesgo_delete',
-            'alumnos_factores_view', 'alumnos_factores_create', 'alumnos_factores_edit', 'alumnos_factores_delete',
+        $admin->givePermissionTo([
+            'ver-alumnos', 'crear-alumnos', 'editar-alumnos', 'eliminar-alumnos', 'importar-alumnos',
+            'ver-profesores', 'crear-profesores', 'editar-profesores', 'eliminar-profesores',
+            'ver-materias', 'crear-materias', 'editar-materias', 'eliminar-materias',
+            'ver-carreras', 'crear-carreras', 'editar-carreras', 'eliminar-carreras',
+            'ver-periodos', 'crear-periodos', 'editar-periodos', 'eliminar-periodos',
+            'ver-grupos', 'crear-grupos', 'editar-grupos', 'eliminar-grupos',
+            'ver-factores-riesgo', 'crear-factores-riesgo', 'editar-factores-riesgo', 'eliminar-factores-riesgo',
+            'ver-calificaciones', 'crear-calificaciones', 'editar-calificaciones', 'eliminar-calificaciones',
+            'ver-asistencias', 'crear-asistencias', 'editar-asistencias', 'eliminar-asistencias',
+            'ver-reportes', 'generar-reportes',
+            'ver-dashboard', 'ver-analytics',
+            'ver-ishikawa', 'crear-ishikawa', 'editar-ishikawa', 'eliminar-ishikawa',
+            'ver-activity-logs',
         ]);
 
-        // Profesor: limited access focused on teaching activities
-        $profesorRole->givePermissionTo([
-            // View only for catalogs
-            'periodos_view',
-            'carreras_view',
-            'materias_view',
-            'unidades_view',
-            
-            // View professors (colleagues)
-            'profesores_view',
-            
-            // View and limited edit for students
-            'alumnos_view',
-            
-            // View their groups
-            'grupos_view',
-            
-            // Manage enrollments in their groups
-            'inscripciones_view',
-            
-            // Full access to grades and attendance for their students
-            'calificaciones_view', 'calificaciones_create', 'calificaciones_edit', 'calificaciones_delete',
-            'asistencias_view', 'asistencias_create', 'asistencias_edit', 'asistencias_delete',
-            
-            // View and report risk factors
-            'factores_riesgo_view',
-            'alumnos_factores_view', 'alumnos_factores_create',
+        // Profesor - can view and manage their own groups, students, grades
+        $profesor = Role::create(['name' => 'Profesor', 'guard_name' => 'web']);
+        $profesor->givePermissionTo([
+            'ver-alumnos',
+            'ver-materias',
+            'ver-grupos',
+            'ver-calificaciones', 'crear-calificaciones', 'editar-calificaciones',
+            'ver-asistencias', 'crear-asistencias', 'editar-asistencias',
+            'ver-factores-riesgo',
+            'ver-reportes',
+            'ver-dashboard',
         ]);
 
-        $this->command->info('✓ Assigned permissions to roles');
+        // Coordinador - can manage academic aspects
+        $coordinador = Role::create(['name' => 'Coordinador', 'guard_name' => 'web']);
+        $coordinador->givePermissionTo([
+            'ver-alumnos', 'crear-alumnos', 'editar-alumnos',
+            'ver-profesores', 'crear-profesores', 'editar-profesores',
+            'ver-materias', 'crear-materias', 'editar-materias',
+            'ver-grupos', 'crear-grupos', 'editar-grupos',
+            'ver-periodos',
+            'ver-carreras',
+            'ver-calificaciones', 'crear-calificaciones', 'editar-calificaciones',
+            'ver-asistencias', 'crear-asistencias', 'editar-asistencias',
+            'ver-factores-riesgo', 'crear-factores-riesgo', 'editar-factores-riesgo',
+            'ver-reportes', 'generar-reportes',
+            'ver-dashboard', 'ver-analytics',
+            'ver-ishikawa', 'crear-ishikawa', 'editar-ishikawa',
+        ]);
+
+        // Secretaria - read-only for most, can manage some basic data
+        $secretaria = Role::create(['name' => 'Secretaria', 'guard_name' => 'web']);
+        $secretaria->givePermissionTo([
+            'ver-alumnos', 'crear-alumnos', 'editar-alumnos',
+            'ver-profesores',
+            'ver-materias',
+            'ver-grupos',
+            'ver-periodos',
+            'ver-carreras',
+            'ver-calificaciones',
+            'ver-asistencias',
+            'ver-reportes',
+        ]);
+
+        // Estudiante - very limited access
+        $estudiante = Role::create(['name' => 'Estudiante', 'guard_name' => 'web']);
+        $estudiante->givePermissionTo([
+            'ver-materias',
+            'ver-grupos',
+            'ver-calificaciones',
+            'ver-asistencias',
+        ]);
+
+        $this->command->info('✓ Created 6 roles with permissions');
 
         $this->command->line('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
         $this->command->info('✅ Roles and Permissions created successfully!');
         $this->command->line('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
         $this->command->info('📊 Summary:');
         $this->command->info("   • Permissions: " . count($permissions));
-        $this->command->info("   • Roles: 3 (admin, administracion, profesor)");
-        $this->command->info("   • Admin permissions: " . $adminRole->permissions->count());
-        $this->command->info("   • Administracion permissions: " . $administracionRole->permissions->count());
-        $this->command->info("   • Profesor permissions: " . $profesorRole->permissions->count());
+        $this->command->info("   • Roles: 6");
+        $this->command->info("   • Super Administrador: " . $superAdmin->permissions->count() . " permissions");
+        $this->command->info("   • Administrador: " . $admin->permissions->count() . " permissions");
+        $this->command->info("   • Coordinador: " . $coordinador->permissions->count() . " permissions");
+        $this->command->info("   • Profesor: " . $profesor->permissions->count() . " permissions");
+        $this->command->info("   • Secretaria: " . $secretaria->permissions->count() . " permissions");
+        $this->command->info("   • Estudiante: " . $estudiante->permissions->count() . " permissions");
         $this->command->line('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
     }
 }

@@ -5,7 +5,7 @@ use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\PeriodoController;
 use App\Http\Controllers\CarreraController;
-// use App\Http\Controllers\UserController;
+use App\Http\Controllers\UserController;
 use App\Http\Controllers\ProfesorController;
 use App\Http\Controllers\AlumnoController;
 use App\Http\Controllers\MateriaController;
@@ -20,6 +20,8 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\AnalisisIshikawaController;
 use App\Http\Controllers\ReporteController;
 use App\Http\Controllers\UsuarioController;
+use App\Http\Controllers\RoleController;
+use App\Http\Controllers\PermissionController;
 
 //create group for middleware auth:sanctum
 Route::middleware(['auth:sanctum'])->group(function () {
@@ -54,6 +56,13 @@ Route::middleware(['auth:sanctum'])->group(function () {
     
     // Rutas para Reportes
     Route::get('reportes/summary', [ReporteController::class, 'getSummaryReport']);
+    
+    // Rutas para Roles y Permisos
+    Route::apiResource('roles', RoleController::class);
+    Route::apiResource('permissions', PermissionController::class);
+    Route::apiResource('users', UserController::class);
+    Route::post('users/{user}/assign-role', [UserController::class, 'assignRole']);
+    Route::post('users/{user}/remove-role', [UserController::class, 'removeRole']);
 });
 
 Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
