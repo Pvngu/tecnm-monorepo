@@ -2,7 +2,17 @@
 
 ## 📋 Descripción General
 
-Este documento describe la implementación de la funcionalidad de exportación de datos a formatos Excel (.xlsx) y CSV (.csv) en el sistema de gestión escolar. La exportación está disponible para el recurso de **Alumnos** y puede ser fácilmente extendida a otros recursos.
+Este documento describe la implementación de la funcionalidad de exportación de datos a formatos Excel (.xlsx) y CSV (.csv) en el sistema de gestión escolar. La exportación está disponible para **TODOS los recursos principales** del sistema.
+
+### Recursos con Exportación Implementada
+
+✅ **Alumnos** - Exporta matrícula, nombre, carrera, semestre, etc.  
+✅ **Profesores** - Exporta nombre, RFC, email, etc.  
+✅ **Carreras** - Exporta nombre, clave  
+✅ **Grupos** - Exporta periodo, materia, profesor, aula, horario  
+✅ **Materias** - Exporta código, nombre, créditos  
+✅ **Periodos** - Exporta nombre, fechas, estado activo  
+✅ **Factores de Riesgo** - Exporta nombre, categoría, alumnos afectados  
 
 ### Características Principales
 
@@ -12,6 +22,7 @@ Este documento describe la implementación de la funcionalidad de exportación d
 ✅ **Interfaz intuitiva**: Menú dropdown en el frontend para seleccionar el formato  
 ✅ **Nombres de archivo con timestamp**: Los archivos se generan con fecha y hora  
 ✅ **Optimizado para grandes volúmenes**: Usa `FromQuery` para eficiencia  
+✅ **Patrón consistente**: Todos los recursos usan la misma estructura  
 
 ---
 
@@ -40,10 +51,22 @@ Este documento describe la implementación de la funcionalidad de exportación d
 apps/laravel/
 ├── app/
 │   ├── Exports/
-│   │   └── AlumnosExport.php          # ✨ NUEVO
+│   │   ├── AlumnosExport.php          # ✨ NUEVO
+│   │   ├── ProfesoresExport.php       # ✨ NUEVO
+│   │   ├── CarrerasExport.php         # ✨ NUEVO
+│   │   ├── GruposExport.php           # ✨ NUEVO
+│   │   ├── MateriasExport.php         # ✨ NUEVO
+│   │   ├── PeriodosExport.php         # ✨ NUEVO
+│   │   └── FactoresRiesgoExport.php   # ✨ NUEVO
 │   └── Http/
 │       └── Controllers/
-│           └── AlumnoController.php    # ✏️ MODIFICADO
+│           ├── AlumnoController.php       # ✏️ MODIFICADO
+│           ├── ProfesorController.php     # ✏️ MODIFICADO
+│           ├── CarreraController.php      # ✏️ MODIFICADO
+│           ├── GrupoController.php        # ✏️ MODIFICADO
+│           ├── MateriaController.php      # ✏️ MODIFICADO
+│           ├── PeriodoController.php      # ✏️ MODIFICADO
+│           └── FactorRiesgoController.php # ✏️ MODIFICADO
 └── routes/
     └── api.php                         # ✏️ MODIFICADO
 ```
@@ -418,17 +441,53 @@ curl -X GET "http://localhost:8000/api/v1/alumnos/export/csv?filter[semestre]=5"
 
 ---
 
-## 📊 Ejemplos de Filtros
+## 📊 Ejemplos de Filtros por Recurso
 
-Los siguientes filtros están soportados (según `AlumnoController`):
-
+### Alumnos
 ```
 GET /api/v1/alumnos/export/excel?filter[carrera_id]=1
 GET /api/v1/alumnos/export/excel?filter[semestre]=5
 GET /api/v1/alumnos/export/excel?filter[genero]=masculino
 GET /api/v1/alumnos/export/excel?filter[estatus_alumno]=activo
-GET /api/v1/alumnos/export/excel?filter[nombre]=Juan
 GET /api/v1/alumnos/export/excel?filter[carrera_id]=1&filter[semestre]=5
+```
+
+### Profesores
+```
+GET /api/v1/profesores/export/excel?filter[nombre]=Juan
+GET /api/v1/profesores/export/excel?filter[rfc]=ABCD123456
+```
+
+### Carreras
+```
+GET /api/v1/carreras/export/excel?filter[nombre]=Sistemas
+GET /api/v1/carreras/export/excel?filter[clave]=ISC
+```
+
+### Grupos
+```
+GET /api/v1/grupos/export/excel?filter[materia_id]=1
+GET /api/v1/grupos/export/excel?filter[profesor_id]=3
+GET /api/v1/grupos/export/excel?filter[periodo_id]=2
+GET /api/v1/grupos/export/excel?filter[carrera_id]=1
+```
+
+### Materias
+```
+GET /api/v1/materias/export/excel?filter[nombre]=Calculo
+GET /api/v1/materias/export/excel?filter[creditos]=6
+```
+
+### Periodos
+```
+GET /api/v1/periodos/export/excel?filter[activo]=1
+GET /api/v1/periodos/export/excel?filter[nombre]=2025-1
+```
+
+### Factores de Riesgo
+```
+GET /api/v1/factores-riesgo/export/excel?filter[categoria]=Económico
+GET /api/v1/factores-riesgo/export/excel?filter[nombre]=Trabajo
 ```
 
 ---
@@ -465,14 +524,25 @@ GET /api/v1/alumnos/export/excel?filter[carrera_id]=1&filter[semestre]=5
 
 ## ✅ Checklist de Implementación
 
-- [x] Backend: Instalar `maatwebsite/excel`
-- [x] Backend: Crear clase `AlumnosExport`
-- [x] Backend: Implementar métodos `exportExcel()` y `exportCsv()`
-- [x] Backend: Agregar rutas de exportación
-- [x] Frontend: Agregar método `exportFile()` a `apiService`
-- [x] Frontend: Implementar botón de exportación con dropdown
-- [x] Frontend: Implementar función `handleExport()`
-- [x] Documentación: Crear README
+### Backend (Laravel)
+- [x] Instalar `maatwebsite/excel`
+- [x] Crear clase `AlumnosExport`
+- [x] Crear clase `ProfesoresExport`
+- [x] Crear clase `CarrerasExport`
+- [x] Crear clase `GruposExport`
+- [x] Crear clase `MateriasExport`
+- [x] Crear clase `PeriodosExport`
+- [x] Crear clase `FactoresRiesgoExport`
+- [x] Implementar métodos `exportExcel()` y `exportCsv()` en todos los controladores
+- [x] Agregar rutas de exportación para todos los recursos
+
+### Frontend (Next.js)
+- [x] Agregar método `exportFile()` a `apiService`
+- [x] Implementar botón de exportación con dropdown
+- [x] Implementar función `handleExport()`
+
+### Documentación
+- [x] Crear README completo
 
 ---
 

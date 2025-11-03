@@ -27,8 +27,20 @@ use App\Http\Controllers\PermissionController;
 Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('dashboard/stats', [DashboardController::class, 'getStats']);
     Route::get('dashboard/analytics', [DashboardController::class, 'getAnalytics']);
+    
+    // Rutas de exportación para Periodos
+    Route::get('periodos/export/excel', [PeriodoController::class, 'exportExcel']);
+    Route::get('periodos/export/csv', [PeriodoController::class, 'exportCsv']);
     Route::apiResource('periodos', PeriodoController::class);
+    
+    // Rutas de exportación para Carreras
+    Route::get('carreras/export/excel', [CarreraController::class, 'exportExcel']);
+    Route::get('carreras/export/csv', [CarreraController::class, 'exportCsv']);
     Route::apiResource('carreras', CarreraController::class);
+    
+    // Rutas de exportación para Profesores
+    Route::get('profesores/export/excel', [ProfesorController::class, 'exportExcel']);
+    Route::get('profesores/export/csv', [ProfesorController::class, 'exportCsv']);
     Route::apiResource('profesores', ProfesorController::class);
     
     // Rutas de exportación para Alumnos (antes del apiResource para que tengan prioridad)
@@ -36,9 +48,22 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('alumnos/export/csv', [AlumnoController::class, 'exportCsv']);
     Route::post('alumnos/import', [AlumnoController::class, 'import']);
     Route::apiResource('alumnos', AlumnoController::class);
+    
+    // Rutas de exportación para Materias
+    Route::get('materias/export/excel', [MateriaController::class, 'exportExcel']);
+    Route::get('materias/export/csv', [MateriaController::class, 'exportCsv']);
     Route::apiResource('materias', MateriaController::class);
+    
     Route::apiResource('unidades', UnidadController::class);
+    
+    // Rutas de exportación para Factores de Riesgo
+    Route::get('factores-riesgo/export/excel', [FactorRiesgoController::class, 'exportExcel']);
+    Route::get('factores-riesgo/export/csv', [FactorRiesgoController::class, 'exportCsv']);
     Route::apiResource('factores-riesgo', FactorRiesgoController::class);
+    
+    // Rutas de exportación para Grupos
+    Route::get('grupos/export/excel', [GrupoController::class, 'exportExcel']);
+    Route::get('grupos/export/csv', [GrupoController::class, 'exportCsv']);
     Route::apiResource('grupos', GrupoController::class);
     Route::get('grupos/{grupo}/factores-pareto', [GrupoController::class, 'getFactoresPareto']);
     Route::get('grupos/{grupo}/ishikawa-data', [GrupoController::class, 'getIshikawaData']);

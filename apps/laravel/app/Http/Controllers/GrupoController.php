@@ -5,8 +5,11 @@ namespace App\Http\Controllers;
 use App\Http\Requests\GrupoRequest;
 use App\Http\Traits\HasPagination;
 use App\Models\Grupo;
+use App\Exports\GruposExport;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Maatwebsite\Excel\Facades\Excel;
 use Spatie\QueryBuilder\QueryBuilder;
 use Spatie\QueryBuilder\AllowedFilter;
 
@@ -202,5 +205,22 @@ class GrupoController extends Controller
         });
 
         return response()->json($scatterData);
+    }
+
+    public function exportExcel(Request $request)
+    {
+        return Excel::download(
+            new GruposExport($request),
+            'grupos_' . now()->format('Y-m-d_His') . '.xlsx'
+        );
+    }
+
+    public function exportCsv(Request $request)
+    {
+        return Excel::download(
+            new GruposExport($request),
+            'grupos_' . now()->format('Y-m-d_His') . '.csv',
+            \Maatwebsite\Excel\Excel::CSV
+        );
     }
 }

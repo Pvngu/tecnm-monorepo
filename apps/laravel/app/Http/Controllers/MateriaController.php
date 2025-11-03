@@ -5,7 +5,10 @@ namespace App\Http\Controllers;
 use App\Http\Requests\MateriaRequest;
 use App\Http\Traits\HasPagination;
 use App\Models\Materia;
+use App\Exports\MateriasExport;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Maatwebsite\Excel\Facades\Excel;
 use Spatie\QueryBuilder\QueryBuilder;
 
 class MateriaController extends Controller
@@ -44,5 +47,22 @@ class MateriaController extends Controller
     {
         $materia->delete();
         return response()->json(null, 204);
+    }
+
+    public function exportExcel(Request $request)
+    {
+        return Excel::download(
+            new MateriasExport($request),
+            'materias_' . now()->format('Y-m-d_His') . '.xlsx'
+        );
+    }
+
+    public function exportCsv(Request $request)
+    {
+        return Excel::download(
+            new MateriasExport($request),
+            'materias_' . now()->format('Y-m-d_His') . '.csv',
+            \Maatwebsite\Excel\Excel::CSV
+        );
     }
 }

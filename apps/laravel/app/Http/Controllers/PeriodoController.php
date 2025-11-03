@@ -5,8 +5,10 @@ namespace App\Http\Controllers;
 use App\Http\Requests\PeriodoRequest;
 use App\Http\Traits\HasPagination;
 use App\Models\Periodo;
+use App\Exports\PeriodosExport;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Maatwebsite\Excel\Facades\Excel;
 use Spatie\QueryBuilder\QueryBuilder;
 
 class PeriodoController extends Controller
@@ -45,5 +47,22 @@ class PeriodoController extends Controller
     {
         $periodo->delete();
         return response()->json(null, 204);
+    }
+
+    public function exportExcel(Request $request)
+    {
+        return Excel::download(
+            new PeriodosExport($request),
+            'periodos_' . now()->format('Y-m-d_His') . '.xlsx'
+        );
+    }
+
+    public function exportCsv(Request $request)
+    {
+        return Excel::download(
+            new PeriodosExport($request),
+            'periodos_' . now()->format('Y-m-d_His') . '.csv',
+            \Maatwebsite\Excel\Excel::CSV
+        );
     }
 }

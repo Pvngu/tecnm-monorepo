@@ -5,7 +5,10 @@ namespace App\Http\Controllers;
 use App\Http\Requests\FactorRiesgoRequest;
 use App\Http\Traits\HasPagination;
 use App\Models\FactorRiesgo;
+use App\Exports\FactoresRiesgoExport;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Maatwebsite\Excel\Facades\Excel;
 use Spatie\QueryBuilder\QueryBuilder;
 
 class FactorRiesgoController extends Controller
@@ -44,5 +47,22 @@ class FactorRiesgoController extends Controller
     {
         $factorRiesgo->delete();
         return response()->json(null, 204);
+    }
+
+    public function exportExcel(Request $request)
+    {
+        return Excel::download(
+            new FactoresRiesgoExport($request),
+            'factores_riesgo_' . now()->format('Y-m-d_His') . '.xlsx'
+        );
+    }
+
+    public function exportCsv(Request $request)
+    {
+        return Excel::download(
+            new FactoresRiesgoExport($request),
+            'factores_riesgo_' . now()->format('Y-m-d_His') . '.csv',
+            \Maatwebsite\Excel\Excel::CSV
+        );
     }
 }

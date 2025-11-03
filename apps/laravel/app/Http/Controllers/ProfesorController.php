@@ -5,7 +5,10 @@ namespace App\Http\Controllers;
 use App\Http\Requests\ProfesorRequest;
 use App\Http\Traits\HasPagination;
 use App\Models\Profesor;
+use App\Exports\ProfesoresExport;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Maatwebsite\Excel\Facades\Excel;
 use Spatie\QueryBuilder\QueryBuilder;
 use Spatie\QueryBuilder\AllowedFilter;
 
@@ -51,5 +54,22 @@ class ProfesorController extends Controller
     {
         $profesor->delete();
         return response()->json(null, 204);
+    }
+
+    public function exportExcel(Request $request)
+    {
+        return Excel::download(
+            new ProfesoresExport($request),
+            'profesores_' . now()->format('Y-m-d_His') . '.xlsx'
+        );
+    }
+
+    public function exportCsv(Request $request)
+    {
+        return Excel::download(
+            new ProfesoresExport($request),
+            'profesores_' . now()->format('Y-m-d_His') . '.csv',
+            \Maatwebsite\Excel\Excel::CSV
+        );
     }
 }

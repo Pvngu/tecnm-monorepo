@@ -6,8 +6,10 @@ use App\Http\Requests\CarreraRequest;
 use App\Http\Traits\HasModelCache;
 use App\Http\Traits\HasPagination;
 use App\Models\Carrera;
+use App\Exports\CarrerasExport;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Maatwebsite\Excel\Facades\Excel;
 use Spatie\QueryBuilder\QueryBuilder;
 
 class CarreraController extends Controller
@@ -78,5 +80,22 @@ class CarreraController extends Controller
         $this->clearModelCache();
         
         return response()->json(null, 204);
+    }
+
+    public function exportExcel(Request $request)
+    {
+        return Excel::download(
+            new CarrerasExport($request),
+            'carreras_' . now()->format('Y-m-d_His') . '.xlsx'
+        );
+    }
+
+    public function exportCsv(Request $request)
+    {
+        return Excel::download(
+            new CarrerasExport($request),
+            'carreras_' . now()->format('Y-m-d_His') . '.csv',
+            \Maatwebsite\Excel\Excel::CSV
+        );
     }
 }
