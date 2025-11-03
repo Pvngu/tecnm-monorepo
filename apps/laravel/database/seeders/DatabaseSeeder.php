@@ -136,14 +136,21 @@ class DatabaseSeeder extends Seeder
         // Step 10: Create Grades for Each Unit
         $totalCalificaciones = 0;
         $alumnosReprobados = 0;
-        
+
+        // Determine failing rate between 10% and 30% and select that many enrollments deterministically
+        $failRate = rand(10, 30);
+        $totalInscripciones = $inscripciones->count();
+        $numReprobatorias = $totalInscripciones > 0 ? max(1, (int) round($totalInscripciones * ($failRate / 100))) : 0;
+        $idsInscripcionesReprobatorias = $numReprobatorias > 0 ? $inscripciones->random($numReprobatorias)->pluck('id')->all() : [];
+        $mapReprobatorias = array_fill_keys($idsInscripcionesReprobatorias, true);
+
         foreach ($inscripciones as $inscripcion) {
             $materia = $inscripcion->grupo->materia;
             $unidades = $materia->unidades;
 
             $sumaCalificaciones = 0;
-            // 30% de probabilidad de que el alumno tenga calificaciones reprobatorias
-            $esReprobatorio = rand(1, 100) <= 30;
+            // If this enrollment was selected as failing, generate failing unit grades
+            $esReprobatorio = isset($mapReprobatorias[$inscripcion->id]);
             
             foreach ($unidades as $unidad) {
                 if ($esReprobatorio) {
@@ -173,8 +180,9 @@ class DatabaseSeeder extends Seeder
                 $alumnosReprobados++;
             }
         }
-        $this->command->info('✓ Created ' . $totalCalificaciones . ' grades');
-        $this->command->info('✓ Students with failing grades: ' . $alumnosReprobados);
+    $this->command->info('✓ Created ' . $totalCalificaciones . ' grades');
+    $this->command->info('✓ Target fail rate: ' . $failRate . '% (' . $numReprobatorias . ' of ' . $totalInscripciones . ' enrollments)');
+    $this->command->info('✓ Students with failing grades: ' . $alumnosReprobados);
 
         // Step 11: Create Attendance Records for ALL enrollments
         $totalAsistencias = 0;
