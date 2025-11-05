@@ -72,13 +72,13 @@ const VARIABLES: VariableOption[] = [
     value: "faltas",
     label: "Número de Faltas",
     unit: " faltas",
-    description: "Total de inasistencias injustificadas"
+    description: "Total de inasistencias (ausencias registradas)"
   },
   {
     value: "asistencias",
     label: "Número de Asistencias",
     unit: " asist.",
-    description: "Total de días asistidos"
+    description: "Total de días presentes"
   },
   {
     value: "porcentaje_asistencia",
@@ -90,7 +90,7 @@ const VARIABLES: VariableOption[] = [
     value: "total_asistencias",
     label: "Total de Registros de Asistencia",
     unit: " reg.",
-    description: "Total de registros de asistencia (asistencias + faltas + justificados)"
+    description: "Total de registros de asistencia (presentes + ausentes + retardos)"
   },
   {
     value: "num_factores_riesgo",
@@ -322,6 +322,7 @@ export function ScatterFaltasGrupo({ periodoId, carreraId, semestre }: ScatterFa
                     offset: -15,
                     style: { fontSize: 14, fontWeight: 500 }
                   }}
+                  domain={variableX === "calificacion_final" ? [60, 100] : undefined}
                 />
                 <YAxis
                   type="number"
@@ -334,6 +335,7 @@ export function ScatterFaltasGrupo({ periodoId, carreraId, semestre }: ScatterFa
                     position: "insideLeft",
                     style: { fontSize: 14, fontWeight: 500 }
                   }}
+                  domain={variableY === "calificacion_final" ? [60, 100] : undefined}
                 />
                 <Tooltip
                   cursor={{ strokeDasharray: "3 3" }}

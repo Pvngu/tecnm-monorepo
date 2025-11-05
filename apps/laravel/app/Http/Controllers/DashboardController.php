@@ -304,13 +304,13 @@ class DashboardController extends Controller
             ->withCount([
                 'asistencias as total_asistencias',
                 'asistencias as faltas_count' => function ($query) {
-                    $query->where('estatus', 'falta');
+                    $query->where('estatus', 'ausente');
                 },
                 'asistencias as asistencias_count' => function ($query) {
-                    $query->where('estatus', 'asistio');
+                    $query->where('estatus', 'presente');
                 },
                 'asistencias as justificados_count' => function ($query) {
-                    $query->where('estatus', 'justificado');
+                    $query->where('estatus', 'retardo');
                 },
                 'calificaciones as calificaciones_count',
                 'alumnosFactores as factores_count',

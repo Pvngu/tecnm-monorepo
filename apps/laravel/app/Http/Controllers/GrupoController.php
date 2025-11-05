@@ -189,7 +189,7 @@ class GrupoController extends Controller
                     $query->where('estatus', 'presente');
                 },
                 'asistencias as justificados_count' => function ($query) {
-                    $query->where('estatus', 'justificado');
+                    $query->where('estatus', 'retardo');
                 },
                 'calificaciones as calificaciones_count',
                 'alumnosFactores as factores_count',
