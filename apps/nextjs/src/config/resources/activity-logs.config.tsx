@@ -66,10 +66,6 @@ export const ActivityLogFilters: FilterConfig[] = [
 
 export const ActivityLogColumns: ColumnDef<ActivityLog>[] = [
   {
-    accessorKey: "id",
-    header: "ID",
-  },
-  {
     accessorKey: "datetime",
     header: "Fecha",
     cell: ({ row }) => {
