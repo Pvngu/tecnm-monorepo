@@ -272,7 +272,7 @@ export default function AnalyticsPage() {
                       tick={{ fontSize: 11 }}
                       width={150}
                     />
-                    <Tooltip 
+                    <Tooltip
                       contentStyle={{ 
                         backgroundColor: '#fff', 
                         border: '1px solid hsl(var(--border))',
