@@ -30,11 +30,10 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { apiService, ParetoData } from "@/services/apiService";
 import { PaginatedResponse } from "@/types/api";
 
-// Interfaces para los recursos
-interface Periodo {
-  id: number;
-  nombre: string;
-  activo: boolean;
+interface ParetoFactoresGrupoProps {
+  periodoId: number;
+  carreraId?: number;
+  semestre?: number;
 }
 
 interface Materia {
@@ -53,24 +52,15 @@ interface Grupo {
   periodo_id: number;
 }
 
-export function ParetoFactoresGrupo() {
-  const [periodoId, setPeriodoId] = useState<number | null>(null);
-  const [materiaId, setMateriaId] = useState<number | null>(null);
-  const [grupoId, setGrupoId] = useState<number | null>(null);
+export function ParetoFactoresGrupo({ periodoId, carreraId, semestre }: ParetoFactoresGrupoProps) {
+  const [selectedMateriaId, setSelectedMateriaId] = useState<string>("all");
+  const [selectedGrupoId, setSelectedGrupoId] = useState<string>("all");
 
-  // Query para Periodos
-  const { data: periodosData, isLoading: isLoadingPeriodos } = useQuery<
-    PaginatedResponse<Periodo>
-  >({
-    queryKey: ["periodos"],
-    queryFn: () => apiService.getList<Periodo>("periodos", { per_page: 100 }),
-  });
-
-  // Query para Materias (habilitado solo si hay periodo seleccionado)
+  // Query para Materias
   const { data: materiasData, isLoading: isLoadingMaterias } = useQuery<
     PaginatedResponse<Materia>
   >({
-    queryKey: ["materias", periodoId],
+    queryKey: ["materias"],
     queryFn: () => apiService.getList<Materia>("materias", { per_page: 100 }),
     enabled: !!periodoId,
   });
@@ -79,85 +69,79 @@ export function ParetoFactoresGrupo() {
   const { data: gruposData, isLoading: isLoadingGrupos } = useQuery<
     PaginatedResponse<Grupo>
   >({
-    queryKey: ["grupos", materiaId],
-    queryFn: () =>
-      apiService.getList<Grupo>("grupos", {
+    queryKey: ["grupos", periodoId, selectedMateriaId],
+    queryFn: () => {
+      const filters: any = { periodo_id: periodoId };
+      if (selectedMateriaId !== "all") {
+        filters.materia_id = parseInt(selectedMateriaId);
+      }
+      return apiService.getList<Grupo>("grupos", {
         per_page: 100,
-        filter: { materia_id: materiaId },
-      }),
-    enabled: !!materiaId,
+        filter: filters,
+      });
+    },
+    enabled: !!periodoId && selectedMateriaId !== "all",
   });
 
-  // Query para datos del Pareto (habilitado solo si hay grupo seleccionado)
-  const { data: paretoData, isLoading: isLoadingPareto } = useQuery<
+  // Determinar qué endpoint usar basado en si hay grupo seleccionado
+  const useGrupoEndpoint = selectedGrupoId !== "all";
+
+  // Query para datos del Pareto por periodo (todos los grupos)
+  const { data: paretoDataPeriodo, isLoading: isLoadingParetoPeriodo } = useQuery<
     ParetoData[]
   >({
-    queryKey: ["paretoFactores", grupoId],
-    queryFn: () => apiService.getParetoFactores(grupoId!),
-    enabled: !!grupoId,
+    queryKey: ["paretoFactoresPeriodo", periodoId, carreraId, semestre],
+    queryFn: () => apiService.getParetoFactoresByPeriodo(periodoId, carreraId, semestre),
+    enabled: !!periodoId && !useGrupoEndpoint,
   });
 
-  // Handlers para los cambios de selección
-  const handlePeriodoChange = (value: string) => {
-    setPeriodoId(Number(value));
-    setMateriaId(null);
-    setGrupoId(null);
-  };
+  // Query para datos del Pareto por grupo específico
+  const { data: paretoDataGrupo, isLoading: isLoadingParetoGrupo } = useQuery<
+    ParetoData[]
+  >({
+    queryKey: ["paretoFactoresGrupo", selectedGrupoId],
+    queryFn: () => apiService.getParetoFactores(parseInt(selectedGrupoId)),
+    enabled: useGrupoEndpoint,
+  });
 
+  // Usar los datos correspondientes
+  const paretoData = useGrupoEndpoint ? paretoDataGrupo : paretoDataPeriodo;
+  const isLoadingPareto = useGrupoEndpoint ? isLoadingParetoGrupo : isLoadingParetoPeriodo;
+
+  // Handlers
   const handleMateriaChange = (value: string) => {
-    setMateriaId(Number(value));
-    setGrupoId(null);
+    setSelectedMateriaId(value);
+    setSelectedGrupoId("all");
   };
 
   const handleGrupoChange = (value: string) => {
-    setGrupoId(Number(value));
+    setSelectedGrupoId(value);
   };
 
   return (
     <Card className="w-full">
       <CardHeader>
-        <CardTitle>Análisis de Pareto - Factores de Riesgo por Grupo</CardTitle>
+        <CardTitle>Análisis de Pareto - Factores de Riesgo</CardTitle>
         <CardDescription>
-          Identifica los factores de riesgo más impactantes (regla 80/20) para
-          un grupo específico
+          Identifica los factores de riesgo más impactantes (regla 80/20)
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
-        {/* Sección de Filtros */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {/* Filtro 1: Periodo */}
+        {/* Filtros Opcionales */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {/* Filtro: Materia (Opcional) */}
           <div className="space-y-2">
-            <label className="text-sm font-medium">Periodo</label>
+            <label className="text-sm font-medium">Materia (Opcional)</label>
             <Select
-              value={periodoId?.toString() || ""}
-              onValueChange={handlePeriodoChange}
-              disabled={isLoadingPeriodos}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Selecciona un periodo" />
-              </SelectTrigger>
-              <SelectContent>
-                {periodosData?.data.map((periodo) => (
-                  <SelectItem key={periodo.id} value={periodo.id.toString()}>
-                    {periodo.nombre}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          {/* Filtro 2: Materia */}
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Materia</label>
-            <Select
-              value={materiaId?.toString() || ""}
+              value={selectedMateriaId}
               onValueChange={handleMateriaChange}
               disabled={!periodoId || isLoadingMaterias}
             >
               <SelectTrigger>
-                <SelectValue placeholder="Selecciona una materia" />
+                <SelectValue placeholder="Todas las materias" />
               </SelectTrigger>
               <SelectContent>
+                <SelectItem value="all">Todas las materias</SelectItem>
                 {materiasData?.data.map((materia) => (
                   <SelectItem key={materia.id} value={materia.id.toString()}>
                     {materia.clave} - {materia.nombre}
@@ -167,18 +151,19 @@ export function ParetoFactoresGrupo() {
             </Select>
           </div>
 
-          {/* Filtro 3: Grupo */}
+          {/* Filtro: Grupo (Opcional) */}
           <div className="space-y-2">
-            <label className="text-sm font-medium">Grupo</label>
+            <label className="text-sm font-medium">Grupo (Opcional)</label>
             <Select
-              value={grupoId?.toString() || ""}
+              value={selectedGrupoId}
               onValueChange={handleGrupoChange}
-              disabled={!materiaId || isLoadingGrupos}
+              disabled={selectedMateriaId === "all" || isLoadingGrupos}
             >
               <SelectTrigger>
-                <SelectValue placeholder="Selecciona un grupo" />
+                <SelectValue placeholder="Todos los grupos" />
               </SelectTrigger>
               <SelectContent>
+                <SelectItem value="all">Todos los grupos</SelectItem>
                 {gruposData?.data.map((grupo) => (
                   <SelectItem key={grupo.id} value={grupo.id.toString()}>
                     {grupo.aula} - {grupo.horario}
@@ -190,11 +175,11 @@ export function ParetoFactoresGrupo() {
         </div>
 
         {/* Sección del Gráfico */}
-        <div className="mt-6">
-          {!grupoId ? (
+        <div>
+          {!periodoId ? (
             <div className="flex items-center justify-center h-[300px] border rounded-lg bg-muted/10">
               <p className="text-muted-foreground">
-                Selecciona un grupo para ver el análisis de Pareto
+                Selecciona un periodo para ver el análisis de Pareto
               </p>
             </div>
           ) : isLoadingPareto ? (
@@ -258,7 +243,7 @@ export function ParetoFactoresGrupo() {
           ) : (
             <div className="flex items-center justify-center h-[300px] border rounded-lg bg-muted/10">
               <p className="text-muted-foreground">
-                No hay datos de factores de riesgo para este grupo
+                No hay datos de factores de riesgo para este periodo
               </p>
             </div>
           )}
@@ -275,6 +260,11 @@ export function ParetoFactoresGrupo() {
               línea naranja representa el porcentaje acumulado. Según la regla
               80/20, los primeros factores (que alcanzan ~80% acumulado)
               requieren mayor atención.
+            </p>
+            <p className="text-sm text-muted-foreground mt-2">
+              {selectedGrupoId !== "all" 
+                ? "Mostrando datos de un grupo específico." 
+                : "Mostrando datos agregados de todos los grupos del periodo seleccionado."}
             </p>
           </div>
         )}

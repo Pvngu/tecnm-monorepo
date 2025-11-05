@@ -303,7 +303,11 @@ export default function AnalyticsPage() {
 
       {/* Pareto Analysis Section */}
       <div>
-        <ParetoFactoresGrupo />
+        <ParetoFactoresGrupo 
+          periodoId={selectedPeriodo ? parseInt(selectedPeriodo) : 0}
+          carreraId={selectedCarrera !== "all" ? parseInt(selectedCarrera) : undefined}
+          semestre={selectedSemestre !== "all" ? parseInt(selectedSemestre) : undefined}
+        />
       </div>
 
       {/* Scatter Plot: Faltas vs Calificación */}

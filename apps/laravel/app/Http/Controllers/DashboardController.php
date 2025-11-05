@@ -203,4 +203,65 @@ class DashboardController extends Controller
             'promedio_general' => $promedioGeneral
         ]);
     }
+
+    /**
+     * Get Pareto analysis data for a periodo
+     * Returns risk factors ordered by frequency with cumulative percentage
+     */
+    public function getParetoFactores(Request $request)
+    {
+        // Validate required periodo_id parameter
+        $request->validate([
+            'periodo_id' => 'required|exists:periodos,id',
+            'carrera_id' => 'nullable|exists:carreras,id',
+            'semestre' => 'nullable|integer|min:1|max:12',
+        ]);
+
+        $periodoId = $request->input('periodo_id');
+        $carreraId = $request->input('carrera_id');
+        $semestre = $request->input('semestre');
+
+        // Build base query to get inscriptions for the periodo
+        $inscripcionQuery = Inscripcion::query()
+            ->join('alumnos', 'inscripciones.alumno_id', '=', 'alumnos.id')
+            ->join('grupos', 'inscripciones.grupo_id', '=', 'grupos.id')
+            ->where('grupos.periodo_id', $periodoId);
+
+        // Apply optional filters
+        if ($carreraId) {
+            $inscripcionQuery->where('alumnos.carrera_id', $carreraId);
+        }
+        if ($semestre) {
+            $inscripcionQuery->where('alumnos.semestre', $semestre);
+        }
+
+        // Get inscripcion IDs
+        $inscripcionIds = $inscripcionQuery->pluck('inscripciones.id');
+
+        // Query factors, group, count and order
+        $factores = DB::table('alumnos_factores')
+            ->join('factores_riesgo', 'alumnos_factores.factor_id', '=', 'factores_riesgo.id')
+            ->whereIn('alumnos_factores.inscripcion_id', $inscripcionIds)
+            ->select('factores_riesgo.nombre', DB::raw('COUNT(alumnos_factores.id) as frecuencia'))
+            ->groupBy('factores_riesgo.nombre')
+            ->orderBy('frecuencia', 'DESC')
+            ->get();
+
+        // Process for Pareto (Calculate cumulative percentage)
+        $totalFrecuencia = $factores->sum('frecuencia');
+        $frecuenciaAcumulada = 0;
+
+        $datosPareto = $factores->map(function ($item) use ($totalFrecuencia, &$frecuenciaAcumulada) {
+            $frecuenciaAcumulada += $item->frecuencia;
+            $porcentajeAcumulado = ($totalFrecuencia > 0) ? ($frecuenciaAcumulada / $totalFrecuencia) * 100 : 0;
+
+            return [
+                'nombre' => $item->nombre,
+                'frecuencia' => $item->frecuencia,
+                'porcentaje_acumulado' => round($porcentajeAcumulado, 1)
+            ];
+        });
+
+        return response()->json($datosPareto);
+    }
 }

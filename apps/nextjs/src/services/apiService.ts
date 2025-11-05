@@ -154,6 +154,18 @@ export const apiService = {
             credentials: 'include',
         }).then(handleResponse<ParetoData[]>);
     },
+    // Obtener datos de Pareto para factores de riesgo por periodo (todos los grupos)
+    getParetoFactoresByPeriodo: (periodoId: number, carreraId?: number, semestre?: number): Promise<ParetoData[]> => {
+        const params = new URLSearchParams({ periodo_id: periodoId.toString() });
+        if (carreraId) params.append('carrera_id', carreraId.toString());
+        if (semestre) params.append('semestre', semestre.toString());
+        
+        return fetch(`${apiBaseURL}dashboard/pareto-factores?${params.toString()}`, {
+            method: 'GET',
+            headers: getHeaders(),
+            credentials: 'include',
+        }).then(handleResponse<ParetoData[]>);
+    },
     // Obtener datos de Ishikawa para un grupo
     getIshikawaData: (grupoId: number): Promise<IshikawaData> => {
         return fetch(`${apiBaseURL}grupos/${grupoId}/ishikawa-data`, {
