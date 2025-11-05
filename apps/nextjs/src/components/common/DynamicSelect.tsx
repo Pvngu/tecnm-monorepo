@@ -26,6 +26,8 @@ interface DynamicSelectProps {
   onValueChange: (value: string | number | null) => void;
   placeholder?: string;
   disabled?: boolean;
+  customLabel?: (option: any) => string;
+  searchKey?: string;
 }
 
 export function DynamicSelect({
@@ -36,10 +38,14 @@ export function DynamicSelect({
   onValueChange,
   placeholder = 'Selecciona una opción',
   disabled = false,
+  customLabel,
+  searchKey,
 }: DynamicSelectProps) {
   const [open, setOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [debouncedSearchTerm] = useDebounce(searchTerm, 300);
+
+  const effectiveSearchKey = searchKey || optionLabelKey;
 
   const {
     data,
@@ -48,12 +54,12 @@ export function DynamicSelect({
     hasNextPage,
     isFetchingNextPage,
   } = useInfiniteQuery({
-    queryKey: ['resource-options', resource, optionLabelKey, debouncedSearchTerm],
+    queryKey: ['resource-options', resource, effectiveSearchKey, debouncedSearchTerm],
     queryFn: ({ pageParam = 1 }) =>
       apiService.getList(resource, {
         page: pageParam,
         per_page: 100,
-        filter: { [optionLabelKey]: debouncedSearchTerm || undefined },
+        filter: { [effectiveSearchKey]: debouncedSearchTerm || undefined },
       }),
     getNextPageParam: (lastPage) => {
       if (lastPage.current_page < lastPage.last_page) {
@@ -70,6 +76,13 @@ export function DynamicSelect({
   const selectedOption = options.find(
     (opt: any) => opt[optionValueKey]?.toString() === value?.toString()
   ) as any;
+
+  const getOptionLabel = (option: any) => {
+    if (customLabel) {
+      return customLabel(option);
+    }
+    return option[optionLabelKey];
+  };
 
   const loadMoreRef = useRef<HTMLDivElement>(null);
 
@@ -101,7 +114,7 @@ export function DynamicSelect({
           disabled={disabled}
         >
           {selectedOption
-            ? selectedOption[optionLabelKey]
+            ? getOptionLabel(selectedOption)
             : placeholder}
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
@@ -141,7 +154,7 @@ export function DynamicSelect({
                         isSelected ? 'opacity-100' : 'opacity-0'
                       )}
                     />
-                    {option[optionLabelKey]}
+                    {getOptionLabel(option)}
                   </CommandItem>
                 );
               })}

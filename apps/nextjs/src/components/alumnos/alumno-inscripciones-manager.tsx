@@ -135,11 +135,14 @@ export function AlumnoInscripcionesManager({
                       <FormControl>
                         <DynamicSelect
                           resource="grupos"
-                          optionLabelKey="nombre"
                           optionValueKey="id"
                           value={field.value}
                           onValueChange={(value) => field.onChange(value)}
                           placeholder="Selecciona un grupo"
+                          searchKey="horario"
+                          customLabel={(grupo) => 
+                            `${grupo.materia?.nombre || 'Sin materia'} - ${grupo.profesor?.nombre || 'Sin profesor'} ${grupo.profesor?.apellido_paterno || ''} - ${grupo.horario}`
+                          }
                         />
                       </FormControl>
                       <FormMessage />
@@ -292,7 +295,7 @@ function InscripcionCalificacionesForm({
               );
               return (
                 <div key={unidad.id} className="flex items-center gap-2">
-                  <label className="text-sm flex-1">{unidad.nombre}</label>
+                  <label className="text-sm flex-1">Unidad {unidad.numero_unidad}</label>
                   <Input
                     type="number"
                     min="0"

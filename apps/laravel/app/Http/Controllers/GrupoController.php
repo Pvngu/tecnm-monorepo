@@ -30,6 +30,7 @@ class GrupoController extends Controller
             ])
             ->allowedSorts(['aula', 'created_at'])
             ->allowedIncludes(['materia', 'profesor', 'periodo', 'carrera', 'inscripciones'])
+             ->with(['materia', 'profesor', 'periodo', 'carrera'])
             ->paginate($this->getPageSize());
 
         return response()->json($grupos);
