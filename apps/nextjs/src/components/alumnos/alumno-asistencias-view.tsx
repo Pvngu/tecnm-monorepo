@@ -62,8 +62,8 @@ export function AlumnoAsistenciasView({
   const totalAsistencias = asistencias.length;
   const presentes = asistencias.filter(
     (a: any) => a.estatus === "presente"
-  ).length;
-  const faltas = asistencias.filter((a: any) => a.estatus === "falta").length;
+  ).length + asistencias.filter((a: any) => a.estatus === "retardo").length;
+  const faltas = asistencias.filter((a: any) => a.estatus === "ausente").length;
   const justificados = asistencias.filter(
     (a: any) => a.estatus === "justificado"
   ).length;
