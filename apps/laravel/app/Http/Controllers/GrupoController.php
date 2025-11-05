@@ -331,4 +331,156 @@ class GrupoController extends Controller
             'total' => count($asistenciasData)
         ], 200);
     }
+
+    /**
+     * Obtener unidades disponibles para la materia del grupo
+     */
+    public function getUnidades(Grupo $grupo): JsonResponse
+    {
+        $grupo->load('materia.unidades');
+        
+        return response()->json($grupo->materia->unidades ?? []);
+    }
+
+    /**
+     * Crear una nueva unidad para la materia del grupo
+     */
+    public function createUnidad(Request $request, Grupo $grupo): JsonResponse
+    {
+        $validated = $request->validate([
+            'numero_unidad' => 'required|integer|min:1',
+            'nombre_unidad' => 'nullable|string|max:255',
+        ]);
+
+        // Verificar que no exista una unidad con el mismo número para esta materia
+        $existingUnidad = $grupo->materia->unidades()
+            ->where('numero_unidad', $validated['numero_unidad'])
+            ->first();
+
+        if ($existingUnidad) {
+            return response()->json([
+                'message' => 'Ya existe una unidad con este número para esta materia'
+            ], 422);
+        }
+
+        // Crear la unidad
+        $unidad = $grupo->materia->unidades()->create($validated);
+
+        return response()->json([
+            'message' => 'Unidad creada correctamente',
+            'unidad' => $unidad
+        ], 201);
+    }
+
+    /**
+     * Actualizar una unidad de la materia del grupo
+     */
+    public function updateUnidad(Request $request, Grupo $grupo, $unidadId): JsonResponse
+    {
+        $validated = $request->validate([
+            'numero_unidad' => 'required|integer|min:1',
+            'nombre_unidad' => 'nullable|string|max:255',
+        ]);
+
+        $unidad = $grupo->materia->unidades()->find($unidadId);
+
+        if (!$unidad) {
+            return response()->json([
+                'message' => 'Unidad no encontrada en esta materia'
+            ], 404);
+        }
+
+        // Verificar que no exista otra unidad con el mismo número
+        $existingUnidad = $grupo->materia->unidades()
+            ->where('numero_unidad', $validated['numero_unidad'])
+            ->where('id', '!=', $unidadId)
+            ->first();
+
+        if ($existingUnidad) {
+            return response()->json([
+                'message' => 'Ya existe otra unidad con este número para esta materia'
+            ], 422);
+        }
+
+        $unidad->update($validated);
+
+        return response()->json([
+            'message' => 'Unidad actualizada correctamente',
+            'unidad' => $unidad
+        ], 200);
+    }
+
+    /**
+     * Eliminar una unidad de la materia del grupo
+     */
+    public function deleteUnidad(Grupo $grupo, $unidadId): JsonResponse
+    {
+        $unidad = $grupo->materia->unidades()->find($unidadId);
+
+        if (!$unidad) {
+            return response()->json([
+                'message' => 'Unidad no encontrada en esta materia'
+            ], 404);
+        }
+
+        $unidad->delete();
+
+        return response()->json([
+            'message' => 'Unidad eliminada correctamente'
+        ], 200);
+    }
+
+    /**
+     * Agregar un alumno al grupo (crear inscripción)
+     */
+    public function addAlumno(Request $request, Grupo $grupo): JsonResponse
+    {
+        $validated = $request->validate([
+            'alumno_id' => 'required|exists:alumnos,id',
+        ]);
+
+        // Verificar si ya existe la inscripción
+        $existingInscripcion = $grupo->inscripciones()
+            ->where('alumno_id', $validated['alumno_id'])
+            ->first();
+
+        if ($existingInscripcion) {
+            return response()->json([
+                'message' => 'El alumno ya está inscrito en este grupo'
+            ], 422);
+        }
+
+        // Crear la inscripción
+        $inscripcion = $grupo->inscripciones()->create([
+            'alumno_id' => $validated['alumno_id'],
+        ]);
+
+        // Cargar el alumno para retornarlo
+        $inscripcion->load('alumno.carrera');
+
+        return response()->json([
+            'message' => 'Alumno agregado correctamente',
+            'inscripcion' => $inscripcion
+        ], 201);
+    }
+
+    /**
+     * Remover un alumno del grupo (eliminar inscripción)
+     */
+    public function removeAlumno(Grupo $grupo, $inscripcionId): JsonResponse
+    {
+        $inscripcion = $grupo->inscripciones()->find($inscripcionId);
+
+        if (!$inscripcion) {
+            return response()->json([
+                'message' => 'Inscripción no encontrada en este grupo'
+            ], 404);
+        }
+
+        $inscripcion->delete();
+
+        return response()->json([
+            'message' => 'Alumno removido correctamente'
+        ], 200);
+    }
 }

@@ -71,6 +71,12 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('grupos/{grupo}/alumnos', [GrupoController::class, 'getAlumnos']);
     Route::get('grupos/{grupo}/asistencias', [GrupoController::class, 'getAsistenciasByFecha']);
     Route::post('grupos/{grupo}/asistencias/bulk', [GrupoController::class, 'saveAsistenciasBulk']);
+    Route::get('grupos/{grupo}/unidades', [GrupoController::class, 'getUnidades']);
+    Route::post('grupos/{grupo}/unidades', [GrupoController::class, 'createUnidad']);
+    Route::put('grupos/{grupo}/unidades/{unidad}', [GrupoController::class, 'updateUnidad']);
+    Route::delete('grupos/{grupo}/unidades/{unidad}', [GrupoController::class, 'deleteUnidad']);
+    Route::post('grupos/{grupo}/alumnos', [GrupoController::class, 'addAlumno']);
+    Route::delete('grupos/{grupo}/inscripciones/{inscripcion}', [GrupoController::class, 'removeAlumno']);
     
     // Rutas para Análisis de Ishikawa
     Route::post('grupos/{grupo}/ishikawa/save', [AnalisisIshikawaController::class, 'save']);

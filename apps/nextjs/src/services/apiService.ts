@@ -213,6 +213,57 @@ export const apiService = {
             credentials: 'include',
         }).then(handleResponse<any>);
     },
+    // Obtener unidades de la materia del grupo
+    getGrupoUnidades: (grupoId: number): Promise<Unidad[]> => {
+        return fetch(`${apiBaseURL}grupos/${grupoId}/unidades`, {
+            method: 'GET',
+            headers: getHeaders(),
+            credentials: 'include',
+        }).then(handleResponse<Unidad[]>);
+    },
+    // Crear unidad para la materia del grupo
+    createGrupoUnidad: (grupoId: number, data: { numero_unidad: number; nombre_unidad?: string }): Promise<any> => {
+        return fetch(`${apiBaseURL}grupos/${grupoId}/unidades`, {
+            method: 'POST',
+            headers: getHeaders(),
+            body: JSON.stringify(data),
+            credentials: 'include',
+        }).then(handleResponse<any>);
+    },
+    // Actualizar unidad de la materia del grupo
+    updateGrupoUnidad: (grupoId: number, unidadId: number, data: { numero_unidad: number; nombre_unidad?: string }): Promise<any> => {
+        return fetch(`${apiBaseURL}grupos/${grupoId}/unidades/${unidadId}`, {
+            method: 'PUT',
+            headers: getHeaders(),
+            body: JSON.stringify(data),
+            credentials: 'include',
+        }).then(handleResponse<any>);
+    },
+    // Eliminar unidad de la materia del grupo
+    deleteGrupoUnidad: (grupoId: number, unidadId: number): Promise<any> => {
+        return fetch(`${apiBaseURL}grupos/${grupoId}/unidades/${unidadId}`, {
+            method: 'DELETE',
+            headers: getHeaders(),
+            credentials: 'include',
+        }).then(handleResponse<any>);
+    },
+    // Agregar alumno a un grupo
+    addAlumnoToGrupo: (grupoId: number, alumnoId: number): Promise<any> => {
+        return fetch(`${apiBaseURL}grupos/${grupoId}/alumnos`, {
+            method: 'POST',
+            headers: getHeaders(),
+            body: JSON.stringify({ alumno_id: alumnoId }),
+            credentials: 'include',
+        }).then(handleResponse<any>);
+    },
+    // Remover alumno de un grupo
+    removeAlumnoFromGrupo: (grupoId: number, inscripcionId: number): Promise<any> => {
+        return fetch(`${apiBaseURL}grupos/${grupoId}/inscripciones/${inscripcionId}`, {
+            method: 'DELETE',
+            headers: getHeaders(),
+            credentials: 'include',
+        }).then(handleResponse<any>);
+    },
     // Obtener alumno detallado con todas sus relaciones
     getAlumnoDetallado: (alumnoId: number): Promise<any> => {
         return fetch(`${apiBaseURL}alumnos/${alumnoId}`, {
@@ -341,6 +392,16 @@ export interface AsistenciaRecord {
     inscripcion_id: number;
     fecha: string;
     estatus: 'presente' | 'ausente' | 'retardo';
+    created_at: string;
+    updated_at: string;
+}
+
+// Tipo para unidad
+export interface Unidad {
+    id: number;
+    materia_id: number;
+    numero_unidad: number;
+    nombre_unidad: string | null;
     created_at: string;
     updated_at: string;
 }
