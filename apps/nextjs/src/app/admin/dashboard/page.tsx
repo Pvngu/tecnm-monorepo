@@ -160,7 +160,7 @@ export default function DashboardPage() {
                   <YAxis className="text-sm" />
                   <Tooltip 
                     contentStyle={{ 
-                      backgroundColor: 'hsl(var(--background))', 
+                      backgroundColor: '#fff', 
                       border: '1px solid hsl(var(--border))',
                       borderRadius: '8px'
                     }}

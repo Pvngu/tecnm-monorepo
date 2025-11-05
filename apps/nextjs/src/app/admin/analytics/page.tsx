@@ -201,7 +201,7 @@ export default function AnalyticsPage() {
                     />
                     <Tooltip 
                       contentStyle={{ 
-                        backgroundColor: 'hsl(var(--background))', 
+                        backgroundColor: '#fff', 
                         border: '1px solid hsl(var(--border))',
                         borderRadius: '8px',
                         zIndex: 1000
@@ -274,7 +274,7 @@ export default function AnalyticsPage() {
                     />
                     <Tooltip 
                       contentStyle={{ 
-                        backgroundColor: 'hsl(var(--background))', 
+                        backgroundColor: '#fff', 
                         border: '1px solid hsl(var(--border))',
                         borderRadius: '8px',
                         zIndex: 1000
