@@ -23,6 +23,7 @@ class AlumnoRequest extends FormRequest
             'nombre' => ['required', 'string', 'max:100'],
             'apellido_paterno' => ['required', 'string', 'max:100'],
             'apellido_materno' => ['nullable', 'string', 'max:100'],
+            'fecha_nacimiento' => ['nullable', 'date'],
             'semestre' => ['required', 'integer'],
             'genero' => ['nullable', Rule::in(['masculino', 'femenino', 'otro'])],
             'modalidad' => ['nullable', Rule::in(['presencial', 'virtual', 'híbrida'])],

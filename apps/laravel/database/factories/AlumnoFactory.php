@@ -36,6 +36,7 @@ class AlumnoFactory extends Factory
             'nombre' => $this->faker->firstName(),
             'apellido_paterno' => $this->faker->lastName(),
             'apellido_materno' => $this->faker->lastName(),
+            'fecha_nacimiento' => $this->faker->dateTimeBetween('-25 years', '-17 years')->format('Y-m-d'),
             'semestre' => $this->faker->numberBetween(1, 9),
             'genero' => $this->faker->randomElement(['masculino', 'femenino', 'otro']),
             'modalidad' => $this->faker->randomElement(['presencial', 'virtual', 'híbrida']),

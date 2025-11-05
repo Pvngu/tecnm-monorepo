@@ -11,6 +11,7 @@ export type Alumno = {
   nombre: string;
   apellido_paterno: string;
   apellido_materno?: string;
+  fecha_nacimiento?: string; // YYYY-MM-DD
   semestre: number;
   genero: "masculino" | "femenino" | "otro";
   modalidad: "presencial" | "virtual" | "hibrida";
@@ -104,6 +105,11 @@ export const AlumnoSchema = z.object({
     message: "El apellido paterno es requerido",
   }),
   apellido_materno: z.string().optional(),
+  fecha_nacimiento: z
+    .string({
+      message: "La fecha de nacimiento es requerida",
+    })
+    .optional(),
   semestre: z
     .number({
       message: "El semestre es requerido",
@@ -140,6 +146,10 @@ export const AlumnoColumns: ColumnDef<Alumno>[] = [
     header: "Apellido Materno",
   },
   {
+    accessorKey: "fecha_nacimiento",
+    header: "Fecha de Nacimiento",
+  },
+  {
     accessorKey: "semestre",
     header: "Semestre",
   },
@@ -171,6 +181,12 @@ export const AlumnoFormConfig: FormFieldConfig[] = [
     label: "Apellido Materno",
     type: "text",
     placeholder: "Ingresa el apellido materno",
+  },
+  {
+    name: "fecha_nacimiento",
+    label: "Fecha de nacimiento",
+    type: "date",
+    placeholder: "Selecciona la fecha de nacimiento",
   },
   {
     name: "matricula",
@@ -214,6 +230,7 @@ export const AlumnoCsvHeaders = [
   "nombre",
   "apellido_paterno",
   "apellido_materno",
+  "fecha_nacimiento",
   "semestre",
   "genero",
   "modalidad"

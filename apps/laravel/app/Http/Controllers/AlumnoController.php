@@ -83,6 +83,7 @@ class AlumnoController extends Controller
             'data.*.nombre' => 'required|string|max:100',
             'data.*.apellido_paterno' => 'required|string|max:100',
             'data.*.apellido_materno' => 'nullable|string|max:100',
+            'data.*.fecha_nacimiento' => 'nullable|date',
             'data.*.semestre' => 'required|integer|min:1|max:12',
             'data.*.genero' => 'required|in:masculino,femenino,otro',
             'data.*.modalidad' => 'required|in:presencial,virtual,hibrida',

@@ -22,10 +22,15 @@ class Alumno extends Model
         'nombre',
         'apellido_paterno',
         'apellido_materno',
+        'fecha_nacimiento',
         'semestre',
         'genero',
         'modalidad',
         'estatus_alumno',
+    ];
+
+    protected $casts = [
+        'fecha_nacimiento' => 'date',
     ];
 
     public function usuario(): BelongsTo
