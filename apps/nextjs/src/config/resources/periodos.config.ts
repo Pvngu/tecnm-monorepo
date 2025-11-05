@@ -2,6 +2,7 @@ import { z } from "zod";
 import { ColumnDef } from "@tanstack/react-table";
 import { FormFieldConfig } from "@/types/form";
 import { FilterConfig } from "@/types/filters";
+import { formatDateMX } from "@/lib/utils/dateFormat";
 
 export type Periodo = {
   id: number;
@@ -35,8 +36,16 @@ export const PeriodoSchema = z.object({
 export const PeriodoColumns: ColumnDef<Periodo>[] = [
   { accessorKey: "id", header: "ID" },
   { accessorKey: "nombre", header: "Nombre" },
-  { accessorKey: "fecha_inicio", header: "Fecha Inicio" },
-  { accessorKey: "fecha_fin", header: "Fecha Fin" },
+  { 
+    accessorKey: "fecha_inicio", 
+    header: "Fecha Inicio",
+    cell: ({ row }) => formatDateMX(row.getValue("fecha_inicio")),
+  },
+  { 
+    accessorKey: "fecha_fin", 
+    header: "Fecha Fin",
+    cell: ({ row }) => formatDateMX(row.getValue("fecha_fin")),
+  },
   { accessorKey: "activo", header: "Activo" },
 ];
 

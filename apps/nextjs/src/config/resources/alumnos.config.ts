@@ -2,6 +2,7 @@ import { z } from "zod";
 import { ColumnDef } from "@tanstack/react-table";
 import { FormFieldConfig } from "@/types/form";
 import { FilterConfig } from "@/types/filters";
+import { formatDateMX } from "@/lib/utils/dateFormat";
 
 export type Alumno = {
   id: number;
@@ -148,6 +149,7 @@ export const AlumnoColumns: ColumnDef<Alumno>[] = [
   {
     accessorKey: "fecha_nacimiento",
     header: "Fecha de Nacimiento",
+    cell: ({ row }) => formatDateMX(row.getValue("fecha_nacimiento")),
   },
   {
     accessorKey: "semestre",

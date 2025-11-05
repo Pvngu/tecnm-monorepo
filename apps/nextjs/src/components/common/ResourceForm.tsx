@@ -98,13 +98,39 @@ export function ResourceForm<T extends z.ZodTypeAny>({
     useEffect(() => {
         if (isOpen) {
             if (isEditMode && defaultValues) {
-                form.reset(defaultValues);
+                // Process date fields to ensure they're in the correct format (YYYY-MM-DD)
+                const processedValues = { ...defaultValues };
+                
+                // Find all date-type fields in formConfig
+                formConfig.forEach(config => {
+                    if ((config.type === 'date' || config.type === 'datetime') && processedValues[config.name]) {
+                        const dateValue = processedValues[config.name];
+                        
+                        if (config.type === 'date') {
+                            // For date inputs, extract just the date part (YYYY-MM-DD)
+                            processedValues[config.name] = dateValue.split('T')[0];
+                        } else if (config.type === 'datetime') {
+                            // For datetime-local inputs, format as YYYY-MM-DDTHH:mm
+                            const date = new Date(dateValue);
+                            if (!isNaN(date.getTime())) {
+                                const year = date.getFullYear();
+                                const month = String(date.getMonth() + 1).padStart(2, '0');
+                                const day = String(date.getDate()).padStart(2, '0');
+                                const hours = String(date.getHours()).padStart(2, '0');
+                                const minutes = String(date.getMinutes()).padStart(2, '0');
+                                processedValues[config.name] = `${year}-${month}-${day}T${hours}:${minutes}`;
+                            }
+                        }
+                    }
+                });
+                
+                form.reset(processedValues);
             } else {
                 // Reset to empty values for create mode
                 form.reset({} as any);
             }
         }
-    }, [isOpen, isEditMode, defaultValues]);
+    }, [isOpen, isEditMode, defaultValues, formConfig]);
 
     const handleFormSubmit = (data: any) => {
         console.log('Submitting form data:', data);
