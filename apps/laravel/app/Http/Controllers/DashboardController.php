@@ -264,4 +264,83 @@ class DashboardController extends Controller
 
         return response()->json($datosPareto);
     }
+
+    /**
+     * Get Scatter Plot data for a periodo
+     * Returns scatter plot data aggregating all grupos or filtered by carrera/semestre
+     */
+    public function getScatterPlotFaltas(Request $request)
+    {
+        // Validate required periodo_id parameter
+        $request->validate([
+            'periodo_id' => 'required|exists:periodos,id',
+            'carrera_id' => 'nullable|exists:carreras,id',
+            'semestre' => 'nullable|integer|min:1|max:12',
+        ]);
+
+        $periodoId = $request->input('periodo_id');
+        $carreraId = $request->input('carrera_id');
+        $semestre = $request->input('semestre');
+
+        // Build base query for filtered inscriptions
+        $inscripcionQuery = Inscripcion::query()
+            ->join('alumnos', 'inscripciones.alumno_id', '=', 'alumnos.id')
+            ->join('grupos', 'inscripciones.grupo_id', '=', 'grupos.id')
+            ->where('grupos.periodo_id', $periodoId)
+            ->whereNotNull('inscripciones.calificacion_final');
+
+        // Apply optional filters
+        if ($carreraId) {
+            $inscripcionQuery->where('alumnos.carrera_id', $carreraId);
+        }
+        if ($semestre) {
+            $inscripcionQuery->where('alumnos.semestre', $semestre);
+        }
+
+        // Get inscriptions with counts
+        $datos = $inscripcionQuery
+            ->select('inscripciones.*')
+            ->with('alumno')
+            ->withCount([
+                'asistencias as total_asistencias',
+                'asistencias as faltas_count' => function ($query) {
+                    $query->where('estatus', 'falta');
+                },
+                'asistencias as asistencias_count' => function ($query) {
+                    $query->where('estatus', 'asistio');
+                },
+                'asistencias as justificados_count' => function ($query) {
+                    $query->where('estatus', 'justificado');
+                },
+                'calificaciones as calificaciones_count',
+                'alumnosFactores as factores_count',
+            ])
+            ->get();
+
+        // Format data for scatter plot
+        $scatterData = $datos->map(function ($inscripcion) {
+            // Calculate attendance percentage
+            $totalRegistros = $inscripcion->total_asistencias;
+            $porcentajeAsistencia = $totalRegistros > 0 
+                ? round(($inscripcion->asistencias_count / $totalRegistros) * 100, 1) 
+                : 0;
+
+            return [
+                // Numeric variables available
+                'calificacion_final' => (float) $inscripcion->calificacion_final,
+                'faltas' => $inscripcion->faltas_count,
+                'asistencias' => $inscripcion->asistencias_count,
+                'justificados' => $inscripcion->justificados_count,
+                'total_asistencias' => $inscripcion->total_asistencias,
+                'porcentaje_asistencia' => $porcentajeAsistencia,
+                'num_factores_riesgo' => $inscripcion->factores_count,
+                
+                // Student information
+                'alumno_nombre' => $inscripcion->alumno->nombre_completo,
+                'alumno_id' => $inscripcion->alumno_id,
+            ];
+        });
+
+        return response()->json($scatterData);
+    }
 }

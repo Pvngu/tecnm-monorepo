@@ -166,6 +166,26 @@ export const apiService = {
             credentials: 'include',
         }).then(handleResponse<ParetoData[]>);
     },
+    // Obtener datos del Scatter Plot: Faltas vs Calificación Final por grupo
+    getScatterPlotFaltas: (grupoId: number): Promise<ScatterPlotData[]> => {
+        return fetch(`${apiBaseURL}grupos/${grupoId}/scatter-faltas`, {
+            method: 'GET',
+            headers: getHeaders(),
+            credentials: 'include',
+        }).then(handleResponse<ScatterPlotData[]>);
+    },
+    // Obtener datos del Scatter Plot por periodo (todos los grupos)
+    getScatterPlotFaltasByPeriodo: (periodoId: number, carreraId?: number, semestre?: number): Promise<ScatterPlotData[]> => {
+        const params = new URLSearchParams({ periodo_id: periodoId.toString() });
+        if (carreraId) params.append('carrera_id', carreraId.toString());
+        if (semestre) params.append('semestre', semestre.toString());
+        
+        return fetch(`${apiBaseURL}dashboard/scatter-faltas?${params.toString()}`, {
+            method: 'GET',
+            headers: getHeaders(),
+            credentials: 'include',
+        }).then(handleResponse<ScatterPlotData[]>);
+    },
     // Obtener datos de Ishikawa para un grupo
     getIshikawaData: (grupoId: number): Promise<IshikawaData> => {
         return fetch(`${apiBaseURL}grupos/${grupoId}/ishikawa-data`, {
@@ -191,14 +211,6 @@ export const apiService = {
             credentials: 'include',
         }).then(handleResponse<{ data: SavedIshikawaAnalysis | null }>)
         .catch(() => ({ data: null })); // Si no existe, retornar null
-    },
-    // Obtener datos del Scatter Plot: Faltas vs Calificación Final
-    getScatterPlotFaltas: (grupoId: number): Promise<ScatterPlotData[]> => {
-        return fetch(`${apiBaseURL}grupos/${grupoId}/scatter-faltas`, {
-            method: 'GET',
-            headers: getHeaders(),
-            credentials: 'include',
-        }).then(handleResponse<ScatterPlotData[]>);
     },
     // Obtener alumnos inscritos en un grupo
     getGrupoAlumnos: (grupoId: number): Promise<GrupoAlumno[]> => {

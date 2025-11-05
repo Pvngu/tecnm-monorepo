@@ -28,6 +28,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('dashboard/stats', [DashboardController::class, 'getStats']);
     Route::get('dashboard/analytics', [DashboardController::class, 'getAnalytics']);
     Route::get('dashboard/pareto-factores', [DashboardController::class, 'getParetoFactores']);
+    Route::get('dashboard/scatter-faltas', [DashboardController::class, 'getScatterPlotFaltas']);
     
     // Rutas de exportación para Periodos
     Route::get('periodos/export/excel', [PeriodoController::class, 'exportExcel']);

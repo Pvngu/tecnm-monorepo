@@ -29,6 +29,13 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { apiService, ScatterPlotData } from "@/services/apiService";
 import { PaginatedResponse } from "@/types/api";
 
+// Component props
+interface ScatterFaltasGrupoProps {
+  periodoId: number;
+  carreraId?: number;
+  semestre?: number;
+}
+
 // Interfaces para los recursos
 interface Materia {
   id: number;
@@ -93,64 +100,75 @@ const VARIABLES: VariableOption[] = [
   },
 ];
 
-export function ScatterFaltasGrupo() {
-  // Estados para filtros
-  const [semestre, setSemestre] = useState<number | null>(null);
-  const [materiaId, setMateriaId] = useState<number | null>(null);
-  const [grupoId, setGrupoId] = useState<number | null>(null);
+export function ScatterFaltasGrupo({ periodoId, carreraId, semestre }: ScatterFaltasGrupoProps) {
+  // Estados para filtros opcionales
+  const [selectedMateriaId, setSelectedMateriaId] = useState<string>("all");
+  const [selectedGrupoId, setSelectedGrupoId] = useState<string>("all");
   
   // Estados para variables de los ejes
   const [variableX, setVariableX] = useState<keyof ScatterPlotData>("faltas");
   const [variableY, setVariableY] = useState<keyof ScatterPlotData>("calificacion_final");
 
-  // Query para Materias filtradas por semestre
+  // Query para Materias
   const { data: materiasData, isLoading: isLoadingMaterias } = useQuery<
     PaginatedResponse<Materia>
   >({
-    queryKey: ["materias", semestre],
-    queryFn: () => apiService.getList<Materia>("materias", { 
-      per_page: 100,
-      ...(semestre && { filter: { semestre } })
-    }),
-    enabled: !!semestre,
+    queryKey: ["materias"],
+    queryFn: () => apiService.getList<Materia>("materias", { per_page: 100 }),
+    enabled: !!periodoId,
   });
 
   // Query para Grupos (habilitado solo si hay materia seleccionada)
   const { data: gruposData, isLoading: isLoadingGrupos } = useQuery<
     PaginatedResponse<Grupo>
   >({
-    queryKey: ["grupos", materiaId],
-    queryFn: () =>
-      apiService.getList<Grupo>("grupos", {
+    queryKey: ["grupos", periodoId, selectedMateriaId],
+    queryFn: () => {
+      const filters: any = { periodo_id: periodoId };
+      if (selectedMateriaId !== "all") {
+        filters.materia_id = parseInt(selectedMateriaId);
+      }
+      return apiService.getList<Grupo>("grupos", {
         per_page: 100,
-        filter: { materia_id: materiaId },
-      }),
-    enabled: !!materiaId,
+        filter: filters,
+      });
+    },
+    enabled: !!periodoId && selectedMateriaId !== "all",
   });
 
-  // Query para datos del Scatter Plot (habilitado solo si hay grupo seleccionado)
-  const { data: scatterData, isLoading: isLoadingScatter } = useQuery<
+  // Determinar qué endpoint usar basado en si hay grupo seleccionado
+  const useGrupoEndpoint = selectedGrupoId !== "all";
+
+  // Query para datos del Scatter Plot por periodo (todos los grupos)
+  const { data: scatterDataPeriodo, isLoading: isLoadingScatterPeriodo } = useQuery<
     ScatterPlotData[]
   >({
-    queryKey: ["scatterPlotFaltas", grupoId],
-    queryFn: () => apiService.getScatterPlotFaltas(grupoId!),
-    enabled: !!grupoId,
+    queryKey: ["scatterPlotFaltasPeriodo", periodoId, carreraId, semestre],
+    queryFn: () => apiService.getScatterPlotFaltasByPeriodo(periodoId, carreraId, semestre),
+    enabled: !!periodoId && !useGrupoEndpoint,
   });
 
-  // Handlers para los cambios de selección
-  const handleSemestreChange = (value: string) => {
-    setSemestre(Number(value));
-    setMateriaId(null);
-    setGrupoId(null);
-  };
+  // Query para datos del Scatter Plot por grupo específico
+  const { data: scatterDataGrupo, isLoading: isLoadingScatterGrupo } = useQuery<
+    ScatterPlotData[]
+  >({
+    queryKey: ["scatterPlotFaltasGrupo", selectedGrupoId],
+    queryFn: () => apiService.getScatterPlotFaltas(parseInt(selectedGrupoId)),
+    enabled: useGrupoEndpoint,
+  });
 
+  // Usar los datos correspondientes
+  const scatterData = useGrupoEndpoint ? scatterDataGrupo : scatterDataPeriodo;
+  const isLoadingScatter = useGrupoEndpoint ? isLoadingScatterGrupo : isLoadingScatterPeriodo;
+
+  // Handlers para los cambios de selección
   const handleMateriaChange = (value: string) => {
-    setMateriaId(Number(value));
-    setGrupoId(null);
+    setSelectedMateriaId(value);
+    setSelectedGrupoId("all");
   };
 
   const handleGrupoChange = (value: string) => {
-    setGrupoId(Number(value));
+    setSelectedGrupoId(value);
   };
 
   // Obtener información de las variables seleccionadas
@@ -164,8 +182,6 @@ export function ScatterFaltasGrupo() {
     y: item[variableY] as number,
   }));
 
-  const semestres = Array.from({ length: 12 }, (_, i) => i + 1);
-
   return (
     <Card className="w-full">
       <CardHeader>
@@ -175,39 +191,17 @@ export function ScatterFaltasGrupo() {
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
-        {/* Sección de Filtros */}
+        {/* Sección de Filtros Opcionales */}
         <div>
-          <h3 className="text-sm font-semibold mb-3">Filtros de Datos</h3>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {/* Filtro 1: Semestre */}
-            <div className="space-y-2">
-              <label className="text-sm font-medium">
-                Semestre <span className="text-red-500">*</span>
-              </label>
-              <Select
-                value={semestre?.toString() || ""}
-                onValueChange={handleSemestreChange}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Selecciona semestre" />
-                </SelectTrigger>
-                <SelectContent>
-                  {semestres.map((sem) => (
-                    <SelectItem key={sem} value={sem.toString()}>
-                      Semestre {sem}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            {/* Filtro 2: Materia (Opcional) */}
+          <h3 className="text-sm font-semibold mb-3">Filtros Opcionales</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Filtro: Materia (Opcional) */}
             <div className="space-y-2">
               <label className="text-sm font-medium">Materia (Opcional)</label>
               <Select
-                value={materiaId?.toString() || ""}
+                value={selectedMateriaId}
                 onValueChange={handleMateriaChange}
-                disabled={!semestre || isLoadingMaterias}
+                disabled={!periodoId || isLoadingMaterias}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Todas las materias" />
@@ -223,13 +217,13 @@ export function ScatterFaltasGrupo() {
               </Select>
             </div>
 
-            {/* Filtro 3: Grupo (Opcional) */}
+            {/* Filtro: Grupo (Opcional) */}
             <div className="space-y-2">
               <label className="text-sm font-medium">Grupo (Opcional)</label>
               <Select
-                value={grupoId?.toString() || ""}
+                value={selectedGrupoId}
                 onValueChange={handleGrupoChange}
-                disabled={!materiaId || materiaId.toString() === "all" || isLoadingGrupos}
+                disabled={selectedMateriaId === "all" || isLoadingGrupos}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Todos los grupos" />
@@ -305,10 +299,10 @@ export function ScatterFaltasGrupo() {
 
         {/* Sección del Gráfico */}
         <div className="mt-6">
-          {!grupoId || grupoId.toString() === "all" ? (
+          {!periodoId ? (
             <div className="flex items-center justify-center h-[450px] border rounded-lg bg-muted/10">
               <p className="text-muted-foreground">
-                Selecciona un grupo específico para ver el diagrama de dispersión
+                Selecciona un periodo para ver el diagrama de dispersión
               </p>
             </div>
           ) : isLoadingScatter ? (
@@ -403,6 +397,11 @@ export function ScatterFaltasGrupo() {
             <div className="pt-2 border-t">
               <p className="text-xs text-muted-foreground">
                 <strong>Total de alumnos analizados:</strong> {chartData.length}
+              </p>
+              <p className="text-xs text-muted-foreground mt-1">
+                {selectedGrupoId !== "all" 
+                  ? "Mostrando datos de un grupo específico." 
+                  : "Mostrando datos agregados de todos los grupos del periodo seleccionado."}
               </p>
               <p className="text-xs text-muted-foreground mt-1">
                 Pasa el cursor sobre cada punto para ver los detalles del alumno.

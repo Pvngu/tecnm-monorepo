@@ -312,7 +312,11 @@ export default function AnalyticsPage() {
 
       {/* Scatter Plot: Faltas vs Calificación */}
       <div>
-        <ScatterFaltasGrupo />
+        <ScatterFaltasGrupo 
+          periodoId={selectedPeriodo ? parseInt(selectedPeriodo) : 0}
+          carreraId={selectedCarrera !== "all" ? parseInt(selectedCarrera) : undefined}
+          semestre={selectedSemestre !== "all" ? parseInt(selectedSemestre) : undefined}
+        />
       </div>
     </div>
   );
