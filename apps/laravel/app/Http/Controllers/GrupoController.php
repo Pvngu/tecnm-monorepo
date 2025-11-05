@@ -43,6 +43,21 @@ class GrupoController extends Controller
 
     public function show(Grupo $grupo): JsonResponse
     {
+        // Load relationships if requested via include parameter
+        $allowedIncludes = ['materia', 'profesor', 'periodo', 'carrera', 'inscripciones'];
+        $includeParam = request()->query('include', '');
+        
+        if ($includeParam) {
+            $includes = array_filter(
+                explode(',', $includeParam),
+                fn($include) => in_array(trim($include), $allowedIncludes)
+            );
+            
+            if (!empty($includes)) {
+                $grupo->load($includes);
+            }
+        }
+        
         return response()->json($grupo);
     }
 
@@ -222,5 +237,98 @@ class GrupoController extends Controller
             'grupos_' . now()->format('Y-m-d_His') . '.csv',
             \Maatwebsite\Excel\Excel::CSV
         );
+    }
+
+    /**
+     * Obtener los alumnos inscritos en un grupo
+     */
+    public function getAlumnos(Grupo $grupo): JsonResponse
+    {
+        $alumnos = $grupo->inscripciones()
+            ->with(['alumno.carrera'])
+            ->get()
+            ->map(function ($inscripcion) {
+                return [
+                    'id' => $inscripcion->alumno->id,
+                    'inscripcion_id' => $inscripcion->id,
+                    'matricula' => $inscripcion->alumno->matricula,
+                    'nombre' => $inscripcion->alumno->nombre,
+                    'apellido_paterno' => $inscripcion->alumno->apellido_paterno,
+                    'apellido_materno' => $inscripcion->alumno->apellido_materno,
+                    'nombre_completo' => trim($inscripcion->alumno->nombre . ' ' . 
+                                            $inscripcion->alumno->apellido_paterno . ' ' . 
+                                            ($inscripcion->alumno->apellido_materno ?? '')),
+                    'semestre' => $inscripcion->alumno->semestre,
+                    'carrera' => $inscripcion->alumno->carrera->nombre ?? null,
+                    'calificacion_final' => $inscripcion->calificacion_final,
+                ];
+            });
+
+        return response()->json($alumnos);
+    }
+
+    /**
+     * Obtener asistencias de un grupo para una fecha específica
+     */
+    public function getAsistenciasByFecha(Request $request, Grupo $grupo): JsonResponse
+    {
+        $fecha = $request->input('fecha', now()->format('Y-m-d'));
+
+        $inscripcionIds = $grupo->inscripciones()->pluck('id');
+        
+        $asistencias = DB::table('asistencias')
+            ->whereIn('inscripcion_id', $inscripcionIds)
+            ->where('fecha', $fecha)
+            ->get()
+            ->keyBy('inscripcion_id');
+
+        return response()->json($asistencias);
+    }
+
+    /**
+     * Guardar asistencias de múltiples alumnos para una fecha
+     */
+    public function saveAsistenciasBulk(Request $request, Grupo $grupo): JsonResponse
+    {
+        $validated = $request->validate([
+            'fecha' => 'required|date',
+            'asistencias' => 'required|array',
+            'asistencias.*.inscripcion_id' => 'required|exists:inscripciones,id',
+            'asistencias.*.estatus' => 'required|in:presente,ausente,retardo',
+        ]);
+
+        $fecha = $validated['fecha'];
+        $asistenciasData = $validated['asistencias'];
+
+        // Verificar que todas las inscripciones pertenecen al grupo
+        $inscripcionIds = collect($asistenciasData)->pluck('inscripcion_id');
+        $grupoInscripcionIds = $grupo->inscripciones()->pluck('id');
+        
+        if ($inscripcionIds->diff($grupoInscripcionIds)->isNotEmpty()) {
+            return response()->json([
+                'message' => 'Algunas inscripciones no pertenecen a este grupo'
+            ], 422);
+        }
+
+        // Guardar o actualizar asistencias
+        foreach ($asistenciasData as $asistenciaData) {
+            DB::table('asistencias')->updateOrInsert(
+                [
+                    'inscripcion_id' => $asistenciaData['inscripcion_id'],
+                    'fecha' => $fecha,
+                ],
+                [
+                    'estatus' => $asistenciaData['estatus'],
+                    'updated_at' => now(),
+                    'created_at' => now(),
+                ]
+            );
+        }
+
+        return response()->json([
+            'message' => 'Asistencias guardadas correctamente',
+            'fecha' => $fecha,
+            'total' => count($asistenciasData)
+        ], 200);
     }
 }

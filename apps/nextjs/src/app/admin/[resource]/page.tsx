@@ -28,6 +28,7 @@ import { toast } from 'sonner';
 // Import the centralized resource configuration
 import { resourceConfigMap } from '@/config/resources';
 import { createAlumnoCustomActions } from '@/config/resources/alumnos.config';
+import { createGrupoCustomActions } from '@/config/resources/grupos.config';
 
 export default function ResourceListPage() {
     const params = useParams();
@@ -41,7 +42,10 @@ export default function ResourceListPage() {
     // Create custom actions dynamically based on resource
     const customActions = useMemo(() => {
         if (resource === 'alumnos') {
-            return createAlumnoCustomActions(router);
+            return createAlumnoCustomActions(router) as any;
+        }
+        if (resource === 'grupos') {
+            return createGrupoCustomActions(router) as any;
         }
         return [];
     }, [resource, router]);
@@ -211,7 +215,7 @@ export default function ResourceListPage() {
                     
                     <Button onClick={handleCreate}>
                         <PlusCircle className="mr-2 h-4 w-4" />
-                        Add New {resource}
+                        Agregar {resource}
                     </Button>
                 </div>
             </div>

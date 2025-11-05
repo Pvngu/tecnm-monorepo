@@ -106,6 +106,15 @@ export const apiService = {
         })
         .then(handleResponse<T>);
     },
+    getOneWithIncludes: <T>(resource: string, id: string | number, includes: string[]): Promise<T> => {
+        const includeParam = includes.join(',');
+        return fetch(`${apiBaseURL}${resource}/${id}?include=${includeParam}`, {
+            method: 'GET',
+            headers: getHeaders(),
+            credentials: 'include',
+        })
+        .then(handleResponse<T>);
+    },
     create: <T>(resource: string, data: T): Promise<any> => {
         return fetch(`${apiBaseURL}${resource}`, {
             method: 'POST',
@@ -178,6 +187,31 @@ export const apiService = {
             headers: getHeaders(),
             credentials: 'include',
         }).then(handleResponse<ScatterPlotData[]>);
+    },
+    // Obtener alumnos inscritos en un grupo
+    getGrupoAlumnos: (grupoId: number): Promise<GrupoAlumno[]> => {
+        return fetch(`${apiBaseURL}grupos/${grupoId}/alumnos`, {
+            method: 'GET',
+            headers: getHeaders(),
+            credentials: 'include',
+        }).then(handleResponse<GrupoAlumno[]>);
+    },
+    // Obtener asistencias de un grupo por fecha
+    getGrupoAsistencias: (grupoId: number, fecha: string): Promise<Record<number, AsistenciaRecord>> => {
+        return fetch(`${apiBaseURL}grupos/${grupoId}/asistencias?fecha=${fecha}`, {
+            method: 'GET',
+            headers: getHeaders(),
+            credentials: 'include',
+        }).then(handleResponse<Record<number, AsistenciaRecord>>);
+    },
+    // Guardar asistencias en lote
+    saveAsistenciasBulk: (grupoId: number, data: { fecha: string; asistencias: { inscripcion_id: number; estatus: 'presente' | 'ausente' | 'retardo' }[] }): Promise<any> => {
+        return fetch(`${apiBaseURL}grupos/${grupoId}/asistencias/bulk`, {
+            method: 'POST',
+            headers: getHeaders(),
+            body: JSON.stringify(data),
+            credentials: 'include',
+        }).then(handleResponse<any>);
     },
     // Obtener alumno detallado con todas sus relaciones
     getAlumnoDetallado: (alumnoId: number): Promise<any> => {
@@ -285,4 +319,28 @@ export interface ScatterPlotData {
     num_factores_riesgo: number;
     alumno_nombre: string;
     alumno_id: number;
+}
+
+// Tipo para alumno en grupo
+export interface GrupoAlumno {
+    id: number;
+    inscripcion_id: number;
+    matricula: string;
+    nombre: string;
+    apellido_paterno: string;
+    apellido_materno?: string;
+    nombre_completo: string;
+    semestre: number;
+    carrera: string | null;
+    calificacion_final: number | null;
+}
+
+// Tipo para registro de asistencia
+export interface AsistenciaRecord {
+    id: number;
+    inscripcion_id: number;
+    fecha: string;
+    estatus: 'presente' | 'ausente' | 'retardo';
+    created_at: string;
+    updated_at: string;
 }

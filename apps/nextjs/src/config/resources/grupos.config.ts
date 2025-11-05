@@ -169,3 +169,13 @@ export const GrupoFormConfig: FormFieldConfig[] = [
     placeholder: "Aula (opcional)",
   },
 ];
+
+// Función para crear las acciones personalizadas con acceso al router
+export const createGrupoCustomActions = (router: any) => [
+  {
+    label: "Ver Grupo y Asistencia",
+    onClick: (row: Grupo) => {
+      router.push(`/admin/grupos/${row.id}`);
+    },
+  },
+];

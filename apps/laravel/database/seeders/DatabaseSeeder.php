@@ -114,8 +114,6 @@ class DatabaseSeeder extends Seeder
         }
         $this->command->info('✓ Created ' . $grupos->count() . ' groups');
 
-        return;
-
         // Step 9: Enroll Students in Groups
         $inscripciones = collect();
         
