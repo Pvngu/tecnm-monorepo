@@ -86,12 +86,12 @@ const VARIABLES: VariableOption[] = [
     unit: "%",
     description: "Porcentaje de asistencia del total de clases"
   },
-  {
-    value: "total_asistencias",
-    label: "Total de Registros de Asistencia",
-    unit: " reg.",
-    description: "Total de registros de asistencia (presentes + ausentes + retardos)"
-  },
+  // {
+  //   value: "total_asistencias",
+  //   label: "Total de Registros de Asistencia",
+  //   unit: " reg.",
+  //   description: "Total de registros de asistencia (presentes + ausentes + retardos)"
+  // },
   {
     value: "num_factores_riesgo",
     label: "Número de Factores de Riesgo",

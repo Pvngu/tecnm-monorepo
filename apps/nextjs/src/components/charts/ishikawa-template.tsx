@@ -26,8 +26,8 @@ export function IshikawaTemplate({
   isExporting = false
 }: IshikawaTemplateProps) {
   return (
-    <Card id="ishikawa-diagram">
-      <CardHeader>
+    <Card id="ishikawa-diagram" className="print:shadow-none">
+      <CardHeader className="print:pb-4">
         <div className="flex items-center justify-between">
           <div>
             <CardTitle>Análisis Causa-Raíz (Diagrama de Ishikawa)</CardTitle>
@@ -36,7 +36,7 @@ export function IshikawaTemplate({
               que contribuyen al problema identificado
             </p>
           </div>
-          <div className="flex gap-2">
+          <div className="flex gap-2 print:hidden">
             <Button 
               onClick={onSave} 
               disabled={isSaving}
@@ -55,7 +55,7 @@ export function IshikawaTemplate({
           </div>
         </div>
       </CardHeader>
-      <CardContent>
+      <CardContent className="print:p-4">
         <div className="ishikawa-container">
           {/* Línea principal (espina dorsal) */}
           <div className="ishikawa-spine"></div>

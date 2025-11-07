@@ -128,6 +128,7 @@
   padding: 3rem 2rem;
   padding-right: 180px;
   min-height: 600px;
+  background-color: white;
 }
 
 .ishikawa-spine {
@@ -139,6 +140,8 @@
   left: 0;
   transform: translateY(-50%);
   z-index: 1;
+  /* Mejor renderizado para html2canvas */
+  will-change: transform;
 }
 
 .ishikawa-head {
@@ -148,13 +151,15 @@
   transform: translateY(-50%);
   padding: 1.25rem;
   border: 3px solid hsl(var(--foreground));
-  background-color: hsl(var(--card));
+  background-color: white;
   font-weight: bold;
   text-align: center;
   width: 160px;
   border-radius: 0.5rem;
   box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
   z-index: 10;
+  /* Mejor renderizado para html2canvas */
+  will-change: transform;
 }
 
 .ishikawa-bones {
@@ -168,7 +173,7 @@
 .ishikawa-bone {
   padding: 1rem;
   position: relative;
-  background-color: hsl(var(--card));
+  background-color: white;
   border-radius: 0.5rem;
   border: 1px solid hsl(var(--border));
 }
@@ -188,6 +193,9 @@
   background-color: hsl(var(--foreground));
   transform-origin: bottom;
   transform: translateX(-50%) skewX(30deg);
+  /* Mejorar renderizado */
+  will-change: transform;
+  backface-visibility: hidden;
 }
 
 /* Espinas inferiores (abajo de la línea principal) */
@@ -205,6 +213,9 @@
   background-color: hsl(var(--foreground));
   transform-origin: top;
   transform: translateX(-50%) skewX(-30deg);
+  /* Mejorar renderizado */
+  will-change: transform;
+  backface-visibility: hidden;
 }
 
 .bone-title {
@@ -265,7 +276,8 @@
 /* Estilos de impresión para reportes */
 @media print {
   /* Oculta la barra de navegación y los filtros al imprimir */
-  .hide-on-print {
+  .hide-on-print,
+  .print.hidden {
     display: none !important;
   }
   
@@ -276,21 +288,45 @@
   }
   
   body {
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+  
+  .ishikawa-container {
+    page-break-inside: avoid;
+    background-color: white !important;
+  }
+  
+  .ishikawa-bone {
+    page-break-inside: avoid;
+    background-color: white !important;
+  }
+  
+  /* Asegurar que las espinas se vean */
+  .ishikawa-spine,
+  .ishikawa-bone.bone-top::after,
+  .ishikawa-bone.bone-bottom::before {
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+}
+
+ body {
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
   }
   
   /* Mejoras para la impresión de tarjetas y contenido */
-  .print\:shadow-none {
+  .print.shadow-none {
     box-shadow: none !important;
   }
   
-  .print\:border-none {
+  .print.border-none {
     border: none !important;
   }
   
   /* Previene saltos de página dentro de elementos importantes */
-  .print\:break-inside-avoid {
+  .print.break-inside-avoid {
     break-inside: avoid;
     page-break-inside: avoid;
   }
@@ -300,4 +336,3 @@
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
   }
-}
