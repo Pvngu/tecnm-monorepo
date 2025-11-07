@@ -90,7 +90,7 @@ export const AlumnoFilters: FilterConfig[] = [
 ];
 
 export const AlumnoSchema = z.object({
-  usuario_id: z.number().nullable(),
+  usuario_id: z.number().nullable().optional().default(null),
   carrera_id: z
     .number({
       message: "La carrera no es valida",
@@ -195,6 +195,15 @@ export const AlumnoFormConfig: FormFieldConfig[] = [
     label: "Matrícula",
     type: "text",
     placeholder: "Ingresa la matrícula",
+  },
+  {
+    name: "carrera_id",
+    label: "Carrera",
+    type: "dynamic-select",
+    resource: "carreras",
+    optionLabelKey: "nombre",
+    optionValueKey: "id",
+    placeholder: "Selecciona la carrera",
   },
   {
     name: "semestre",

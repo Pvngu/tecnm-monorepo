@@ -39,7 +39,7 @@ class ReporteController extends Controller
         $metricasQuery = (clone $inscripcionesQuery)->whereNotNull('inscripciones.calificacion_final');
         $totalAlumnos = $metricasQuery->distinct('inscripciones.alumno_id')->count('inscripciones.alumno_id');
         $totalInscripciones = $metricasQuery->count();
-        $totalReprobados = (clone $metricasQuery)->where('inscripciones.calificacion_final', '<', 60)->count();
+        $totalReprobados = (clone $metricasQuery)->where('inscripciones.calificacion_final', '<', 70)->count();
 
         $tasaReprobacion = ($totalInscripciones > 0) 
             ? round(($totalReprobados / $totalInscripciones) * 100, 1) 
