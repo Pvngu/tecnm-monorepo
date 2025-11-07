@@ -4,16 +4,15 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { IshikawaData } from "@/services/apiService";
-import { Download, Save } from "lucide-react";
+import { Printer, Save } from "lucide-react";
 
 interface IshikawaTemplateProps {
   data: IshikawaData;
   observaciones: Record<string, string>;
   onObservacionChange: (categoria: string, value: string) => void;
   onSave: () => void;
-  onExportPDF: () => void;
+  onPrint: () => void;
   isSaving?: boolean;
-  isExporting?: boolean;
 }
 
 export function IshikawaTemplate({ 
@@ -21,15 +20,14 @@ export function IshikawaTemplate({
   observaciones, 
   onObservacionChange,
   onSave,
-  onExportPDF,
-  isSaving = false,
-  isExporting = false
+  onPrint,
+  isSaving = false
 }: IshikawaTemplateProps) {
   return (
     <Card id="ishikawa-diagram" className="print:shadow-none">
       <CardHeader className="print:pb-4">
         <div className="flex items-center justify-between">
-          <div>
+          <div className="print:hidden">
             <CardTitle>Análisis Causa-Raíz (Diagrama de Ishikawa)</CardTitle>
             <p className="text-sm text-muted-foreground mt-2">
               Este diagrama muestra los factores de riesgo agrupados por categoría
@@ -46,11 +44,10 @@ export function IshikawaTemplate({
               {isSaving ? "Guardando..." : "Guardar"}
             </Button>
             <Button 
-              onClick={onExportPDF}
-              disabled={isExporting}
+              onClick={onPrint}
             >
-              <Download className="mr-2 h-4 w-4" />
-              {isExporting ? "Generando..." : "Exportar PDF"}
+              <Printer className="mr-2 h-4 w-4" />
+              Imprimir
             </Button>
           </div>
         </div>

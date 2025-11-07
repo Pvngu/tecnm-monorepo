@@ -4,16 +4,15 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { IshikawaData } from "@/services/apiService";
-import { Download, Save } from "lucide-react";
+import { Printer, Save } from "lucide-react";
 
 interface IshikawaDiagramSVGProps {
   data: IshikawaData;
   observaciones: Record<string, string>;
   onObservacionChange: (categoria: string, value: string) => void;
   onSave: () => void;
-  onExportPDF: () => void;
+  onPrint: () => void;
   isSaving?: boolean;
-  isExporting?: boolean;
 }
 
 export function IshikawaDiagramSVG({ 
@@ -21,9 +20,8 @@ export function IshikawaDiagramSVG({
   observaciones, 
   onObservacionChange,
   onSave,
-  onExportPDF,
-  isSaving = false,
-  isExporting = false
+  onPrint,
+  isSaving = false
 }: IshikawaDiagramSVGProps) {
   const svgWidth = 1200;
   const svgHeight = 800;
@@ -35,12 +33,12 @@ export function IshikawaDiagramSVG({
   const causasBottom = data.causas_principales.filter((_, i) => i % 2 === 1);
 
   return (
-    <Card id="ishikawa-diagram" className="print:shadow-none">
-      <CardHeader className="print:pb-4">
-        <div className="flex items-center justify-between">
+    <Card id="ishikawa-diagram" className="print:shadow-none print:border-0">
+      <CardHeader className="print:pb-2">
+        <div className="flex items-center justify-between print:hidden">
           <div>
-            <CardTitle>Análisis Causa-Raíz (Diagrama de Ishikawa)</CardTitle>
-            <p className="text-sm text-muted-foreground mt-2">
+            <CardTitle className="print:text-xl">Análisis Causa-Raíz (Diagrama de Ishikawa)</CardTitle>
+            <p className="text-sm text-muted-foreground mt-2 print:text-xs">
               Este diagrama muestra los factores de riesgo agrupados por categoría
               que contribuyen al problema identificado
             </p>
@@ -55,11 +53,10 @@ export function IshikawaDiagramSVG({
               {isSaving ? "Guardando..." : "Guardar"}
             </Button>
             <Button 
-              onClick={onExportPDF}
-              disabled={isExporting}
+              onClick={onPrint}
             >
-              <Download className="mr-2 h-4 w-4" />
-              {isExporting ? "Generando..." : "Exportar PDF"}
+              <Printer className="mr-2 h-4 w-4" />
+              Imprimir
             </Button>
           </div>
         </div>
@@ -157,7 +154,7 @@ export function IshikawaDiagramSVG({
                   </ul>
                   <Textarea
                     placeholder={`Observaciones sobre ${causa.categoria}...`}
-                    className="mt-2 h-16 text-xs"
+                    className="mt-2 h-16 text-xs print:border-0 print:p-0 print:h-auto print:resize-none print:min-h-0"
                     value={observaciones[causa.categoria] || ""}
                     onChange={(e) => onObservacionChange(causa.categoria, e.target.value)}
                   />
@@ -192,7 +189,7 @@ export function IshikawaDiagramSVG({
                   </ul>
                   <Textarea
                     placeholder={`Observaciones sobre ${causa.categoria}...`}
-                    className="mt-2 h-16 text-xs"
+                    className="mt-2 h-16 text-xs print:border-0 print:p-0 print:h-auto print:resize-none print:min-h-0"
                     value={observaciones[causa.categoria] || ""}
                     onChange={(e) => onObservacionChange(causa.categoria, e.target.value)}
                   />

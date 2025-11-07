@@ -3,8 +3,6 @@
 import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { toast } from "sonner";
-import html2canvas from "html2canvas";
-import jsPDF from "jspdf";
 import {
   Card,
   CardContent,
@@ -53,7 +51,6 @@ export default function IshikawaPage() {
   const [materiaId, setMateriaId] = useState<number | null>(null);
   const [grupoId, setGrupoId] = useState<number | null>(null);
   const [observaciones, setObservaciones] = useState<Record<string, string>>({});
-  const [isExporting, setIsExporting] = useState(false);
 
   // Query para Periodos
   const { data: periodosData, isLoading: isLoadingPeriodos } = useQuery<
@@ -157,97 +154,14 @@ export default function IshikawaPage() {
     });
   };
 
-  const handleExportPDF = async () => {
-    setIsExporting(true);
-    try {
-      const element = document.getElementById("ishikawa-diagram");
-      if (!element) {
-        toast.error("No se pudo encontrar el diagrama");
-        return;
-      }
-
-      // Ocultar botones antes de capturar
-      const buttons = element.querySelectorAll("button");
-      buttons.forEach((btn) => {
-        (btn as HTMLElement).style.display = "none";
-      });
-
-      // Esperar un momento para que se apliquen los cambios
-      await new Promise((resolve) => setTimeout(resolve, 100));
-
-      // Crear el canvas con configuración mejorada
-      const canvas = await html2canvas(element, {
-        scale: 3, // Mayor escala para mejor calidad
-        useCORS: true,
-        allowTaint: true,
-        logging: false,
-        backgroundColor: "#ffffff",
-        windowWidth: element.scrollWidth,
-        windowHeight: element.scrollHeight,
-        // Forzar renderizado de pseudoelementos
-        onclone: (clonedDoc) => {
-          const clonedElement = clonedDoc.getElementById("ishikawa-diagram");
-          if (clonedElement) {
-            // Asegurar que todo sea visible
-            clonedElement.style.overflow = "visible";
-            clonedElement.style.height = "auto";
-          }
-        },
-      });
-
-      // Mostrar botones nuevamente
-      buttons.forEach((btn) => {
-        (btn as HTMLElement).style.display = "";
-      });
-
-      // Crear el PDF con mejor tamaño
-      const imgData = canvas.toDataURL("image/png", 1.0);
-      const pdf = new jsPDF({
-        orientation: canvas.width > canvas.height ? "landscape" : "portrait",
-        unit: "mm",
-        format: "a4",
-      });
-
-      const pdfWidth = pdf.internal.pageSize.getWidth();
-      const pdfHeight = pdf.internal.pageSize.getHeight();
-      
-      // Calcular dimensiones manteniendo aspect ratio
-      const imgWidth = canvas.width;
-      const imgHeight = canvas.height;
-      const ratio = Math.min(
-        (pdfWidth - 20) / imgWidth, 
-        (pdfHeight - 20) / imgHeight
-      );
-      
-      const finalWidth = imgWidth * ratio;
-      const finalHeight = imgHeight * ratio;
-      const imgX = (pdfWidth - finalWidth) / 2;
-      const imgY = (pdfHeight - finalHeight) / 2;
-
-      pdf.addImage(
-        imgData,
-        "PNG",
-        imgX,
-        imgY,
-        finalWidth,
-        finalHeight
-      );
-
-      // Descargar el PDF con nombre descriptivo
-      const fecha = new Date().toISOString().split('T')[0];
-      pdf.save(`ishikawa-grupo-${grupoId}-${fecha}.pdf`);
-      toast.success("PDF generado exitosamente");
-    } catch (error) {
-      console.error("Error al generar PDF:", error);
-      toast.error("Error al generar el PDF: " + (error instanceof Error ? error.message : "Error desconocido"));
-    } finally {
-      setIsExporting(false);
-    }
+  const handlePrint = () => {
+    window.print();
+    toast.success("Abriendo diálogo de impresión");
   };
 
   return (
     <div className="space-y-6">
-      <div>
+      <div className="print:hidden">
         <h1 className="text-3xl font-bold tracking-tight">
           Diagrama de Ishikawa
         </h1>
@@ -258,7 +172,7 @@ export default function IshikawaPage() {
       </div>
 
       {/* Card de Filtros */}
-      <Card>
+      <Card className="print:hidden">
         <CardHeader>
           <CardTitle>Seleccionar Grupo</CardTitle>
           <CardDescription>
@@ -335,7 +249,7 @@ export default function IshikawaPage() {
 
       {/* Sección del Diagrama */}
       {!grupoId ? (
-        <Card>
+        <Card className="print:hidden">
           <CardContent className="flex items-center justify-center h-[400px]">
             <p className="text-muted-foreground">
               Selecciona un grupo para generar el diagrama de Ishikawa
@@ -343,7 +257,7 @@ export default function IshikawaPage() {
           </CardContent>
         </Card>
       ) : isLoadingIshikawa ? (
-        <Card>
+        <Card className="print:hidden">
           <CardContent className="p-6">
             <Skeleton className="w-full h-[500px]" />
           </CardContent>
@@ -354,12 +268,11 @@ export default function IshikawaPage() {
           observaciones={observaciones}
           onObservacionChange={handleObservacionChange}
           onSave={handleSave}
-          onExportPDF={handleExportPDF}
+          onPrint={handlePrint}
           isSaving={saveMutation.isPending}
-          isExporting={isExporting}
         />
       ) : (
-        <Card>
+        <Card className="print:hidden">
           <CardContent className="flex items-center justify-center h-[400px]">
             <p className="text-muted-foreground">
               No hay datos de factores de riesgo para este grupo
