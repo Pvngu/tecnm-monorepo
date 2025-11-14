@@ -59,7 +59,6 @@ class CalificacionController extends Controller
             'calificaciones' => 'required|array',
             'calificaciones.*.unidad_id' => 'required|integer|exists:unidades,id',
             'calificaciones.*.valor_calificacion' => 'required|numeric|min:0|max:100',
-            'calificacion_final' => 'nullable|numeric|min:0|max:100',
         ]);
 
         foreach ($request->calificaciones as $calificacionData) {
@@ -74,11 +73,13 @@ class CalificacionController extends Controller
             );
         }
 
-        if ($request->has('calificacion_final')) {
-            $inscripcion->update([
-                'calificacion_final' => $request->calificacion_final,
-            ]);
-        }
+        // Calculate final grade as average of unit grades
+        $calificacionFinal = collect($request->calificaciones)
+            ->avg('valor_calificacion');
+
+        $inscripcion->update([
+            'calificacion_final' => round($calificacionFinal, 2),
+        ]);
 
         $inscripcion->load('calificaciones.unidad');
 

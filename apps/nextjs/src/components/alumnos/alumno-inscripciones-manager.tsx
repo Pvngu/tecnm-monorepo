@@ -242,14 +242,9 @@ function InscripcionCalificacionesForm({
     });
   });
 
-  const [calificacionFinal, setCalificacionFinal] = useState(
-    inscripcion.calificacion_final || 0
-  );
-
   const updateCalificacionesMutation = useMutation({
     mutationFn: (data: {
       calificaciones: { unidad_id: number; valor_calificacion: number }[];
-      calificacion_final: number;
     }) => apiService.updateCalificacionesBulk(inscripcion.id, data),
     onSuccess: () => {
       toast.success("Calificaciones actualizadas correctamente");
@@ -265,7 +260,6 @@ function InscripcionCalificacionesForm({
   const handleSaveCalificaciones = () => {
     updateCalificacionesMutation.mutate({
       calificaciones,
-      calificacion_final: calificacionFinal,
     });
   };
 
@@ -317,18 +311,14 @@ function InscripcionCalificacionesForm({
         )}
       </div>
 
-      <div className="flex items-center gap-2">
-        <label className="text-sm font-medium flex-1">Calificación Final</label>
-        <Input
-          type="number"
-          min="0"
-          max="100"
-          step="0.01"
-          value={calificacionFinal}
-          onChange={(e) => setCalificacionFinal(parseFloat(e.target.value) || 0)}
-          className="w-24"
-        />
-      </div>
+      {inscripcion.calificacion_final !== null && (
+        <div className="flex items-center gap-2 pt-2">
+          <label className="text-sm font-medium flex-1">Calificación Final</label>
+          <div className="w-24 text-right font-semibold">
+            {Number(inscripcion.calificacion_final).toFixed(2)}
+          </div>
+        </div>
+      )}
 
       <div className="flex justify-between pt-4">
         <AlertDialog>

@@ -297,7 +297,7 @@ export const apiService = {
         }).then(handleResponse<any>);
     },
     // Actualizar calificaciones en bulk
-    updateCalificacionesBulk: (inscripcionId: number, data: { calificaciones: { unidad_id: number; valor_calificacion: number }[]; calificacion_final?: number }): Promise<any> => {
+    updateCalificacionesBulk: (inscripcionId: number, data: { calificaciones: { unidad_id: number; valor_calificacion: number }[] }): Promise<any> => {
         return fetch(`${apiBaseURL}inscripciones/${inscripcionId}/calificaciones-bulk`, {
             method: 'POST',
             headers: getHeaders(),
