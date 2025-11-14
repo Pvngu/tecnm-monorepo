@@ -53,11 +53,44 @@ export const useResource = <TData>(
     const createItem = useMutation({
         mutationFn: (newItem: TData) => apiService.create(resource, newItem),
         onSuccess: () => {
-            toast.success(`${resource} created successfully`);
+            toast.success(`${resource} creado correctamente`);
             queryClient.invalidateQueries({ queryKey: [resource] });
         },
-        onError: (error: Error) => {
-            toast.error(`Failed to create ${resource}: ${error.message}`);
+        onError: (error: any) => {
+            // apiService throws an HttpError with a `data` property containing
+            // Laravel validation errors in `data.errors` when status === 422.
+            const validationErrors = error?.data?.errors;
+            if (validationErrors) {
+                // If there's a specific matricula error, show that first
+                if (validationErrors.matricula && validationErrors.matricula.length) {
+                    const msgs = validationErrors.matricula.map((m: string) => {
+                        // Translate common English Laravel validation messages to Spanish
+                        if (m.includes('has already been taken')) {
+                            return 'La matrícula ya está en uso.';
+                        }
+                        if (m.includes('The matricula field is required') || m.includes('The matricula field is required.')) {
+                            return 'La matrícula es obligatoria.';
+                        }
+                        return m; // fallback to original
+                    });
+
+                    toast.error(msgs.join(' '));
+                    return;
+                }
+
+                // Otherwise show the first validation message available
+                const firstField = Object.keys(validationErrors)[0];
+                if (firstField) {
+                    const msgs = validationErrors[firstField];
+                    if (Array.isArray(msgs) && msgs.length) {
+                        toast.error(msgs.join(' '));
+                        return;
+                    }
+                }
+            }
+
+            // Fallback to generic message
+            toast.error(`Failed to create ${resource}: ${error?.message ?? 'Unknown error'}`);
         },
     });
 
@@ -65,12 +98,39 @@ export const useResource = <TData>(
         mutationFn: ({ id, data }: { id: string | number; data: TData }) =>
             apiService.update(resource, id, data),
         onSuccess: () => {
-            toast.success(`${resource} updated successfully`);
+            toast.success(`${resource} actualizado correctamente`);
             queryClient.invalidateQueries({ queryKey });
             // queryClient.invalidateQueries({ queryKey: [...queryKey, id] }); // invalidate single item query
         },
-        onError: (error: Error) => {
-            toast.error(`Failed to update ${resource}: ${error.message}`);
+        onError: (error: any) => {
+            const validationErrors = error?.data?.errors;
+            if (validationErrors) {
+                if (validationErrors.matricula && validationErrors.matricula.length) {
+                    const msgs = validationErrors.matricula.map((m: string) => {
+                        if (m.includes('has already been taken')) {
+                            return 'La matrícula ya está en uso.';
+                        }
+                        if (m.includes('The matricula field is required') || m.includes('The matricula field is required.')) {
+                            return 'La matrícula es obligatoria.';
+                        }
+                        return m;
+                    });
+
+                    toast.error(msgs.join(' '));
+                    return;
+                }
+
+                const firstField = Object.keys(validationErrors)[0];
+                if (firstField) {
+                    const msgs = validationErrors[firstField];
+                    if (Array.isArray(msgs) && msgs.length) {
+                        toast.error(msgs.join(' '));
+                        return;
+                    }
+                }
+            }
+
+            toast.error(`Failed to update ${resource}: ${error?.message ?? 'Unknown error'}`);
         },
     });
 

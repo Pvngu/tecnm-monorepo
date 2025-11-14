@@ -79,6 +79,7 @@ export default function GrupoDetailPage() {
   const [asistencias, setAsistencias] = useState<Record<number, AsistenciaEstatus>>({});
   const [isAddAlumnoDialogOpen, setIsAddAlumnoDialogOpen] = useState(false);
   const [selectedAlumnoId, setSelectedAlumnoId] = useState<number | null>(null);
+  const [alumnosSearchQuery, setAlumnosSearchQuery] = useState("");
   const [alumnoToRemove, setAlumnoToRemove] = useState<{ id: number; nombre: string } | null>(null);
   const [isUnidadDialogOpen, setIsUnidadDialogOpen] = useState(false);
   const [unidadToEdit, setUnidadToEdit] = useState<Unidad | null>(null);
@@ -286,6 +287,21 @@ export default function GrupoDetailPage() {
   const alumnosNotInGrupo = availableAlumnos?.data.filter(
     (alumno: any) => !alumnos?.some((enrolled) => enrolled.id === alumno.id)
   ) || [];
+
+  const filteredAlumnosNotInGrupo = alumnosNotInGrupo.filter((alumno: any) => {
+    const q = alumnosSearchQuery.trim().toLowerCase();
+    if (!q) return true;
+    const fullName = `${alumno.nombre || ''} ${alumno.apellido_paterno || ''} ${alumno.apellido_materno || ''}`.toLowerCase();
+    return (
+      (alumno.matricula && alumno.matricula.toString().toLowerCase().includes(q)) ||
+      fullName.includes(q)
+    );
+  });
+
+  // Reset search query when the add-alumno dialog opens or closes
+  useEffect(() => {
+    if (!isAddAlumnoDialogOpen) setAlumnosSearchQuery("");
+  }, [isAddAlumnoDialogOpen]);
 
   const getStatusSummary = () => {
     const summary = {
@@ -682,11 +698,22 @@ export default function GrupoDetailPage() {
                 <SelectValue placeholder="Seleccionar alumno" />
               </SelectTrigger>
               <SelectContent>
-                {alumnosNotInGrupo.map((alumno: any) => (
-                  <SelectItem key={alumno.id} value={alumno.id.toString()}>
-                    {alumno.matricula} - {alumno.nombre} {alumno.apellido_paterno}
-                  </SelectItem>
-                ))}
+                <div className="p-2">
+                  <Input
+                    placeholder="Buscar por matrícula o nombre..."
+                    value={alumnosSearchQuery}
+                    onChange={(e) => setAlumnosSearchQuery(e.target.value)}
+                  />
+                </div>
+                {filteredAlumnosNotInGrupo.length > 0 ? (
+                  filteredAlumnosNotInGrupo.map((alumno: any) => (
+                    <SelectItem key={alumno.id} value={alumno.id.toString()}>
+                      {alumno.matricula} - {alumno.nombre} {alumno.apellido_paterno}
+                    </SelectItem>
+                  ))
+                ) : (
+                  <div className="px-4 py-2 text-sm text-muted-foreground">No se encontraron alumnos</div>
+                )}
               </SelectContent>
             </Select>
           </div>

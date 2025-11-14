@@ -280,14 +280,19 @@
   .print\:hidden {
     display: none !important;
   }
-  
-  /* Mostrar solo el diagrama de Ishikawa */
-  * {
+  /* By default allow normal printing of the whole page.
+     To print only the Ishikawa diagram, add the class
+     `ishikawa-print` to the `body` before calling `window.print()`.
+     This hides everything except the `#ishikawa-diagram`. */
+
+  /* Hide everything only when body.ishikawa-print is set */
+  body.ishikawa-print * {
     visibility: hidden !important;
   }
-  
-  #ishikawa-diagram,
-  #ishikawa-diagram * {
+
+  /* Make the Ishikawa diagram visible when printing in scoped mode */
+  body.ishikawa-print #ishikawa-diagram,
+  body.ishikawa-print #ishikawa-diagram * {
     visibility: visible !important;
   }
   

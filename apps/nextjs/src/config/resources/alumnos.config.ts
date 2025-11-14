@@ -99,13 +99,23 @@ export const AlumnoSchema = z.object({
   matricula: z.string({
     message: "La matrícula es requerida",
   }),
-  nombre: z.string({
-    message: "El nombre es requerido",
-  }),
-  apellido_paterno: z.string({
-    message: "El apellido paterno es requerido",
-  }),
-  apellido_materno: z.string().optional(),
+  // nombre: required, must not contain digits
+  nombre: z
+    .string()
+    .min(1, "El nombre es requerido")
+    .regex(/^[^\d]+$/, "No se permiten números en el nombre"),
+  // apellido_paterno: required, must not contain digits
+  apellido_paterno: z
+    .string()
+    .min(1, "El apellido paterno es requerido")
+    .regex(/^[^\d]+$/, "No se permiten números en el apellido paterno"),
+  // apellido_materno: optional, but if provided must not contain digits
+  apellido_materno: z
+    .string()
+    .optional()
+    .refine((val) => val === undefined || val === "" || /^[^\d]+$/.test(val), {
+      message: "No se permiten números en el apellido materno",
+    }),
   fecha_nacimiento: z
     .string({
       message: "La fecha de nacimiento es requerida",
@@ -171,30 +181,55 @@ export const AlumnoFormConfig: FormFieldConfig[] = [
     label: "Nombre",
     type: "text",
     placeholder: "Ingresa el nombre",
+    columns: {
+      container: 6,
+      label: 12,
+      wrapper: 12,
+    },
   },
   {
     name: "apellido_paterno",
     label: "Apellido Paterno",
     type: "text",
     placeholder: "Ingresa el apellido paterno",
+    columns: {
+      container: 6,
+      label: 12,
+      wrapper: 12,
+    },
   },
   {
     name: "apellido_materno",
     label: "Apellido Materno",
     type: "text",
     placeholder: "Ingresa el apellido materno",
+    columns: {
+      container: 6,
+      label: 12,
+      wrapper: 12,
+    },
   },
   {
     name: "fecha_nacimiento",
     label: "Fecha de nacimiento",
     type: "date",
     placeholder: "Selecciona la fecha de nacimiento",
+    columns: {
+      container: 6,
+      label: 12,
+      wrapper: 12,
+    },
   },
   {
     name: "matricula",
     label: "Matrícula",
     type: "text",
     placeholder: "Ingresa la matrícula",
+    columns: {
+      container: 6,
+      label: 12,
+      wrapper: 12,
+    },
   },
   {
     name: "carrera_id",
@@ -204,12 +239,22 @@ export const AlumnoFormConfig: FormFieldConfig[] = [
     optionLabelKey: "nombre",
     optionValueKey: "id",
     placeholder: "Selecciona la carrera",
+    columns: {
+      container: 6,
+      label: 12,
+      wrapper: 12,
+    },
   },
   {
     name: "semestre",
     label: "Semestre",
     type: "number",
     placeholder: "Ingresa el semestre",
+    columns: {
+      container: 6,
+      label: 12,
+      wrapper: 12,
+    },
   },
   {
     name: "genero",
@@ -221,6 +266,12 @@ export const AlumnoFormConfig: FormFieldConfig[] = [
         { label: "Femenino", value: "femenino" },
         { label: "Otro", value: "otro" },
     ]
+    ,
+    columns: {
+      container: 6,
+      label: 12,
+      wrapper: 12,
+    }
   },
   {
     name: "modalidad",
@@ -232,6 +283,12 @@ export const AlumnoFormConfig: FormFieldConfig[] = [
         { label: "Virtual", value: "virtual" },
         { label: "Híbrida", value: "hibrida" },
     ]
+    ,
+    columns: {
+      container: 6,
+      label: 12,
+      wrapper: 12,
+    }
   }
 ];
 

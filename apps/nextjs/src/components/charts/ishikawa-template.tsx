@@ -23,6 +23,38 @@ export function IshikawaTemplate({
   onPrint,
   isSaving = false
 }: IshikawaTemplateProps) {
+  // Print handler that scopes printing to only the Ishikawa diagram.
+  // It adds `ishikawa-print` to body so the CSS will hide everything
+  // except the diagram, triggers printing, and cleans up after printing.
+  const handlePrintClick = () => {
+    if (typeof window === "undefined" || typeof document === "undefined") return;
+    try {
+      document.body.classList.add("ishikawa-print");
+
+      const cleanup = () => {
+        try {
+          document.body.classList.remove("ishikawa-print");
+        } catch (e) {
+          // ignore
+        }
+        window.removeEventListener("afterprint", cleanup);
+      };
+
+      // Listen to afterprint to remove the class when printing finishes
+      window.addEventListener("afterprint", cleanup);
+
+      // Give the browser a tiny moment to apply the class, then print
+      setTimeout(() => {
+        window.print();
+      }, 50);
+
+      // Also call the optional onPrint callback if provided
+      if (onPrint) onPrint();
+    } catch (err) {
+      // Ensure we don't leave the page hidden in case of error
+      try { document.body.classList.remove("ishikawa-print"); } catch(e) {}
+    }
+  };
   return (
     <Card id="ishikawa-diagram" className="print:shadow-none">
       <CardHeader className="print:pb-4">
@@ -44,7 +76,7 @@ export function IshikawaTemplate({
               {isSaving ? "Guardando..." : "Guardar"}
             </Button>
             <Button 
-              onClick={onPrint}
+              onClick={handlePrintClick}
             >
               <Printer className="mr-2 h-4 w-4" />
               Imprimir
