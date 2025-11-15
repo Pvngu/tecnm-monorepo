@@ -12,7 +12,7 @@ export type Alumno = {
   nombre: string;
   apellido_paterno: string;
   apellido_materno?: string;
-  fecha_nacimiento?: string; // YYYY-MM-DD
+  fecha_nacimiento: string; // YYYY-MM-DD
   semestre: number;
   genero: "masculino" | "femenino" | "otro";
   modalidad: "presencial" | "virtual" | "hibrida";
@@ -117,10 +117,24 @@ export const AlumnoSchema = z.object({
       message: "No se permiten números en el apellido materno",
     }),
   fecha_nacimiento: z
-    .string({
-      message: "La fecha de nacimiento es requerida",
-    })
-    .optional(),
+    .string()
+    .min(1, "La fecha de nacimiento es requerida")
+    .regex(/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/, "Formato de fecha inválido (YYYY-MM-DD)")
+    .refine((val) => {
+      const parts = val.split("-");
+      const year = Number(parts[0]);
+      const month = Number(parts[1]) - 1;
+      const day = Number(parts[2]);
+      const dob = new Date(year, month, day);
+      if (isNaN(dob.getTime())) return false;
+      const today = new Date();
+      let age = today.getFullYear() - dob.getFullYear();
+      const m = today.getMonth() - dob.getMonth();
+      if (m < 0 || (m === 0 && today.getDate() < dob.getDate())) {
+        age -= 1;
+      }
+      return age >= 17;
+    }, "La persona debe tener al menos 17 años"),
   semestre: z
     .number({
       message: "El semestre es requerido",
