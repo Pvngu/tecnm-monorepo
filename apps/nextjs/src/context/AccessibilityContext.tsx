@@ -18,6 +18,14 @@ interface AccessibilityContextType {
   setDaltonism: (type: DaltonismType) => void;
   letterSpacing: boolean;
   setLetterSpacing: (enabled: boolean) => void;
+  cursorSize: boolean;
+  setCursorSize: (enabled: boolean) => void;
+  reduceMotion: boolean;
+  setReduceMotion: (enabled: boolean) => void;
+  highlightLinks: boolean;
+  setHighlightLinks: (enabled: boolean) => void;
+  readingGuide: boolean;
+  setReadingGuide: (enabled: boolean) => void;
   resetSettings: () => void;
 }
 
@@ -42,6 +50,10 @@ export const AccessibilityProvider: React.FC<{ children: React.ReactNode }> = ({
   const [highContrast, setHighContrast] = useState(false);
   const [daltonism, setDaltonism] = useState<DaltonismType>("none");
   const [letterSpacing, setLetterSpacing] = useState(false);
+  const [cursorSize, setCursorSize] = useState(false);
+  const [reduceMotion, setReduceMotion] = useState(false);
+  const [highlightLinks, setHighlightLinks] = useState(false);
+  const [readingGuide, setReadingGuide] = useState(false);
 
   // Apply Font Size
   useEffect(() => {
@@ -87,11 +99,51 @@ export const AccessibilityProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   }, [daltonism]);
 
+  // Apply Cursor Size
+  useEffect(() => {
+    if (typeof document !== "undefined") {
+      const root = document.documentElement;
+      if (cursorSize) {
+        root.classList.add("big-cursor");
+      } else {
+        root.classList.remove("big-cursor");
+      }
+    }
+  }, [cursorSize]);
+
+  // Apply Reduce Motion
+  useEffect(() => {
+    if (typeof document !== "undefined") {
+      const root = document.documentElement;
+      if (reduceMotion) {
+        root.classList.add("reduce-motion");
+      } else {
+        root.classList.remove("reduce-motion");
+      }
+    }
+  }, [reduceMotion]);
+
+  // Apply Highlight Links
+  useEffect(() => {
+    if (typeof document !== "undefined") {
+      const root = document.documentElement;
+      if (highlightLinks) {
+        root.classList.add("highlight-links");
+      } else {
+        root.classList.remove("highlight-links");
+      }
+    }
+  }, [highlightLinks]);
+
   const resetSettings = () => {
     setFontSize(100);
     setHighContrast(false);
     setDaltonism("none");
     setLetterSpacing(false);
+    setCursorSize(false);
+    setReduceMotion(false);
+    setHighlightLinks(false);
+    setReadingGuide(false);
   };
 
   return (
@@ -105,6 +157,14 @@ export const AccessibilityProvider: React.FC<{ children: React.ReactNode }> = ({
         setDaltonism,
         letterSpacing,
         setLetterSpacing,
+        cursorSize,
+        setCursorSize,
+        reduceMotion,
+        setReduceMotion,
+        highlightLinks,
+        setHighlightLinks,
+        readingGuide,
+        setReadingGuide,
         resetSettings,
       }}
     >

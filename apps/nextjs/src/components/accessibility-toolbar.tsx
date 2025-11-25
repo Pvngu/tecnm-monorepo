@@ -10,6 +10,10 @@ import {
     Plus,
     RotateCcw,
     AlignJustify,
+    MousePointer2,
+    ZapOff,
+    Link,
+    BookOpen,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -42,6 +46,14 @@ export function AccessibilityToolbar() {
         setDaltonism,
         letterSpacing,
         setLetterSpacing,
+        cursorSize,
+        setCursorSize,
+        reduceMotion,
+        setReduceMotion,
+        highlightLinks,
+        setHighlightLinks,
+        readingGuide,
+        setReadingGuide,
         resetSettings,
     } = useAccessibility();
 
@@ -136,6 +148,66 @@ export function AccessibilityToolbar() {
                                 id="letter-spacing"
                                 checked={letterSpacing}
                                 onCheckedChange={setLetterSpacing}
+                            />
+                        </div>
+
+                        <Separator />
+
+                        {/* Cursor Size */}
+                        <div className="flex items-center justify-between">
+                            <Label htmlFor="cursor-size" className="text-base flex items-center gap-2">
+                                <MousePointer2 className="h-4 w-4" />
+                                Puntero Grande
+                            </Label>
+                            <Switch
+                                id="cursor-size"
+                                checked={cursorSize}
+                                onCheckedChange={setCursorSize}
+                            />
+                        </div>
+
+                        <Separator />
+
+                        {/* Reduce Motion */}
+                        <div className="flex items-center justify-between">
+                            <Label htmlFor="reduce-motion" className="text-base flex items-center gap-2">
+                                <ZapOff className="h-4 w-4" />
+                                Reducir Movimiento
+                            </Label>
+                            <Switch
+                                id="reduce-motion"
+                                checked={reduceMotion}
+                                onCheckedChange={setReduceMotion}
+                            />
+                        </div>
+
+                        <Separator />
+
+                        {/* Highlight Links */}
+                        <div className="flex items-center justify-between">
+                            <Label htmlFor="highlight-links" className="text-base flex items-center gap-2">
+                                <Link className="h-4 w-4" />
+                                Resaltar Enlaces
+                            </Label>
+                            <Switch
+                                id="highlight-links"
+                                checked={highlightLinks}
+                                onCheckedChange={setHighlightLinks}
+                            />
+                        </div>
+
+                        <Separator />
+
+                        {/* Reading Guide */}
+                        <div className="flex items-center justify-between">
+                            <Label htmlFor="reading-guide" className="text-base flex items-center gap-2">
+                                <BookOpen className="h-4 w-4" />
+                                Guía de Lectura
+                            </Label>
+                            <Switch
+                                id="reading-guide"
+                                checked={readingGuide}
+                                onCheckedChange={setReadingGuide}
                             />
                         </div>
 

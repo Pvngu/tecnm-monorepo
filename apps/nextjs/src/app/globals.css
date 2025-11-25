@@ -420,3 +420,25 @@
 [data-daltonism] .fixed {
   z-index: 100;
 }
+
+/* Puntero Grande */
+.big-cursor, .big-cursor * {
+  cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewport="0 0 48 48" style="fill:black;stroke:white;stroke-width:2px;"><path d="M0 0 L20 40 L26 26 L40 20 Z" /></svg>') 0 0, auto !important;
+}
+
+/* Reducir Movimiento */
+.reduce-motion *, .reduce-motion *::before, .reduce-motion *::after {
+  animation: none !important;
+  transition: none !important;
+  scroll-behavior: auto !important;
+}
+
+/* Resaltar Enlaces */
+.highlight-links a, .highlight-links button, .highlight-links [role="button"] {
+  background-color: #ffeb3b !important; /* Amarillo intenso */
+  color: #000000 !important;
+  border: 2px solid #000000 !important;
+  text-decoration: underline !important;
+  font-weight: bold !important;
+  box-shadow: none !important;
+}
