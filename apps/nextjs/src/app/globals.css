@@ -379,3 +379,44 @@
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
   }
+
+/* Accessibility Styles */
+
+/* High Contrast Mode */
+.high-contrast {
+  filter: contrast(150%);
+}
+
+.high-contrast img,
+.high-contrast video {
+  filter: contrast(100%); /* Prevent double contrast on media */
+}
+
+/* Wide Spacing (Dyslexia Friendly) */
+.wide-spacing * {
+  letter-spacing: 0.1em !important;
+  line-height: 1.8 !important;
+  word-spacing: 0.1em !important;
+}
+
+/* Daltonism Filters */
+[data-daltonism="protanopia"] {
+  filter: url('#protanopia');
+}
+
+[data-daltonism="deuteranopia"] {
+  filter: url('#deuteranopia');
+}
+
+[data-daltonism="tritanopia"] {
+  filter: url('#tritanopia');
+}
+
+[data-daltonism="achromatopsia"] {
+  filter: url('#achromatopsia');
+}
+
+/* Ensure fixed elements stay on top */
+[data-daltonism] .fixed {
+  z-index: 100;
+}
