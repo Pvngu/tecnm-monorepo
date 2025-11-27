@@ -26,6 +26,8 @@ interface AccessibilityContextType {
   setHighlightLinks: (enabled: boolean) => void;
   readingGuide: boolean;
   setReadingGuide: (enabled: boolean) => void;
+  grayscale: boolean;
+  setGrayscale: (enabled: boolean) => void;
   resetSettings: () => void;
 }
 
@@ -54,6 +56,7 @@ export const AccessibilityProvider: React.FC<{ children: React.ReactNode }> = ({
   const [reduceMotion, setReduceMotion] = useState(false);
   const [highlightLinks, setHighlightLinks] = useState(false);
   const [readingGuide, setReadingGuide] = useState(false);
+  const [grayscale, setGrayscale] = useState(false);
 
   // Apply Font Size
   useEffect(() => {
@@ -135,6 +138,18 @@ export const AccessibilityProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   }, [highlightLinks]);
 
+  // Apply Grayscale
+  useEffect(() => {
+    if (typeof document !== "undefined") {
+      const root = document.documentElement;
+      if (grayscale) {
+        root.classList.add("grayscale");
+      } else {
+        root.classList.remove("grayscale");
+      }
+    }
+  }, [grayscale]);
+
   const resetSettings = () => {
     setFontSize(100);
     setHighContrast(false);
@@ -144,6 +159,7 @@ export const AccessibilityProvider: React.FC<{ children: React.ReactNode }> = ({
     setReduceMotion(false);
     setHighlightLinks(false);
     setReadingGuide(false);
+    setGrayscale(false);
   };
 
   return (
@@ -165,6 +181,8 @@ export const AccessibilityProvider: React.FC<{ children: React.ReactNode }> = ({
         setHighlightLinks,
         readingGuide,
         setReadingGuide,
+        grayscale,
+        setGrayscale,
         resetSettings,
       }}
     >

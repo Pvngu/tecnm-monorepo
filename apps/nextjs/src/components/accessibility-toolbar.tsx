@@ -14,6 +14,7 @@ import {
     ZapOff,
     Link,
     BookOpen,
+    PersonStanding
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -54,6 +55,8 @@ export function AccessibilityToolbar() {
         setHighlightLinks,
         readingGuide,
         setReadingGuide,
+        grayscale,
+        setGrayscale,
         resetSettings,
     } = useAccessibility();
 
@@ -67,7 +70,7 @@ export function AccessibilityToolbar() {
                         className="h-12 w-12 rounded-full shadow-lg bg-background border-2 hover:bg-accent"
                         aria-label="Opciones de Accesibilidad"
                     >
-                        <Settings2 className="h-6 w-6" />
+                        <PersonStanding className="h-6 w-6" />
                     </Button>
                 </SheetTrigger>
                 <SheetContent className="w-[320px] sm:w-[400px] overflow-y-auto">
@@ -199,7 +202,7 @@ export function AccessibilityToolbar() {
                         <Separator />
 
                         {/* Reading Guide */}
-                        <div className="flex items-center justify-between">
+                        {/* <div className="flex items-center justify-between">
                             <Label htmlFor="reading-guide" className="text-base flex items-center gap-2">
                                 <BookOpen className="h-4 w-4" />
                                 Guía de Lectura
@@ -208,6 +211,21 @@ export function AccessibilityToolbar() {
                                 id="reading-guide"
                                 checked={readingGuide}
                                 onCheckedChange={setReadingGuide}
+                            />
+                        </div> */}
+
+                        {/* <Separator /> */}
+
+                        {/* Grayscale */}
+                        <div className="flex items-center justify-between">
+                            <Label htmlFor="grayscale" className="text-base flex items-center gap-2">
+                                <Eye className="h-4 w-4" />
+                                Escala de Grises
+                            </Label>
+                            <Switch
+                                id="grayscale"
+                                checked={grayscale}
+                                onCheckedChange={setGrayscale}
                             />
                         </div>
 

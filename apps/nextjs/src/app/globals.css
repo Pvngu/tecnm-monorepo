@@ -392,6 +392,11 @@
   filter: contrast(100%); /* Prevent double contrast on media */
 }
 
+/* Fix Switch visibility in High Contrast mode */
+.high-contrast button[role="switch"] {
+  border: 2px solid currentColor !important;
+}
+
 /* Wide Spacing (Dyslexia Friendly) */
 .wide-spacing * {
   letter-spacing: 0.1em !important;
@@ -441,4 +446,9 @@
   text-decoration: underline !important;
   font-weight: bold !important;
   box-shadow: none !important;
+}
+
+/* Escala de Grises */
+.grayscale {
+  filter: grayscale(100%) !important;
 }
