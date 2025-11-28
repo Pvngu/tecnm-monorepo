@@ -75,14 +75,16 @@ export function AccessibilityToolbar() {
     }, []);
 
     return (
-        <div className="fixed bottom-4 right-4 z-50 print:hidden">
+        <div className="fixed bottom-4 right-4 z-50 print:hidden group">
             <Sheet>
                 <SheetTrigger asChild>
                     <Button
                         variant="outline"
                         size="icon"
-                        className={`h-12 w-12 rounded-full shadow-lg bg-background border-2 hover:bg-accent ${
-                            isAnimating ? "animate-bounce" : ""
+                        className={`h-12 w-12 rounded-full shadow-lg border-2 transition-all duration-500 ${
+                            isAnimating 
+                                ? "animate-bounce bg-yellow-400 text-black border-yellow-500 hover:bg-yellow-500 scale-110" 
+                                : "bg-background hover:bg-accent"
                         }`}
                         aria-label="Opciones de Accesibilidad"
                     >
