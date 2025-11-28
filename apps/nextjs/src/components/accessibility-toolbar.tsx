@@ -262,7 +262,7 @@ export function AccessibilityToolbar() {
                                 <SelectTrigger>
                                     <SelectValue placeholder="Seleccionar modo" />
                                 </SelectTrigger>
-                                <SelectContent>
+                                <SelectContent className="!z-[200]">
                                     <SelectItem value="none">Normal</SelectItem>
                                     <SelectItem value="protanopia">Protanopia (Rojo)</SelectItem>
                                     <SelectItem value="deuteranopia">Deuteranopia (Verde)</SelectItem>

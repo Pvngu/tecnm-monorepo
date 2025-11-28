@@ -61,6 +61,62 @@ export const AccessibilityProvider: React.FC<{ children: React.ReactNode }> = ({
   const [grayscale, setGrayscale] = useState(false);
   const [dyslexiaFont, setDyslexiaFont] = useState(false);
 
+  const STORAGE_KEY = "accessibility-settings";
+
+  // Load settings from localStorage
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const savedSettings = localStorage.getItem(STORAGE_KEY);
+      if (savedSettings) {
+        try {
+          const parsed = JSON.parse(savedSettings);
+          if (parsed.fontSize) setFontSize(parsed.fontSize);
+          if (parsed.highContrast !== undefined) setHighContrast(parsed.highContrast);
+          if (parsed.daltonism) setDaltonism(parsed.daltonism);
+          if (parsed.letterSpacing !== undefined) setLetterSpacing(parsed.letterSpacing);
+          if (parsed.cursorSize !== undefined) setCursorSize(parsed.cursorSize);
+          if (parsed.reduceMotion !== undefined) setReduceMotion(parsed.reduceMotion);
+          if (parsed.highlightLinks !== undefined) setHighlightLinks(parsed.highlightLinks);
+          if (parsed.readingGuide !== undefined) setReadingGuide(parsed.readingGuide);
+          if (parsed.grayscale !== undefined) setGrayscale(parsed.grayscale);
+          if (parsed.dyslexiaFont !== undefined) setDyslexiaFont(parsed.dyslexiaFont);
+        } catch (e) {
+          console.error("Failed to parse accessibility settings:", e);
+        }
+      }
+    }
+  }, []);
+
+  // Save settings to localStorage
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const settings = {
+        fontSize,
+        highContrast,
+        daltonism,
+        letterSpacing,
+        cursorSize,
+        reduceMotion,
+        highlightLinks,
+        readingGuide,
+        grayscale,
+        dyslexiaFont,
+      };
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(settings));
+    }
+  }, [
+    fontSize,
+    highContrast,
+    daltonism,
+    letterSpacing,
+    cursorSize,
+    reduceMotion,
+    highlightLinks,
+    readingGuide,
+    grayscale,
+    dyslexiaFont,
+  ]);
+
   // Apply Font Size
   useEffect(() => {
     if (typeof document !== "undefined") {
