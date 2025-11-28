@@ -33,7 +33,7 @@ import { createGrupoCustomActions } from '@/config/resources/grupos.config';
 export default function ResourceListPage() {
     const params = useParams();
     const router = useRouter();
-    const resource = params.resource as string;
+    const resource = (params?.resource as string) || '';
 
     const { columns: baseColumns, type, includes, filters, schema, formConfig, csvHeaders } = useMemo(() => {
         return resourceConfigMap[resource] || { columns: [], type: {}, includes: [], filters: [], schema: z.object({}), formConfig: [], csvHeaders: [] };

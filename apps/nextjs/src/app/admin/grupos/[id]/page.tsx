@@ -73,7 +73,7 @@ export default function GrupoDetailPage() {
   const params = useParams();
   const router = useRouter();
   const queryClient = useQueryClient();
-  const grupoId = params.id as string;
+  const grupoId = (params?.id as string) || '';
   
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [asistencias, setAsistencias] = useState<Record<number, AsistenciaEstatus>>({});

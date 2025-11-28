@@ -262,7 +262,7 @@ export function ParetoFactoresGrupo({ periodoId, carreraId, semestre }: ParetoFa
                   dataKey="frecuencia"
                   fill="#8884d8"
                   name="Frecuencia"
-                  onMouseEnter={(data) => {
+                  onMouseEnter={(data: any) => {
                     if (screenReader) {
                       speak(`Factor ${data.nombre}: ${data.frecuencia} ocurrencias, ${data.porcentaje_acumulado}% acumulado`);
                     }

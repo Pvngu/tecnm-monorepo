@@ -270,7 +270,7 @@ export default function AnalyticsPage() {
                       fill="#3b82f6" 
                       name="Estudiantes"
                       radius={[8, 8, 0, 0]}
-                      onMouseEnter={(data) => {
+                      onMouseEnter={(data: any) => {
                         if (screenReader) {
                           speak(`${data.frecuencia} estudiantes obtuvieron ${data.rango} de calificación`);
                         }
@@ -360,7 +360,7 @@ export default function AnalyticsPage() {
                       fill="#82ca9d" 
                       name="Ocurrencias"
                       radius={[0, 8, 8, 0]}
-                      onMouseEnter={(data) => {
+                      onMouseEnter={(data: any) => {
                         if (screenReader) {
                           speak(`${data.frecuencia} ocurrencias de ${data.nombre}`);
                         }

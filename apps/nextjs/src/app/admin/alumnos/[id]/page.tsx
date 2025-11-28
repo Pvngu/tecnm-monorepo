@@ -14,7 +14,7 @@ import { AlumnoCuentaForm } from "@/components/alumnos/alumno-cuenta-form";
 
 export default function AlumnoExpedientePage() {
   const params = useParams();
-  const id = params.id as string;
+  const id = (params?.id as string) || '';
 
   const { data, isLoading, error } = useQuery({
     queryKey: ["alumno", id],
