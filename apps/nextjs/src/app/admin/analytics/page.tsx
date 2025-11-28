@@ -8,11 +8,12 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { dashboardService, type AnalyticsData, type AnalyticsFilters } from "@/services/dashboardService";
 import { apiService } from "@/services/apiService";
-import { Filter, TrendingUp, AlertTriangle, Printer } from "lucide-react";
+import { Filter, TrendingUp, AlertTriangle, Printer, Play } from "lucide-react";
 import z from "zod";
 import { ParetoFactoresGrupo } from "@/components/charts/pareto-factores-grupo";
 import { ScatterFaltasGrupo } from "@/components/charts/scatter-faltas-grupo";
 import { Button } from "@/components/ui/button";
+import { useAccessibility } from "@/context/AccessibilityContext";
 
 interface Periodo {
   id: number;
@@ -26,6 +27,8 @@ interface Carrera {
 }
 
 export default function AnalyticsPage() {
+  const { screenReader, speak } = useAccessibility();
+
   // Filter states
   const [selectedPeriodo, setSelectedPeriodo] = useState<string>("");
   const [selectedCarrera, setSelectedCarrera] = useState<string>("all");
@@ -206,11 +209,24 @@ export default function AnalyticsPage() {
       {/* Charts Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Grades Distribution Chart */}
-        <Card data-screen-reader-text={generateGradesDescription(analyticsData?.calificaciones_data || [])}>
+        <Card>
           <CardHeader>
-            <div className="flex items-center gap-2">
-              <TrendingUp className="h-5 w-5 text-blue-600" />
-              <CardTitle>Distribución de Calificaciones</CardTitle>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <TrendingUp className="h-5 w-5 text-blue-600" />
+                <CardTitle>Distribución de Calificaciones</CardTitle>
+              </div>
+              {screenReader && (
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  onClick={() => speak(generateGradesDescription(analyticsData?.calificaciones_data || []))}
+                  aria-label="Escuchar descripción del gráfico"
+                >
+                  <Play className="h-4 w-4 mr-2" />
+                  Escuchar Resumen
+                </Button>
+              )}
             </div>
             <CardDescription>
               Frecuencia de calificaciones finales por rango
@@ -254,6 +270,11 @@ export default function AnalyticsPage() {
                       fill="#3b82f6" 
                       name="Estudiantes"
                       radius={[8, 8, 0, 0]}
+                      onMouseEnter={(data) => {
+                        if (screenReader) {
+                          speak(`${data.frecuencia} estudiantes obtuvieron ${data.rango} de calificación`);
+                        }
+                      }}
                     />
                   </BarChart>
                 </ResponsiveContainer>
@@ -271,11 +292,24 @@ export default function AnalyticsPage() {
         </Card>
 
         {/* Risk Factors Chart */}
-        <Card data-screen-reader-text={generateRiskFactorsDescription(analyticsData?.factores_riesgo_data || [])}>
+        <Card>
           <CardHeader>
-            <div className="flex items-center gap-2">
-              <AlertTriangle className="h-5 w-5 text-amber-600" />
-              <CardTitle>Factores de Riesgo Principales</CardTitle>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <AlertTriangle className="h-5 w-5 text-amber-600" />
+                <CardTitle>Factores de Riesgo Principales</CardTitle>
+              </div>
+              {screenReader && (
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  onClick={() => speak(generateRiskFactorsDescription(analyticsData?.factores_riesgo_data || []))}
+                  aria-label="Escuchar descripción del gráfico"
+                >
+                  <Play className="h-4 w-4 mr-2" />
+                  Escuchar Resumen
+                </Button>
+              )}
             </div>
             <CardDescription>
               Frecuencia de factores de riesgo detectados
@@ -326,6 +360,11 @@ export default function AnalyticsPage() {
                       fill="#82ca9d" 
                       name="Ocurrencias"
                       radius={[0, 8, 8, 0]}
+                      onMouseEnter={(data) => {
+                        if (screenReader) {
+                          speak(`${data.frecuencia} ocurrencias de ${data.nombre}`);
+                        }
+                      }}
                     />
                   </BarChart>
                 </ResponsiveContainer>

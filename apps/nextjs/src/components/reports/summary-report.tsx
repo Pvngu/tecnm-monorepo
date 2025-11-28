@@ -120,7 +120,10 @@ export function SummaryReport({ data, periodo, carrera }: SummaryReportProps) {
             Indicadores Clave de Rendimiento
           </h3>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <Card className="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-950 dark:to-blue-900 border-blue-200">
+            <Card 
+              className="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-950 dark:to-blue-900 border-blue-200"
+              data-screen-reader-text={`Promedio general ${data.metricas.promedio_general}`}
+            >
               <CardHeader className="pb-2">
                 <CardDescription className="text-blue-700 dark:text-blue-300">
                   Promedio General
@@ -138,7 +141,10 @@ export function SummaryReport({ data, periodo, carrera }: SummaryReportProps) {
               </CardContent>
             </Card>
 
-            <Card className="bg-gradient-to-br from-red-50 to-red-100 dark:from-red-950 dark:to-red-900 border-red-200">
+            <Card 
+              className="bg-gradient-to-br from-red-50 to-red-100 dark:from-red-950 dark:to-red-900 border-red-200"
+              data-screen-reader-text={`Tasa de reprobación ${data.metricas.tasa_reprobacion}%`}
+            >
               <CardHeader className="pb-2">
                 <CardDescription className="text-red-700 dark:text-red-300">
                   Tasa de Reprobación
@@ -156,7 +162,10 @@ export function SummaryReport({ data, periodo, carrera }: SummaryReportProps) {
               </CardContent>
             </Card>
 
-            <Card className="bg-gradient-to-br from-green-50 to-green-100 dark:from-green-950 dark:to-green-900 border-green-200">
+            <Card 
+              className="bg-gradient-to-br from-green-50 to-green-100 dark:from-green-950 dark:to-green-900 border-green-200"
+              data-screen-reader-text={`Total alumnos ${data.metricas.total_alumnos}`}
+            >
               <CardHeader className="pb-2">
                 <CardDescription className="text-green-700 dark:text-green-300">
                   Total Alumnos
@@ -174,7 +183,10 @@ export function SummaryReport({ data, periodo, carrera }: SummaryReportProps) {
               </CardContent>
             </Card>
 
-            <Card className="bg-gradient-to-br from-orange-50 to-orange-100 dark:from-orange-950 dark:to-orange-900 border-orange-200">
+            <Card 
+              className="bg-gradient-to-br from-orange-50 to-orange-100 dark:from-orange-950 dark:to-orange-900 border-orange-200"
+              data-screen-reader-text={`Total reprobados ${data.metricas.total_reprobados}`}
+            >
               <CardHeader className="pb-2">
                 <CardDescription className="text-orange-700 dark:text-orange-300">
                   Total Reprobados
@@ -214,6 +226,7 @@ export function SummaryReport({ data, periodo, carrera }: SummaryReportProps) {
                 <Card
                   key={factor.id}
                   className="bg-muted/30 border-l-4 border-l-primary"
+                  data-screen-reader-text={`Factor de riesgo ${factor.nombre} con ${factor.frecuencia} casos. Categoría ${factor.categoria}`}
                 >
                   <CardHeader>
                     <div className="flex items-start justify-between">
@@ -240,7 +253,11 @@ export function SummaryReport({ data, periodo, carrera }: SummaryReportProps) {
                     {factor.recomendaciones.length > 0 ? (
                       <div className="space-y-3">
                         {factor.recomendaciones.map((rec) => (
-                          <Alert key={rec.id} className="bg-background">
+                          <Alert 
+                            key={rec.id} 
+                            className="bg-background"
+                            data-screen-reader-text={`Recomendación ${rec.nivel}: ${rec.titulo}. ${rec.descripcion}`}
+                          >
                             <div className="flex items-start gap-3">
                               <div className="flex-1">
                                 <AlertTitle className="flex items-center gap-2 mb-2">

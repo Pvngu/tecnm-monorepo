@@ -12,8 +12,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Button } from "@/components/ui/button";
+import { useAccessibility } from "@/context/AccessibilityContext";
+import { Play } from "lucide-react";
 
 export default function DashboardPage() {
+  const { screenReader, speak } = useAccessibility();
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [selectedPeriodo, setSelectedPeriodo] = useState<string>("");
@@ -43,6 +47,23 @@ export default function DashboardPage() {
     setSelectedPeriodo(value);
     const periodoId = value === "all" ? undefined : parseInt(value);
     fetchStats(periodoId);
+  };
+
+  const generateDesercionDescription = (data: { semestre: string; estudiantes: number }[]) => {
+    if (!data || data.length === 0) return "Gráfico de deserción por semestre sin datos disponibles.";
+    
+    const totalDesercion = data.reduce((acc, curr) => acc + curr.estudiantes, 0);
+    const maxDesercion = data.reduce((prev, current) => (prev.estudiantes > current.estudiantes) ? prev : current, data[0]);
+    
+    return `
+        1. Descripción general accesible:
+        Gráfico de barras mostrando la deserción estudiantil por semestre.
+        
+        2. Resumen narrativo:
+        Se registra una deserción total de ${totalDesercion} estudiantes en los semestres mostrados.
+        El semestre con mayor deserción es el ${maxDesercion.semestre} con ${maxDesercion.estudiantes} estudiantes.
+        Pasa el cursor sobre las barras para escuchar los detalles de cada semestre.
+    `.trim();
   };
 
   if (loading) {
@@ -141,7 +162,20 @@ export default function DashboardPage() {
       {/* Deserción por Semestre Chart */}
       <Card>
         <CardHeader>
-          <CardTitle>Deserción por Semestre</CardTitle>
+          <div className="flex items-center justify-between">
+            <CardTitle>Deserción por Semestre</CardTitle>
+            {screenReader && (
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  onClick={() => speak(generateDesercionDescription(stats?.desercionPorSemestre || []))}
+                  aria-label="Escuchar descripción del gráfico"
+                >
+                  <Play className="h-4 w-4 mr-2" />
+                  Escuchar Resumen
+                </Button>
+            )}
+          </div>
           <CardDescription>
             Número de estudiantes que han desertado en cada semestre
           </CardDescription>
@@ -170,6 +204,11 @@ export default function DashboardPage() {
                     fill="rgb(59 130 246)" 
                     name="Estudiantes"
                     radius={[8, 8, 0, 0]}
+                    onMouseEnter={(data: any) => {
+                        if (screenReader) {
+                          speak(`Semestre ${data.semestre}: ${data.estudiantes} estudiantes`);
+                        }
+                    }}
                   />
                 </BarChart>
               </ResponsiveContainer>

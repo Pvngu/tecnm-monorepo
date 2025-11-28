@@ -4,39 +4,20 @@ import { useEffect, useRef, useState } from "react";
 import { useAccessibility } from "@/context/AccessibilityContext";
 
 export function ScreenReader() {
-  const { screenReader } = useAccessibility();
+  const { screenReader, speak, cancelSpeech } = useAccessibility();
   const lastReadText = useRef<string>("");
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const [voices, setVoices] = useState<SpeechSynthesisVoice[]>([]);
-
   const [highlightRect, setHighlightRect] = useState<DOMRect | null>(null);
 
   useEffect(() => {
-    const loadVoices = () => {
-      const availableVoices = window.speechSynthesis.getVoices();
-      setVoices(availableVoices);
-    };
-
-    loadVoices();
-    window.speechSynthesis.onvoiceschanged = loadVoices;
-    return () => {
-      window.speechSynthesis.onvoiceschanged = null;
-    };
-  }, []);
-
-  useEffect(() => {
     if (!screenReader) {
-      window.speechSynthesis.cancel();
+      cancelSpeech();
       setHighlightRect(null);
       return;
     }
 
     const handleMouseMove = (e: MouseEvent) => {
       if (timeoutRef.current) clearTimeout(timeoutRef.current);
-
-      // Clear highlight immediately on move to feel responsive, 
-      // or keep it until new one is found. Let's keep it for now or clear if desired.
-      // setHighlightRect(null); 
 
       timeoutRef.current = setTimeout(() => {
         const element = document.elementFromPoint(e.clientX, e.clientY);
@@ -129,30 +110,14 @@ export function ScreenReader() {
       }, 200);
     };
 
-    const speak = (text: string) => {
-      console.log("Speaking:", text);
-      window.speechSynthesis.cancel();
-      const utterance = new SpeechSynthesisUtterance(text);
-      
-      const spanishVoice = voices.find((v) => v.lang.includes("es") || v.lang.includes("ES"));
-      if (spanishVoice) {
-        utterance.voice = spanishVoice;
-        utterance.lang = spanishVoice.lang;
-      } else {
-        utterance.lang = "es-ES";
-      }
-      
-      window.speechSynthesis.speak(utterance);
-    };
-
     window.addEventListener("mousemove", handleMouseMove);
     return () => {
       window.removeEventListener("mousemove", handleMouseMove);
       if (timeoutRef.current) clearTimeout(timeoutRef.current);
-      window.speechSynthesis.cancel();
+      cancelSpeech();
       setHighlightRect(null);
     };
-  }, [screenReader, voices]);
+  }, [screenReader, speak, cancelSpeech]);
 
   if (!screenReader) return null;
 

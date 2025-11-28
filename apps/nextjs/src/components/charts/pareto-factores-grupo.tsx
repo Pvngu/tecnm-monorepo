@@ -29,6 +29,9 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { apiService, ParetoData } from "@/services/apiService";
 import { PaginatedResponse } from "@/types/api";
+import { Button } from "@/components/ui/button";
+import { useAccessibility } from "@/context/AccessibilityContext";
+import { Play } from "lucide-react";
 
 interface ParetoFactoresGrupoProps {
   periodoId: number;
@@ -53,6 +56,7 @@ interface Grupo {
 }
 
 export function ParetoFactoresGrupo({ periodoId, carreraId, semestre }: ParetoFactoresGrupoProps) {
+  const { screenReader, speak } = useAccessibility();
   const [selectedMateriaId, setSelectedMateriaId] = useState<string>("all");
   const [selectedGrupoId, setSelectedGrupoId] = useState<string>("all");
 
@@ -118,10 +122,40 @@ export function ParetoFactoresGrupo({ periodoId, carreraId, semestre }: ParetoFa
     setSelectedGrupoId(value);
   };
 
+  const generateParetoDescription = (data: ParetoData[]) => {
+    if (!data || data.length === 0) return "Gráfico de Pareto sin datos disponibles.";
+    
+    const totalFactors = data.length;
+    const topFactors = data.filter(d => d.porcentaje_acumulado <= 80);
+    const topFactorsNames = topFactors.map(d => d.nombre).join(", ");
+    
+    return `
+        1. Descripción general accesible:
+        Gráfico de Pareto mostrando los factores de riesgo más frecuentes.
+        
+        2. Resumen narrativo:
+        Se analizaron ${totalFactors} factores de riesgo.
+        Los factores principales que representan el 80% de los problemas son: ${topFactorsNames || "Ninguno (distribución plana)"}.
+    `.trim();
+  };
+
   return (
     <Card className="w-full">
       <CardHeader>
-        <CardTitle>Análisis de Pareto - Factores de Riesgo</CardTitle>
+        <div className="flex items-center justify-between">
+            <CardTitle>Análisis de Pareto - Factores de Riesgo</CardTitle>
+            {screenReader && (
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  onClick={() => speak(generateParetoDescription(paretoData || []))}
+                  aria-label="Escuchar descripción del gráfico"
+                >
+                  <Play className="h-4 w-4 mr-2" />
+                  Escuchar Resumen
+                </Button>
+            )}
+        </div>
         <CardDescription>
           Identifica los factores de riesgo más impactantes (regla 80/20)
         </CardDescription>
@@ -228,6 +262,11 @@ export function ParetoFactoresGrupo({ periodoId, carreraId, semestre }: ParetoFa
                   dataKey="frecuencia"
                   fill="#8884d8"
                   name="Frecuencia"
+                  onMouseEnter={(data) => {
+                    if (screenReader) {
+                      speak(`Factor ${data.nombre}: ${data.frecuencia} ocurrencias, ${data.porcentaje_acumulado}% acumulado`);
+                    }
+                  }}
                 />
                 <Line
                   yAxisId="right"

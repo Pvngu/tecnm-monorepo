@@ -28,6 +28,9 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { apiService, ScatterPlotData } from "@/services/apiService";
 import { PaginatedResponse } from "@/types/api";
+import { Button } from "@/components/ui/button";
+import { useAccessibility } from "@/context/AccessibilityContext";
+import { Play } from "lucide-react";
 
 // Component props
 interface ScatterFaltasGrupoProps {
@@ -101,6 +104,7 @@ const VARIABLES: VariableOption[] = [
 ];
 
 export function ScatterFaltasGrupo({ periodoId, carreraId, semestre }: ScatterFaltasGrupoProps) {
+  const { screenReader, speak } = useAccessibility();
   // Estados para filtros opcionales
   const [selectedMateriaId, setSelectedMateriaId] = useState<string>("all");
   const [selectedGrupoId, setSelectedGrupoId] = useState<string>("all");
@@ -182,10 +186,41 @@ export function ScatterFaltasGrupo({ periodoId, carreraId, semestre }: ScatterFa
     y: item[variableY] as number,
   }));
 
+  const generateScatterDescription = (data: ScatterPlotData[]) => {
+    if (!data || data.length === 0) return "Diagrama de dispersión sin datos disponibles.";
+    
+    const count = data.length;
+    const xLabel = varXInfo?.label || "Variable X";
+    const yLabel = varYInfo?.label || "Variable Y";
+
+    return `
+        1. Descripción general accesible:
+        Diagrama de dispersión comparando ${xLabel} contra ${yLabel}.
+        
+        2. Resumen narrativo:
+        Se muestran datos de ${count} alumnos.
+        Este gráfico permite visualizar la correlación entre ${xLabel} y ${yLabel}.
+        Pasa el cursor sobre los puntos para escuchar los detalles de cada alumno.
+    `.trim();
+  };
+
   return (
     <Card className="w-full">
       <CardHeader>
-        <CardTitle>Diagrama de Dispersión - Análisis de Correlación</CardTitle>
+        <div className="flex items-center justify-between">
+            <CardTitle>Diagrama de Dispersión - Análisis de Correlación</CardTitle>
+            {screenReader && (
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  onClick={() => speak(generateScatterDescription(scatterData || []))}
+                  aria-label="Escuchar descripción del gráfico"
+                >
+                  <Play className="h-4 w-4 mr-2" />
+                  Escuchar Resumen
+                </Button>
+            )}
+        </div>
         <CardDescription>
           Analiza la relación entre dos variables académicas seleccionando las opciones deseadas
         </CardDescription>
@@ -368,6 +403,15 @@ export function ScatterFaltasGrupo({ periodoId, carreraId, semestre }: ScatterFa
                   data={chartData}
                   fill="#8884d8"
                   shape="circle"
+                  onMouseEnter={(data: any) => {
+                    if (screenReader) {
+                        // data is the payload object here
+                        const xVal = data.x;
+                        const yVal = data.y;
+                        const name = data.alumno_nombre;
+                        speak(`Alumno ${name}: ${xVal} ${varXInfo?.unit || ''} y ${yVal} ${varYInfo?.unit || ''}`);
+                    }
+                  }}
                 />
               </ScatterChart>
             </ResponsiveContainer>

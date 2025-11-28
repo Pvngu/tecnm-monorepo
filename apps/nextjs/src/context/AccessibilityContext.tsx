@@ -32,6 +32,8 @@ interface AccessibilityContextType {
   setDyslexiaFont: (enabled: boolean) => void;
   screenReader: boolean;
   setScreenReader: (enabled: boolean) => void;
+  speak: (text: string) => void;
+  cancelSpeech: () => void;
   resetSettings: () => void;
 }
 
@@ -63,8 +65,44 @@ export const AccessibilityProvider: React.FC<{ children: React.ReactNode }> = ({
   const [grayscale, setGrayscale] = useState(false);
   const [dyslexiaFont, setDyslexiaFont] = useState(false);
   const [screenReader, setScreenReader] = useState(false);
+  const [voices, setVoices] = useState<SpeechSynthesisVoice[]>([]);
 
   const STORAGE_KEY = "accessibility-settings";
+
+  // Load voices
+  useEffect(() => {
+    const loadVoices = () => {
+      const availableVoices = window.speechSynthesis.getVoices();
+      setVoices(availableVoices);
+    };
+
+    loadVoices();
+    window.speechSynthesis.onvoiceschanged = loadVoices;
+    return () => {
+      window.speechSynthesis.onvoiceschanged = null;
+    };
+  }, []);
+
+  const speak = (text: string) => {
+    if (!screenReader) return;
+    
+    window.speechSynthesis.cancel();
+    const utterance = new SpeechSynthesisUtterance(text);
+    
+    const spanishVoice = voices.find((v) => v.lang.includes("es") || v.lang.includes("ES"));
+    if (spanishVoice) {
+      utterance.voice = spanishVoice;
+      utterance.lang = spanishVoice.lang;
+    } else {
+      utterance.lang = "es-ES";
+    }
+    
+    window.speechSynthesis.speak(utterance);
+  };
+
+  const cancelSpeech = () => {
+    window.speechSynthesis.cancel();
+  };
 
   // Load settings from localStorage
   useEffect(() => {
@@ -239,6 +277,7 @@ export const AccessibilityProvider: React.FC<{ children: React.ReactNode }> = ({
     setGrayscale(false);
     setDyslexiaFont(false);
     setScreenReader(false);
+    window.speechSynthesis.cancel();
   };
 
   return (
@@ -266,6 +305,8 @@ export const AccessibilityProvider: React.FC<{ children: React.ReactNode }> = ({
         setDyslexiaFont,
         screenReader,
         setScreenReader,
+        speak,
+        cancelSpeech,
         resetSettings,
       }}
     >
