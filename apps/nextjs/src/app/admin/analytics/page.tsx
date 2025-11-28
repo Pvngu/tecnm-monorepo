@@ -77,6 +77,45 @@ export default function AnalyticsPage() {
     window.print();
   };
 
+  // Helper function to generate description for Grades Chart
+  const generateGradesDescription = (data: { rango: string; frecuencia: number }[]) => {
+    if (!data || data.length === 0) return "Gráfico de distribución de calificaciones sin datos disponibles.";
+
+    const total = data.reduce((acc, item) => acc + item.frecuencia, 0);
+    const max = Math.max(...data.map(d => d.frecuencia));
+    const min = Math.min(...data.map(d => d.frecuencia));
+    const maxItems = data.filter(d => d.frecuencia === max).map(d => d.rango).join(", ");
+    const minItems = data.filter(d => d.frecuencia === min).map(d => d.rango).join(", ");
+
+    return `
+      1. Descripción general accesible:
+      Gráfico de barras titulado "Distribución de Calificaciones". Muestra la frecuencia de calificaciones finales agrupadas por rango. El eje vertical muestra el número de estudiantes.
+      
+      2. Resumen narrativo:
+      Se registraron un total de ${total} calificaciones.
+      Los rangos con mayor frecuencia son ${maxItems} con ${max} estudiantes.
+      Los rangos con menor frecuencia son ${minItems} con ${min} estudiantes.
+    `.trim();
+  };
+
+  // Helper function to generate description for Risk Factors Chart
+  const generateRiskFactorsDescription = (data: { nombre: string; frecuencia: number }[]) => {
+    if (!data || data.length === 0) return "Gráfico de factores de riesgo sin datos disponibles.";
+
+    const total = data.reduce((acc, item) => acc + item.frecuencia, 0);
+    const max = Math.max(...data.map(d => d.frecuencia));
+    const maxItems = data.filter(d => d.frecuencia === max).map(d => d.nombre).join(", ");
+
+    return `
+      1. Descripción general accesible:
+      Gráfico de barras horizontal titulado "Factores de Riesgo Principales". Muestra la frecuencia de cada factor de riesgo detectado.
+      
+      2. Resumen narrativo:
+      Se detectaron un total de ${total} ocurrencias de factores de riesgo.
+      Los factores más comunes son ${maxItems} con ${max} ocurrencias.
+    `.trim();
+  };
+
   return (
     <div className="space-y-6 p-8">
       {/* Header */}
@@ -167,7 +206,7 @@ export default function AnalyticsPage() {
       {/* Charts Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Grades Distribution Chart */}
-        <Card>
+        <Card data-screen-reader-text={generateGradesDescription(analyticsData?.calificaciones_data || [])}>
           <CardHeader>
             <div className="flex items-center gap-2">
               <TrendingUp className="h-5 w-5 text-blue-600" />
@@ -232,7 +271,7 @@ export default function AnalyticsPage() {
         </Card>
 
         {/* Risk Factors Chart */}
-        <Card>
+        <Card data-screen-reader-text={generateRiskFactorsDescription(analyticsData?.factores_riesgo_data || [])}>
           <CardHeader>
             <div className="flex items-center gap-2">
               <AlertTriangle className="h-5 w-5 text-amber-600" />
