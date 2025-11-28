@@ -30,6 +30,8 @@ interface AccessibilityContextType {
   setGrayscale: (enabled: boolean) => void;
   dyslexiaFont: boolean;
   setDyslexiaFont: (enabled: boolean) => void;
+  screenReader: boolean;
+  setScreenReader: (enabled: boolean) => void;
   resetSettings: () => void;
 }
 
@@ -60,6 +62,7 @@ export const AccessibilityProvider: React.FC<{ children: React.ReactNode }> = ({
   const [readingGuide, setReadingGuide] = useState(false);
   const [grayscale, setGrayscale] = useState(false);
   const [dyslexiaFont, setDyslexiaFont] = useState(false);
+  const [screenReader, setScreenReader] = useState(false);
 
   const STORAGE_KEY = "accessibility-settings";
 
@@ -80,6 +83,7 @@ export const AccessibilityProvider: React.FC<{ children: React.ReactNode }> = ({
           if (parsed.readingGuide !== undefined) setReadingGuide(parsed.readingGuide);
           if (parsed.grayscale !== undefined) setGrayscale(parsed.grayscale);
           if (parsed.dyslexiaFont !== undefined) setDyslexiaFont(parsed.dyslexiaFont);
+          if (parsed.screenReader !== undefined) setScreenReader(parsed.screenReader);
         } catch (e) {
           console.error("Failed to parse accessibility settings:", e);
         }
@@ -101,6 +105,7 @@ export const AccessibilityProvider: React.FC<{ children: React.ReactNode }> = ({
         readingGuide,
         grayscale,
         dyslexiaFont,
+        screenReader,
       };
       localStorage.setItem(STORAGE_KEY, JSON.stringify(settings));
     }
@@ -115,6 +120,7 @@ export const AccessibilityProvider: React.FC<{ children: React.ReactNode }> = ({
     readingGuide,
     grayscale,
     dyslexiaFont,
+    screenReader,
   ]);
 
   // Apply Font Size
@@ -232,6 +238,7 @@ export const AccessibilityProvider: React.FC<{ children: React.ReactNode }> = ({
     setReadingGuide(false);
     setGrayscale(false);
     setDyslexiaFont(false);
+    setScreenReader(false);
   };
 
   return (
@@ -257,6 +264,8 @@ export const AccessibilityProvider: React.FC<{ children: React.ReactNode }> = ({
         setGrayscale,
         dyslexiaFont,
         setDyslexiaFont,
+        screenReader,
+        setScreenReader,
         resetSettings,
       }}
     >

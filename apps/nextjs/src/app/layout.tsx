@@ -24,6 +24,7 @@ import { AccessibilityProvider } from "@/context/AccessibilityContext";
 import { AccessibilityFilters } from "@/components/accessibility-filters";
 import { AccessibilityToolbar } from "@/components/accessibility-toolbar";
 import { ReadingMask } from "@/components/reading-mask";
+import { ScreenReader } from "@/components/screen-reader";
 
 export default function RootLayout({
   children,
@@ -45,6 +46,7 @@ export default function RootLayout({
           <AccessibilityFilters />
           <AccessibilityToolbar />
           <ReadingMask />
+          <ScreenReader />
         </AccessibilityProvider>
       </body>
     </html>

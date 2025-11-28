@@ -14,7 +14,8 @@ import {
     ZapOff,
     Link,
     BookOpen,
-    PersonStanding
+    PersonStanding,
+    Speech,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -59,6 +60,8 @@ export function AccessibilityToolbar() {
         setGrayscale,
         dyslexiaFont,
         setDyslexiaFont,
+        screenReader,
+        setScreenReader,
         resetSettings,
     } = useAccessibility();
 
@@ -229,6 +232,21 @@ export function AccessibilityToolbar() {
                                 id="dyslexia-font"
                                 checked={dyslexiaFont}
                                 onCheckedChange={setDyslexiaFont}
+                            />
+                        </div>
+
+                        <Separator />
+
+                        {/* Screen Reader */}
+                        <div className="flex items-center justify-between">
+                            <Label htmlFor="screen-reader" className="text-base flex items-center gap-2">
+                                <Speech className="h-4 w-4" />
+                                Lector de Pantalla
+                            </Label>
+                            <Switch
+                                id="screen-reader"
+                                checked={screenReader}
+                                onCheckedChange={setScreenReader}
                             />
                         </div>
 
