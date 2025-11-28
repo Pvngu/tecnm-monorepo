@@ -23,15 +23,65 @@ interface GenericDataTableProps<TData, TValue> {
     isLoading?: boolean;
 }
 
+import { useAccessibility } from "@/context/AccessibilityContext";
+import { Button } from "@/components/ui/button";
+import { Volume2 } from "lucide-react";
+import { useMemo } from "react";
+
+// ... existing imports
+
 export function GenericDataTable<TData, TValue>({
     columns,
     data,
     isLoading,
 }: GenericDataTableProps<TData, TValue>) {
+    const { screenReader, speak } = useAccessibility();
+
+    const tableColumns = useMemo(() => {
+        if (!screenReader) return columns;
+
+        const accessibilityColumn: ColumnDef<TData, TValue> = {
+            id: "accessibility-actions",
+            header: () => <span className="sr-only">Acciones de lectura</span>,
+            cell: ({ row }) => {
+                const generateRowSummary = () => {
+                    return `Fila ${row.index + 1}. ` + row.getVisibleCells()
+                        .filter(cell => cell.column.id !== "accessibility-actions")
+                        .map(cell => {
+                            const header = cell.column.columnDef.header;
+                            const headerText = typeof header === 'string' ? header : '';
+                            let cellValue = cell.getValue() as string;
+                            if (cellValue === null || cellValue === undefined) cellValue = '';
+                            return `${headerText} ${cellValue}`;
+                        }).join('. ');
+                };
+
+                return (
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-6 w-6"
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            speak(generateRowSummary());
+                        }}
+                        onMouseEnter={() => speak(generateRowSummary())}
+                        aria-label="Leer fila completa"
+                    >
+                        <Volume2 className="h-4 w-4 text-muted-foreground" />
+                    </Button>
+                );
+            },
+            enableSorting: false,
+            enableHiding: false,
+        };
+
+        return [accessibilityColumn, ...columns];
+    }, [columns, screenReader, speak]);
 
     const table = useReactTable({
         data,
-        columns,
+        columns: tableColumns,
         getCoreRowModel: getCoreRowModel(),
     });
 
@@ -60,7 +110,14 @@ export function GenericDataTable<TData, TValue>({
                         table.getRowModel().rows.map((row) => (
                             <TableRow key={row.id}>
                                 {row.getVisibleCells().map((cell) => (
-                                    <TableCell key={cell.id}>
+                                    <TableCell 
+                                        key={cell.id}
+                                        data-screen-reader-text={
+                                            cell.column.id !== "accessibility-actions" 
+                                            ? `${typeof cell.column.columnDef.header === 'string' ? cell.column.columnDef.header : ''}: ${cell.getValue()}`
+                                            : undefined
+                                        }
+                                    >
                                         {flexRender(cell.column.columnDef.cell, cell.getContext())}
                                     </TableCell>
                                 ))}
@@ -68,7 +125,7 @@ export function GenericDataTable<TData, TValue>({
                         ))
                     ): (
                         <TableRow>
-                            <TableCell colSpan={columns.length} className="h-24 text-center">
+                            <TableCell colSpan={tableColumns.length} className="h-24 text-center">
                                 No se encontraron datos.
                             </TableCell>
                         </TableRow>

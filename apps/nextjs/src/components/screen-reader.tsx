@@ -55,6 +55,25 @@ export function ScreenReader() {
           return;
         }
 
+        // Check for Input or Textarea placeholders
+        const inputElement = element.closest("input, textarea");
+        if (inputElement) {
+            const input = inputElement as HTMLInputElement | HTMLTextAreaElement;
+            const placeholder = input.placeholder;
+            const type = input.tagName.toLowerCase() === "textarea" ? "Area de texto" : "Campo de texto";
+            
+            if (placeholder && placeholder !== lastReadText.current) {
+                const textToRead = `${type}: ${placeholder}`;
+                speak(textToRead);
+                lastReadText.current = placeholder; // Store placeholder to avoid re-reading "Campo de texto: ..." repeatedly if logic changes, but here we compare against full text usually. 
+                // Actually, let's store the full textToRead to be safe, or just placeholder if we want to re-trigger on type change (unlikely).
+                // Let's stick to textToRead for consistency.
+                lastReadText.current = textToRead;
+                setHighlightRect(input.getBoundingClientRect());
+            }
+            return;
+        }
+
         // Check for text content
         let range;
         if (document.caretRangeFromPoint) {
