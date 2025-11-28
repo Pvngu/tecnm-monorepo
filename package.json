@@ -10,7 +10,8 @@
   "author": "",
   "license": "ISC",
   "workspaces": [
-    "apps/*"
+    "apps/*",
+    "packages/*"
   ],
   "devDependencies": {
     "turbo": "^2.5.8"
