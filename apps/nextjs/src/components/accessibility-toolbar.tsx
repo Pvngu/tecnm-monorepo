@@ -57,6 +57,8 @@ export function AccessibilityToolbar() {
         setReadingGuide,
         grayscale,
         setGrayscale,
+        dyslexiaFont,
+        setDyslexiaFont,
         resetSettings,
     } = useAccessibility();
 
@@ -70,7 +72,7 @@ export function AccessibilityToolbar() {
                         className="h-12 w-12 rounded-full shadow-lg bg-background border-2 hover:bg-accent"
                         aria-label="Opciones de Accesibilidad"
                     >
-                        <PersonStanding className="h-6 w-6" />
+                        <PersonStanding className="h-6 w-6 size-4" />
                     </Button>
                 </SheetTrigger>
                 <SheetContent className="w-[320px] sm:w-[400px] overflow-y-auto">
@@ -202,7 +204,8 @@ export function AccessibilityToolbar() {
                         <Separator />
 
                         {/* Reading Guide */}
-                        {/* <div className="flex items-center justify-between">
+                        {/* Reading Guide */}
+                        <div className="flex items-center justify-between">
                             <Label htmlFor="reading-guide" className="text-base flex items-center gap-2">
                                 <BookOpen className="h-4 w-4" />
                                 Guía de Lectura
@@ -212,9 +215,24 @@ export function AccessibilityToolbar() {
                                 checked={readingGuide}
                                 onCheckedChange={setReadingGuide}
                             />
-                        </div> */}
+                        </div>
 
-                        {/* <Separator /> */}
+                        <Separator />
+
+                        {/* Dyslexia Font */}
+                        <div className="flex items-center justify-between">
+                            <Label htmlFor="dyslexia-font" className="text-base flex items-center gap-2">
+                                <Type className="h-4 w-4" />
+                                Tipografía Dislexia
+                            </Label>
+                            <Switch
+                                id="dyslexia-font"
+                                checked={dyslexiaFont}
+                                onCheckedChange={setDyslexiaFont}
+                            />
+                        </div>
+
+                        <Separator />
 
                         {/* Grayscale */}
                         <div className="flex items-center justify-between">

@@ -23,6 +23,7 @@ export const metadata: Metadata = {
 import { AccessibilityProvider } from "@/context/AccessibilityContext";
 import { AccessibilityFilters } from "@/components/accessibility-filters";
 import { AccessibilityToolbar } from "@/components/accessibility-toolbar";
+import { ReadingMask } from "@/components/reading-mask";
 
 export default function RootLayout({
   children,
@@ -43,6 +44,7 @@ export default function RootLayout({
           <Toaster position="top-right" richColors />
           <AccessibilityFilters />
           <AccessibilityToolbar />
+          <ReadingMask />
         </AccessibilityProvider>
       </body>
     </html>

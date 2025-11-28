@@ -452,3 +452,12 @@
 .grayscale {
   filter: grayscale(100%) !important;
 }
+
+/* Tipografía Dislexia */
+.dyslexia-font {
+  font-family: 'OpenDyslexic', 'Comic Sans MS', 'Verdana', 'Arial', sans-serif !important;
+}
+
+.dyslexia-font * {
+  font-family: 'OpenDyslexic', 'Comic Sans MS', 'Verdana', 'Arial', sans-serif !important;
+}

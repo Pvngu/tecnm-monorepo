@@ -28,6 +28,8 @@ interface AccessibilityContextType {
   setReadingGuide: (enabled: boolean) => void;
   grayscale: boolean;
   setGrayscale: (enabled: boolean) => void;
+  dyslexiaFont: boolean;
+  setDyslexiaFont: (enabled: boolean) => void;
   resetSettings: () => void;
 }
 
@@ -57,6 +59,7 @@ export const AccessibilityProvider: React.FC<{ children: React.ReactNode }> = ({
   const [highlightLinks, setHighlightLinks] = useState(false);
   const [readingGuide, setReadingGuide] = useState(false);
   const [grayscale, setGrayscale] = useState(false);
+  const [dyslexiaFont, setDyslexiaFont] = useState(false);
 
   // Apply Font Size
   useEffect(() => {
@@ -150,6 +153,18 @@ export const AccessibilityProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   }, [grayscale]);
 
+  // Apply Dyslexia Font
+  useEffect(() => {
+    if (typeof document !== "undefined") {
+      const root = document.documentElement;
+      if (dyslexiaFont) {
+        root.classList.add("dyslexia-font");
+      } else {
+        root.classList.remove("dyslexia-font");
+      }
+    }
+  }, [dyslexiaFont]);
+
   const resetSettings = () => {
     setFontSize(100);
     setHighContrast(false);
@@ -160,6 +175,7 @@ export const AccessibilityProvider: React.FC<{ children: React.ReactNode }> = ({
     setHighlightLinks(false);
     setReadingGuide(false);
     setGrayscale(false);
+    setDyslexiaFont(false);
   };
 
   return (
@@ -183,6 +199,8 @@ export const AccessibilityProvider: React.FC<{ children: React.ReactNode }> = ({
         setReadingGuide,
         grayscale,
         setGrayscale,
+        dyslexiaFont,
+        setDyslexiaFont,
         resetSettings,
       }}
     >
