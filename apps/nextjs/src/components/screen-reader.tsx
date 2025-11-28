@@ -45,6 +45,18 @@ export function ScreenReader() {
             return;
         }
 
+        // Check for custom screen reader text
+        const customTextElement = element.closest("[data-screen-reader-text]");
+        if (customTextElement) {
+            const text = customTextElement.getAttribute("data-screen-reader-text") || "";
+            if (text && text !== lastReadText.current) {
+                speak(text);
+                lastReadText.current = text;
+                setHighlightRect(customTextElement.getBoundingClientRect());
+            }
+            return;
+        }
+
         // Check for interactive elements (Button or Link)
         const interactiveElement = element.closest("button, a");
         if (interactiveElement) {

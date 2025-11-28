@@ -84,7 +84,7 @@ export default function DashboardPage() {
       {/* Stats Cards */}
       <div className="grid gap-4 md:grid-cols-3">
         {/* Total Estudiantes */}
-        <Card>
+        <Card data-screen-reader-text={`Total estudiantes ${stats?.totalEstudiantes || 0} registrados en el sistema`}>
           <CardHeader className="pb-3">
             <div className="flex items-center justify-between">
               <CardTitle className="text-sm font-medium text-muted-foreground">
@@ -102,7 +102,7 @@ export default function DashboardPage() {
         </Card>
 
         {/* Reprobación Promedio */}
-        <Card>
+        <Card data-screen-reader-text={`Reprobación promedio ${stats?.reprobacionPromedio || 0}% tasa de reprobación actual`}>
           <CardHeader className="pb-3">
             <div className="flex items-center justify-between">
               <CardTitle className="text-sm font-medium text-muted-foreground">
@@ -120,7 +120,7 @@ export default function DashboardPage() {
         </Card>
 
         {/* Deserción Estimada */}
-        <Card>
+        <Card data-screen-reader-text={`Deserción estimada ${stats?.desercionEstimada || 0}% estimación de deserción`}>
           <CardHeader className="pb-3">
             <div className="flex items-center justify-between">
               <CardTitle className="text-sm font-medium text-muted-foreground">
