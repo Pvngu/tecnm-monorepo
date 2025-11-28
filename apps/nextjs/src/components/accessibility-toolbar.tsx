@@ -65,6 +65,15 @@ export function AccessibilityToolbar() {
         resetSettings,
     } = useAccessibility();
 
+    const [isAnimating, setIsAnimating] = React.useState(true);
+
+    React.useEffect(() => {
+        const timer = setTimeout(() => {
+            setIsAnimating(false);
+        }, 3000);
+        return () => clearTimeout(timer);
+    }, []);
+
     return (
         <div className="fixed bottom-4 right-4 z-50 print:hidden">
             <Sheet>
@@ -72,7 +81,9 @@ export function AccessibilityToolbar() {
                     <Button
                         variant="outline"
                         size="icon"
-                        className="h-12 w-12 rounded-full shadow-lg bg-background border-2 hover:bg-accent"
+                        className={`h-12 w-12 rounded-full shadow-lg bg-background border-2 hover:bg-accent ${
+                            isAnimating ? "animate-bounce" : ""
+                        }`}
                         aria-label="Opciones de Accesibilidad"
                     >
                         <PersonStanding className="h-6 w-6 size-4" />
