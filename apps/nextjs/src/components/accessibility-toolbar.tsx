@@ -127,14 +127,14 @@ export function AccessibilityToolbar() {
                                 <div className="flex-1 h-2 bg-secondary rounded-full overflow-hidden">
                                     <div
                                         className="h-full bg-primary transition-all"
-                                        style={{ width: `${((fontSize - 75) / (200 - 75)) * 100}%` }}
+                                        style={{ width: `${((fontSize - 75) / (150 - 75)) * 100}%` }}
                                     />
                                 </div>
                                 <Button
                                     variant="outline"
                                     size="icon"
-                                    onClick={() => setFontSize(Math.min(200, fontSize + 5))}
-                                    disabled={fontSize >= 200}
+                                    onClick={() => setFontSize(Math.min(150, fontSize + 5))}
+                                    disabled={fontSize >= 150}
                                     aria-label="Aumentar texto"
                                 >
                                     <Plus className="h-4 w-4" />
