@@ -56,10 +56,8 @@ export default function DashboardPage() {
     const maxDesercion = data.reduce((prev, current) => (prev.estudiantes > current.estudiantes) ? prev : current, data[0]);
     
     return `
-        1. Descripción general accesible:
         Gráfico de barras mostrando la deserción estudiantil por semestre.
         
-        2. Resumen narrativo:
         Se registra una deserción total de ${totalDesercion} estudiantes en los semestres mostrados.
         El semestre con mayor deserción es el ${maxDesercion.semestre} con ${maxDesercion.estudiantes} estudiantes.
         Pasa el cursor sobre las barras para escuchar los detalles de cada semestre.

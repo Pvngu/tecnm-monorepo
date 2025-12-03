@@ -84,7 +84,7 @@ export function AccessibilityToolbar() {
                         className={`h-12 w-12 rounded-full shadow-lg border-2 transition-all duration-500 ${
                             isAnimating 
                                 ? "animate-bounce bg-yellow-400 text-black border-yellow-500 hover:bg-yellow-500 scale-110" 
-                                : "bg-background hover:bg-accent"
+                                : "bg-blue-500 text-white hover:bg-accent"
                         }`}
                         aria-label="Opciones de Accesibilidad"
                     >

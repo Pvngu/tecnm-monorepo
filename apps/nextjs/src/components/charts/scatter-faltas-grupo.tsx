@@ -194,10 +194,8 @@ export function ScatterFaltasGrupo({ periodoId, carreraId, semestre }: ScatterFa
     const yLabel = varYInfo?.label || "Variable Y";
 
     return `
-        1. Descripción general accesible:
         Diagrama de dispersión comparando ${xLabel} contra ${yLabel}.
         
-        2. Resumen narrativo:
         Se muestran datos de ${count} alumnos.
         Este gráfico permite visualizar la correlación entre ${xLabel} y ${yLabel}.
         Pasa el cursor sobre los puntos para escuchar los detalles de cada alumno.

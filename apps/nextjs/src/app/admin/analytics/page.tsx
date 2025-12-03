@@ -91,10 +91,8 @@ export default function AnalyticsPage() {
     const minItems = data.filter(d => d.frecuencia === min).map(d => d.rango).join(", ");
 
     return `
-      1. Descripción general accesible:
       Gráfico de barras titulado "Distribución de Calificaciones". Muestra la frecuencia de calificaciones finales agrupadas por rango. El eje vertical muestra el número de estudiantes.
       
-      2. Resumen narrativo:
       Se registraron un total de ${total} calificaciones.
       Los rangos con mayor frecuencia son ${maxItems} con ${max} estudiantes.
       Los rangos con menor frecuencia son ${minItems} con ${min} estudiantes.
@@ -110,10 +108,8 @@ export default function AnalyticsPage() {
     const maxItems = data.filter(d => d.frecuencia === max).map(d => d.nombre).join(", ");
 
     return `
-      1. Descripción general accesible:
       Gráfico de barras horizontal titulado "Factores de Riesgo Principales". Muestra la frecuencia de cada factor de riesgo detectado.
       
-      2. Resumen narrativo:
       Se detectaron un total de ${total} ocurrencias de factores de riesgo.
       Los factores más comunes son ${maxItems} con ${max} ocurrencias.
     `.trim();

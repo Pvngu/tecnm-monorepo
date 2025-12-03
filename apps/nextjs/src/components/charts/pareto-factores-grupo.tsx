@@ -130,10 +130,8 @@ export function ParetoFactoresGrupo({ periodoId, carreraId, semestre }: ParetoFa
     const topFactorsNames = topFactors.map(d => d.nombre).join(", ");
     
     return `
-        1. Descripción general accesible:
         Gráfico de Pareto mostrando los factores de riesgo más frecuentes.
         
-        2. Resumen narrativo:
         Se analizaron ${totalFactors} factores de riesgo.
         Los factores principales que representan el 80% de los problemas son: ${topFactorsNames || "Ninguno (distribución plana)"}.
     `.trim();
